@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: 17 24 39;
+  --color-ink-soft: 71 85 105;
+  --color-canvas: 246 248 251;
+  --color-surface: 255 255 255;
+  --color-surface-muted: 241 245 249;
+  --color-surface-code: 11 18 32;
+  --color-line: 220 227 236;
+  --color-accent-soft: 238 234 254;
+  --color-success-soft: 230 247 241;
+  --color-warning-soft: 255 244 223;
+  --color-danger-soft: 253 236 239;
+  --color-info-soft: 233 243 255;
+  color-scheme: light;
+}
+
+.dark {
+  --color-ink: 226 232 240;
+  --color-ink-soft: 148 163 184;
+  --color-canvas: 10 14 23;
+  --color-surface: 17 24 39;
+  --color-surface-muted: 26 34 51;
+  --color-surface-code: 4 8 18;
+  --color-line: 40 50 68;
+  --color-accent-soft: 45 40 82;
+  --color-success-soft: 16 46 38;
+  --color-warning-soft: 56 40 12;
+  --color-danger-soft: 58 24 30;
+  --color-info-soft: 16 38 61;
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+  margin: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgb(var(--color-line)); border-radius: 99px; }
+
+/* Angular host elements must not add boxes the source DOM does not have. */
+app-root { display: contents; }
+router-outlet { display: none; }
