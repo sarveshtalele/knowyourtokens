@@ -1,6 +1,6 @@
 <div align="center">
 
-# Claude Telemetry Enterprise
+# Token Telemetry
 
 ### *The local-first token, tool, skill & MCP observability console for Claude Code*
 
