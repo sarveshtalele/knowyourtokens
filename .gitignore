@@ -51,3 +51,6 @@ sdk/js/dist/
 sdk/python/build/
 *.egg-info/
 .ruff_cache/
+
+# Copied from the repo root at pack time
+cli/LICENSE

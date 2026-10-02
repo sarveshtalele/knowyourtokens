@@ -11,7 +11,7 @@
 //   node cli/setup.js status             Show what's running
 //   node cli/setup.js autostart enable   Start automatically at login
 //   node cli/setup.js autostart disable  Remove the autostart entry
-//   node cli/setup.js delete             Full teardown: remove hooks + ~/.tokentelemetry
+//   node cli/setup.js delete             Full teardown: remove hooks + ~/.tokentelemetry (--delete-data: + database)
 //   node cli/setup.js uninstall          Remove hooks only, keep app files/database
 //   node cli/setup.js install            Re-run the full build+install (e.g. after `git pull`)
 //
@@ -54,16 +54,18 @@ function detectSystem() {
     arch: process.arch,
     node: process.version,
     npm: commandExists('npm', ['--version']),
-    python: commandExists('python3', ['--version']) || commandExists('python', ['--version']),
+    python:
+      commandExists('python3', ['-c', 'import sys; sys.exit(sys.version_info < (3, 10))']) ||
+      commandExists('python', ['-c', 'import sys; sys.exit(sys.version_info < (3, 10))']),
     uv: commandExists('uv', ['--version']),
   };
   log(`Platform: ${info.platform} (${info.arch})`);
   log(`Node:     ${info.node}`);
   log(`npm:      ${info.npm ? 'found' : 'MISSING'}`);
-  log(`Python:   ${info.python ? 'found' : 'MISSING (required)'}`);
+  log(`Python:   ${info.python ? 'found' : 'MISSING (Python 3.10+ required)'}`);
   log(`uv:       ${info.uv ? 'found (will be used for the Python env)' : 'not found (will fall back to venv/pip)'}`);
   if (!info.npm) throw new Error('npm not found on PATH — install Node.js first.');
-  if (!info.python) throw new Error('No Python 3 interpreter found on PATH — install Python 3.9+ (or uv) first.');
+  if (!info.python) throw new Error('No Python 3 interpreter found on PATH — install Python 3.10+ (or uv) first.');
   return info;
 }
 
@@ -130,10 +132,10 @@ async function interactiveLoop() {
         case '6': {
           rl.pause();
           const purge = await new Promise((resolve) =>
-            rl.question('Also delete the app files and database? [y/N] ', (a) => resolve(/^y/i.test(a.trim())))
+            rl.question('Also delete the app files AND the telemetry database? [y/N] ', (a) => resolve(/^y/i.test(a.trim())))
           );
           rl.resume();
-          uninstall({ purge });
+          uninstall({ purge, deleteDb: purge });
           break;
         }
         case '7':
@@ -194,10 +196,10 @@ async function main() {
       }
       break;
     case 'delete':
-      uninstall({ purge: true });
+      uninstall({ purge: true, deleteDb: process.argv.includes('--delete-data') });
       break;
     case 'uninstall':
-      uninstall({ purge: process.argv.includes('--purge') });
+      uninstall({ purge: process.argv.includes('--purge'), deleteDb: process.argv.includes('--delete-data') });
       break;
     default:
       console.error(`Unknown command: "${cmd}"`);

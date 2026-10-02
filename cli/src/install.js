@@ -2,8 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const paths = require('./paths');
+const hooks = require('./hooks');
 
-const HOOK_EVENTS = ['SessionStart', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse', 'Stop'];
+// Directories this package owns inside installDir. They are replaced wholesale
+// on every install so files deleted upstream don't linger; user state
+// (.venv, logs, run.json, the database) lives outside them.
+const MANAGED = ['backend', 'telemetry', 'hooks', 'frontend-dist'];
 
 function log(msg) {
   console.log(msg);
@@ -14,14 +18,16 @@ function copyVendorFiles() {
   const dest = paths.installDir();
   if (!fs.existsSync(src)) {
     throw new Error(
-      `Bundled app files not found at ${src}. This package was not built correctly (missing "vendor/" — ` +
+      `Bundled app files not found at ${src}. This package was not built correctly (missing "vendor/" -- ` +
         `run "npm run prepack" in the cli/ source, or reinstall from npm).`
     );
   }
   fs.mkdirSync(dest, { recursive: true });
+  for (const dir of MANAGED) fs.rmSync(path.join(dest, dir), { recursive: true, force: true });
   for (const entry of fs.readdirSync(src)) {
     fs.cpSync(path.join(src, entry), path.join(dest, entry), { recursive: true, force: true });
   }
+  fs.writeFileSync(path.join(dest, 'VERSION'), paths.version() + '\n', 'utf8');
   log(`Copied app files to ${dest}`);
 }
 
@@ -30,15 +36,28 @@ function commandExists(cmd, args) {
   return !res.error && res.status === 0;
 }
 
+function pythonVersionOk(cmd, baseArgs) {
+  const res = spawnSync(cmd, [...baseArgs, '-c', 'import sys; print(sys.version_info >= (3, 10))'], {
+    encoding: 'utf8',
+  });
+  return !res.error && res.status === 0 && res.stdout.trim() === 'True';
+}
+
 function findSystemPython() {
-  if (process.platform === 'win32') {
-    if (commandExists('py', ['-3', '--version'])) return { cmd: 'py', baseArgs: ['-3'] };
-    if (commandExists('python', ['--version'])) return { cmd: 'python', baseArgs: [] };
-  } else {
-    if (commandExists('python3', ['--version'])) return { cmd: 'python3', baseArgs: [] };
-    if (commandExists('python', ['--version'])) return { cmd: 'python', baseArgs: [] };
+  const candidates =
+    process.platform === 'win32'
+      ? [
+          { cmd: 'py', baseArgs: ['-3'] },
+          { cmd: 'python', baseArgs: [] },
+        ]
+      : [
+          { cmd: 'python3', baseArgs: [] },
+          { cmd: 'python', baseArgs: [] },
+        ];
+  for (const c of candidates) {
+    if (pythonVersionOk(c.cmd, c.baseArgs)) return c;
   }
-  throw new Error('No Python 3 interpreter found on PATH. Install Python 3.9+ and re-run "tokentelemetry install".');
+  throw new Error('No Python 3.10+ interpreter found on PATH. Install Python 3.10+ (or uv) and re-run.');
 }
 
 function run(cmd, args, opts) {
@@ -48,133 +67,108 @@ function run(cmd, args, opts) {
 }
 
 function setupPythonEnv() {
-  const root = paths.installDir();
   const venv = paths.venvDir();
-  // Only the FastAPI backend's deps are needed to run "tokentelemetry start"
-  // (the daemon/telemetry package is stdlib-only). The legacy Streamlit
-  // requirements.txt at the repo root is intentionally not installed here.
-  const reqFiles = [path.join(root, 'backend', 'requirements.txt')];
-
+  const req = path.join(paths.installDir(), 'backend', 'requirements.txt');
   const useUv = commandExists('uv', ['--version']);
+  if (fs.existsSync(venv) && !fs.existsSync(paths.venvPython())) {
+    log('Python environment looks broken -- recreating it.');
+    fs.rmSync(venv, { recursive: true, force: true });
+  }
   if (!fs.existsSync(venv)) {
     if (useUv) {
-      log('Creating Python environment with uv…');
-      run('uv', ['venv', venv]);
+      log('Creating Python environment with uv...');
+      run('uv', ['venv', '--python', '>=3.10', venv]);
     } else {
-      log('uv not found on PATH — falling back to the standard venv module.');
+      log('uv not found on PATH -- falling back to the standard venv module.');
       const py = findSystemPython();
       run(py.cmd, [...py.baseArgs, '-m', 'venv', venv]);
     }
   } else {
     log('Python environment already exists, reusing it.');
   }
-
-  log('Installing Python dependencies…');
+  log('Installing Python dependencies...');
   if (useUv) {
-    run('uv', ['pip', 'install', '-p', paths.venvPython(), ...reqFiles.flatMap((f) => ['-r', f])]);
+    run('uv', ['pip', 'install', '-p', paths.venvPython(), '-r', req]);
   } else {
-    run(paths.venvPython(), ['-m', 'pip', 'install', '--upgrade', 'pip']);
-    run(paths.venvPython(), ['-m', 'pip', 'install', ...reqFiles.flatMap((f) => ['-r', f])]);
+    run(paths.venvPython(), ['-m', 'pip', 'install', '--disable-pip-version-check', '-q', '--upgrade', 'pip']);
+    run(paths.venvPython(), ['-m', 'pip', 'install', '--disable-pip-version-check', '-q', '-r', req]);
   }
-}
-
-function readJsonSafe(file) {
-  if (!fs.existsSync(file)) return {};
-  const raw = fs.readFileSync(file, 'utf8').trim();
-  if (!raw) return {};
-  return JSON.parse(raw);
-}
-
-function hookCommand() {
-  const hookPath = path.join(paths.installDir(), 'hooks', 'claude-telemetry-hook.py');
-  const python = paths.venvPython();
-  return `"${python}" "${hookPath}"`;
-}
-
-function installHooks() {
-  const settingsPath = paths.claudeSettingsPath();
-  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-  const cfg = readJsonSafe(settingsPath);
-  cfg.hooks = cfg.hooks || {};
-
-  const cmd = hookCommand();
-  for (const evt of HOOK_EVENTS) {
-    const existing = Array.isArray(cfg.hooks[evt]) ? cfg.hooks[evt] : [];
-    const alreadyPresent = existing.some(
-      (item) => Array.isArray(item.hooks) && item.hooks.some((h) => h.command === cmd)
-    );
-    if (!alreadyPresent) {
-      existing.push({ hooks: [{ type: 'command', command: cmd, timeout: 10 }] });
-    }
-    cfg.hooks[evt] = existing;
-  }
-
-  fs.writeFileSync(settingsPath, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
-  log(`Installed Claude Code telemetry hooks in ${settingsPath}`);
 }
 
 function install() {
+  // Fail on a malformed settings.json before touching anything else.
+  hooks.assertSettingsReadable();
   copyVendorFiles();
   setupPythonEnv();
-  installHooks();
-
+  const settings = hooks.installHooks();
+  log(`Installed Claude Code telemetry hooks in ${settings} (backup: settings.json.bak-tokentelemetry)`);
   log('');
-  log('Install complete.');
+  log(`Install complete (v${paths.version()}).`);
   log(`  App directory: ${paths.installDir()}`);
   log(`  Python env:    ${paths.venvDir()}`);
   log('');
   log('Run "tokentelemetry start" to launch the backend, daemon, and dashboard.');
-  log('Run "tokentelemetry autostart enable" to have it start automatically every time you log in.');
+  log('Run "tokentelemetry autostart enable" to start it automatically at login.');
 }
 
-function uninstall({ purge = false } = {}) {
-  const settingsPath = paths.claudeSettingsPath();
-  if (fs.existsSync(settingsPath)) {
-    const cfg = readJsonSafe(settingsPath);
-    const cmd = hookCommand();
-    if (cfg.hooks) {
-      for (const evt of HOOK_EVENTS) {
-        if (!Array.isArray(cfg.hooks[evt])) continue;
-        cfg.hooks[evt] = cfg.hooks[evt].filter(
-          (item) => !(Array.isArray(item.hooks) && item.hooks.some((h) => h.command === cmd))
-        );
-      }
-      fs.writeFileSync(settingsPath, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
-      log(`Removed telemetry hooks from ${settingsPath}`);
+function dbPath() {
+  return process.env.CLAUDE_TELEMETRY_DB || path.join(paths.claudeConfigDir(), 'telemetry', 'telemetry.db');
+}
+
+function deleteData() {
+  const db = dbPath();
+  const dir = path.dirname(db);
+  const base = path.basename(db);
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir)) {
+    if (entry === base || entry.startsWith(`${base}-`) || entry.startsWith(`${base}.bak`) || entry === 'hook-errors.log') {
+      fs.rmSync(path.join(dir, entry), { force: true });
     }
+  }
+  log(`Deleted the telemetry database at ${db}`);
+}
+
+function uninstall({ purge = false, deleteDb = false } = {}) {
+  try {
+    const removed = hooks.uninstallHooks();
+    log(removed ? `Removed ${removed} telemetry hook(s) from ${paths.claudeSettingsPath()}` : 'No telemetry hooks found.');
+  } catch (err) {
+    log(`Could not update ${paths.claudeSettingsPath()}: ${err.message}`);
   }
 
   const dirExists = fs.existsSync(paths.installDir());
-  if (purge) {
+  if (!purge) {
     if (dirExists) {
-      try {
-        // Detached processes survive deleting installDir (which holds
-        // run.json), leaving them bound to the fixed backend/dashboard ports
-        // with no record for a later "start" to find -- stop them first.
-        require('./run').stop();
-      } catch (err) {
-        log(`Could not stop running services (continuing): ${err.message}`);
-      }
+      log(`Left app files and the telemetry database in place at ${paths.installDir()}.`);
+      log('Re-run with "tokentelemetry uninstall --purge" to remove them too.');
     }
-    try {
-      const autostart = require('./autostart');
-      if (autostart.isEnabled()) {
-        autostart.disable();
-        log('Disabled autostart.');
-      }
-    } catch (err) {
-      log(`Could not check/disable autostart (continuing): ${err.message}`);
+    return;
+  }
+  try {
+    // Detached services would survive deleting installDir (which holds
+    // run.json) and keep their ports -- stop them first.
+    require('./run').stop();
+  } catch (err) {
+    log(`Could not stop running services (continuing): ${err.message}`);
+  }
+  try {
+    const autostart = require('./autostart');
+    if (autostart.isEnabled()) {
+      autostart.disable();
+      log('Disabled autostart.');
     }
-    if (dirExists) {
-      fs.rmSync(paths.installDir(), { recursive: true, force: true });
-      log(`Removed ${paths.installDir()}`);
-    } else {
-      log(`Nothing to purge — ${paths.installDir()} does not exist (already removed).`);
-    }
-  } else if (dirExists) {
-    log(`Left app files and the telemetry database in place at ${paths.installDir()}.`);
-    log('Re-run with "tokentelemetry uninstall --purge" to remove them too.');
+  } catch (err) {
+    log(`Could not check/disable autostart (continuing): ${err.message}`);
+  }
+  if (dirExists) {
+    fs.rmSync(paths.installDir(), { recursive: true, force: true });
+    log(`Removed ${paths.installDir()}`);
+  }
+  if (deleteDb) {
+    deleteData();
+  } else {
+    log(`Kept the telemetry database at ${dbPath()} -- add --delete-data to remove it too.`);
   }
 }
 
-module.exports = { install, uninstall, setupPythonEnv, installHooks, copyVendorFiles, hookCommand };
+module.exports = { install, uninstall, dbPath, setupPythonEnv, copyVendorFiles, findSystemPython, MANAGED };

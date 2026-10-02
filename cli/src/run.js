@@ -3,15 +3,20 @@ const path = require('path');
 const http = require('http');
 const { spawn } = require('child_process');
 const paths = require('./paths');
+const proc = require('./process');
 
-const BACKEND_PORT = 8000;
-const FRONTEND_PORT = 5173;
-const STARTUP_CHECK_DELAY_MS = 800;
+const STARTUP_TIMEOUT_MS = 20000;
+
+// Substrings each service's command line must contain for `stop` to touch it.
+const SERVICES = {
+  backend: { marker: 'app.main:app', log: 'backend.log', label: 'Backend' },
+  daemon: { marker: 'telemetry.daemon', log: 'daemon.log', label: 'Telemetry daemon' },
+  frontend: { marker: 'static-server.js', log: 'frontend.log', label: 'Dashboard' },
+};
 
 function logDir() {
-  const dir = path.join(paths.installDir(), 'logs');
-  fs.mkdirSync(dir, { recursive: true });
-  return dir;
+  fs.mkdirSync(paths.logDir(), { recursive: true });
+  return paths.logDir();
 }
 
 function logPath(name) {
@@ -19,14 +24,19 @@ function logPath(name) {
 }
 
 function openLog(name) {
-  return fs.openSync(logPath(name), 'a');
+  const file = logPath(name);
+  // Keep logs bounded: rotate once past 5 MB.
+  try {
+    if (fs.statSync(file).size > 5 * 1024 * 1024) fs.renameSync(file, `${file}.1`);
+  } catch {
+    /* no log yet */
+  }
+  return fs.openSync(file, 'a');
 }
 
 function readRunState() {
-  const p = paths.runStatePath();
-  if (!fs.existsSync(p)) return {};
   try {
-    return JSON.parse(fs.readFileSync(p, 'utf8'));
+    return JSON.parse(fs.readFileSync(paths.runStatePath(), 'utf8'));
   } catch {
     return {};
   }
@@ -37,40 +47,14 @@ function writeRunState(state) {
   fs.writeFileSync(paths.runStatePath(), JSON.stringify(state, null, 2) + '\n', 'utf8');
 }
 
-function isAlive(pid) {
-  if (!pid) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function spawnDetached(cmd, args, opts) {
-  const child = spawn(cmd, args, {
-    detached: true,
-    stdio: ['ignore', opts.out, opts.err],
-    cwd: opts.cwd,
-    env: opts.env,
-  });
-  // Without this, a missing binary (ENOENT) or similar spawn failure emits
-  // an async 'error' event that Node treats as unhandled and crashes the
-  // whole CLI process. spawnAndVerify's post-spawn isAlive() check already
-  // reports the failure properly -- this just stops it from being fatal.
-  child.on('error', () => {});
-  child.unref();
-  return child.pid;
-}
-
-function tailLog(name, maxChars = 400) {
+function tailLog(name, maxChars = 600) {
   try {
     const content = fs.readFileSync(logPath(name), 'utf8');
-    return content.length > maxChars ? '…' + content.slice(-maxChars) : content;
+    return content.length > maxChars ? '...' + content.slice(-maxChars) : content;
   } catch {
     return '(no log output captured)';
   }
@@ -92,118 +76,165 @@ function openBrowser(url) {
         : ['xdg-open', [url]];
   try {
     const child = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true });
-    // Best-effort only: a missing opener (headless server, or the autostart
-    // entry running before a desktop session exists) emits an async 'error'
-    // that would otherwise crash this process as an unhandled event -- it
-    // just means there's no browser to open, not a real failure.
+    // No browser (headless, or autostart before a desktop session) is fine.
     child.on('error', () => {});
     child.unref();
   } catch {
-    // spawn() itself throwing synchronously (rare) is just as harmless here.
+    /* best effort */
   }
 }
 
+function httpOk(url, timeoutMs = 1500) {
+  return new Promise((resolve) => {
+    const req = http.get(url, (res) => {
+      res.resume();
+      // Strict 200: something else answering on the port isn't us.
+      resolve(res.statusCode === 200);
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(timeoutMs, () => {
+      req.destroy();
+      resolve(false);
+    });
+  });
+}
+
+function portFree(port) {
+  return new Promise((resolve) => {
+    const srv = require('net').createServer();
+    srv.once('error', () => resolve(false));
+    srv.once('listening', () => srv.close(() => resolve(true)));
+    srv.listen(port, '127.0.0.1');
+  });
+}
+
 /**
- * Spawn a service and give it a moment to either come up or crash, so
- * `start` reports what actually happened instead of always claiming
- * success. Returns the pid if it's still alive after the check, or null
- * (and prints a specific, actionable error) if it already exited.
+ * Spawn a detached service, then wait until `ready()` passes (or the process
+ * dies / times out), so `start` reports what actually happened.
  */
-async function spawnAndVerify(label, logName, cmd, args, opts) {
-  const out = openLog(logName);
-  const pid = spawnDetached(cmd, args, { ...opts, out, err: out });
-  await sleep(STARTUP_CHECK_DELAY_MS);
-  if (isAlive(pid)) return pid;
-  const tail = tailLog(logName);
-  console.log(`${label} failed to start. Last output from ${logPath(logName)}:`);
+async function spawnAndWait(key, cmd, args, opts, ready) {
+  const svc = SERVICES[key];
+  const out = openLog(svc.log);
+  const child = spawn(cmd, args, {
+    detached: true,
+    stdio: ['ignore', out, out],
+    cwd: opts.cwd,
+    env: { ...process.env, ...(opts.env || {}) },
+    windowsHide: true,
+  });
+  // A missing binary emits an async 'error'; the liveness check reports it.
+  child.on('error', () => {});
+  child.unref();
+  const deadline = Date.now() + STARTUP_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    await sleep(300);
+    if (!proc.isAlive(child.pid)) break;
+    if (await ready()) return child.pid;
+  }
+  if (proc.isAlive(child.pid) && !ready.strict) return child.pid;
+  const tail = tailLog(svc.log);
+  console.log(`${svc.label} failed to start. Last output from ${logPath(svc.log)}:`);
   console.log(tail);
   if (/EADDRINUSE|address already in use/i.test(tail)) {
-    console.log(`(Looks like the port is already in use — is another instance of tokentelemetry already running?)`);
+    console.log('(The port is already in use -- another tokentelemetry, or set TOKENTELEMETRY_*_PORT.)');
   }
+  if (proc.isAlive(child.pid)) proc.terminate(child.pid);
   return null;
 }
 
 async function start() {
   ensureInstalled();
   const state = readRunState();
+  const backendPort = paths.backendPort();
+  const dashboardPort = paths.dashboardPort();
+  const sharedEnv = {
+    TOKENTELEMETRY_BACKEND_PORT: String(backendPort),
+    TOKENTELEMETRY_DASHBOARD_PORT: String(dashboardPort),
+    PYTHONUNBUFFERED: '1',
+  };
 
-  if (isAlive(state.backend)) {
-    console.log(`Backend already running (pid ${state.backend}).`);
-  } else {
-    const backendDir = path.join(paths.installDir(), 'backend');
-    const pid = await spawnAndVerify(
-      'Backend',
-      'backend.log',
+  async function ensure(key, launch) {
+    if (proc.isOurs(state[key], SERVICES[key].marker)) {
+      console.log(`${SERVICES[key].label} already running (pid ${state[key]}).`);
+      return;
+    }
+    delete state[key];
+    const pid = await launch();
+    if (pid) state[key] = pid;
+    writeRunState(state);
+  }
+
+  await ensure('backend', async () => {
+    if (!(await portFree(backendPort))) {
+      console.log(`Port ${backendPort} is busy -- set TOKENTELEMETRY_BACKEND_PORT to use another one.`);
+      return null;
+    }
+    const pid = await spawnAndWait(
+      'backend',
       paths.venvPython(),
-      ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', String(BACKEND_PORT)],
-      { cwd: backendDir }
+      ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', String(backendPort), '--no-access-log'],
+      { cwd: path.join(paths.installDir(), 'backend'), env: sharedEnv },
+      Object.assign(() => httpOk(`http://127.0.0.1:${backendPort}/health`), { strict: true })
     );
-    if (pid) {
-      state.backend = pid;
-      console.log(`Backend started (pid ${pid}) on http://127.0.0.1:${BACKEND_PORT}`);
-    } else {
-      delete state.backend;
-    }
-  }
+    if (pid) console.log(`Backend started (pid ${pid}) on http://127.0.0.1:${backendPort}`);
+    return pid;
+  });
 
-  if (isAlive(state.daemon)) {
-    console.log(`Telemetry daemon already running (pid ${state.daemon}).`);
-  } else {
-    const pid = await spawnAndVerify('Telemetry daemon', 'daemon.log', paths.venvPython(), ['-m', 'telemetry.daemon'], {
-      cwd: paths.installDir(),
-    });
-    if (pid) {
-      state.daemon = pid;
-      console.log(`Telemetry daemon started (pid ${pid}).`);
-    } else {
-      delete state.daemon;
-    }
-  }
+  await ensure('daemon', async () => {
+    const pid = await spawnAndWait(
+      'daemon',
+      paths.venvPython(),
+      ['-m', 'telemetry.daemon'],
+      { cwd: paths.installDir(), env: sharedEnv },
+      async () => true
+    );
+    if (pid) console.log(`Telemetry daemon started (pid ${pid}).`);
+    return pid;
+  });
 
-  if (isAlive(state.frontend)) {
-    console.log(`Dashboard already running (pid ${state.frontend}).`);
-  } else {
-    const frontendDir = path.join(paths.installDir(), 'frontend-dist');
-    const pid = await spawnAndVerify(
-      'Dashboard',
-      'frontend.log',
+  await ensure('frontend', async () => {
+    if (!(await portFree(dashboardPort))) {
+      console.log(`Port ${dashboardPort} is busy -- set TOKENTELEMETRY_DASHBOARD_PORT to use another one.`);
+      return null;
+    }
+    const pid = await spawnAndWait(
+      'frontend',
       process.execPath,
-      [path.join(__dirname, 'static-server.js'), frontendDir, String(FRONTEND_PORT), String(BACKEND_PORT)],
-      { cwd: paths.installDir() }
+      [path.join(__dirname, 'static-server.js'), path.join(paths.installDir(), 'frontend-dist'), String(dashboardPort), String(backendPort)],
+      { cwd: paths.installDir(), env: sharedEnv },
+      Object.assign(() => httpOk(`http://127.0.0.1:${dashboardPort}/`), { strict: true })
     );
-    if (pid) {
-      state.frontend = pid;
-      console.log(`Dashboard started (pid ${pid}) on http://127.0.0.1:${FRONTEND_PORT}`);
-    } else {
-      delete state.frontend;
-    }
-  }
+    if (pid) console.log(`Dashboard started (pid ${pid}) on http://127.0.0.1:${dashboardPort}`);
+    return pid;
+  });
 
-  writeRunState(state);
-  const dashboardUrl = `http://127.0.0.1:${FRONTEND_PORT}`;
+  const url = `http://127.0.0.1:${dashboardPort}`;
   console.log('');
-  if (state.frontend) {
-    console.log(`Opening ${dashboardUrl} in your browser…`);
+  if (state.frontend && state.backend) {
+    console.log(`Opening ${url} in your browser...`);
     console.log(`Logs: ${logDir()}`);
-    openBrowser(dashboardUrl);
+    openBrowser(url);
   } else {
-    console.log(`Dashboard isn't up — see the error above. Logs: ${logDir()}`);
+    console.log(`Not everything came up -- see the errors above. Logs: ${logDir()}`);
+    process.exitCode = 1;
   }
 }
 
 function stop() {
   const state = readRunState();
   let stoppedAny = false;
-  for (const key of ['backend', 'daemon', 'frontend']) {
+  for (const key of Object.keys(SERVICES)) {
     const pid = state[key];
-    if (isAlive(pid)) {
+    if (pid && proc.isOurs(pid, SERVICES[key].marker)) {
       try {
-        process.kill(pid);
+        proc.terminate(pid);
         console.log(`Stopped ${key} (pid ${pid}).`);
         stoppedAny = true;
       } catch (err) {
         console.log(`Could not stop ${key} (pid ${pid}): ${err.message}`);
       }
+    } else if (pid) {
+      console.log(`Skipped ${key}: pid ${pid} is no longer a tokentelemetry process.`);
     }
     delete state[key];
   }
@@ -211,50 +242,33 @@ function stop() {
   if (!stoppedAny) console.log('Nothing was running.');
 }
 
-function checkHttp(url) {
-  return new Promise((resolve) => {
-    const req = http.get(url, (res) => {
-      res.resume();
-      // Strict 200 (not just "any non-5xx") -- something *else* answering on
-      // the port with a 404 shouldn't read as our own service being healthy.
-      resolve(res.statusCode === 200);
-    });
-    req.on('error', () => resolve(false));
-    req.setTimeout(1500, () => {
-      req.destroy();
-      resolve(false);
-    });
-  });
-}
-
 async function status() {
   const state = readRunState();
+  const backendPort = paths.backendPort();
+  const dashboardPort = paths.dashboardPort();
+  console.log(`Version:           ${paths.version()}`);
   console.log(`Install directory: ${paths.installDir()}`);
   console.log(`Claude settings:   ${paths.claudeSettingsPath()}`);
   console.log('');
-  for (const key of ['backend', 'daemon', 'frontend']) {
+  for (const key of Object.keys(SERVICES)) {
     const pid = state[key];
-    console.log(`${key.padEnd(9)} ${isAlive(pid) ? `running (pid ${pid})` : 'not running'}`);
+    console.log(`${key.padEnd(9)} ${proc.isOurs(pid, SERVICES[key].marker) ? `running (pid ${pid})` : 'not running'}`);
   }
-  const backendUp = await checkHttp(`http://127.0.0.1:${BACKEND_PORT}/health`);
-  const frontendUp = await checkHttp(`http://127.0.0.1:${FRONTEND_PORT}/`);
+  const backendUp = await httpOk(`http://127.0.0.1:${backendPort}/health`);
+  const frontendUp = await httpOk(`http://127.0.0.1:${dashboardPort}/`);
   console.log('');
-  console.log(`Backend health check:  ${backendUp ? 'OK' : 'unreachable'} (http://127.0.0.1:${BACKEND_PORT}/health)`);
-  console.log(`Dashboard reachable:   ${frontendUp ? 'OK' : 'unreachable'} (http://127.0.0.1:${FRONTEND_PORT}/)`);
+  console.log(`Backend health check:  ${backendUp ? 'OK' : 'unreachable'} (http://127.0.0.1:${backendPort}/health)`);
+  console.log(`Dashboard reachable:   ${frontendUp ? 'OK' : 'unreachable'} (http://127.0.0.1:${dashboardPort}/)`);
   if (!backendUp || !frontendUp) {
     console.log(`  Not running? "tokentelemetry start". Running but unreachable? Check ${logDir()}`);
   }
   console.log('');
   try {
-    const autostart = require('./autostart');
-    const enabled = autostart.isEnabled();
+    const enabled = require('./autostart').isEnabled();
     console.log(`Autostart at login:    ${enabled ? 'enabled' : 'not enabled'}`);
-    if (!enabled) {
-      console.log('  Run "tokentelemetry autostart enable" to start automatically every time you log in.');
-    }
   } catch (err) {
     console.log(`Autostart at login:    unknown (${err.message})`);
   }
 }
 
-module.exports = { start, stop, status };
+module.exports = { start, stop, status, httpOk, readRunState, SERVICES };

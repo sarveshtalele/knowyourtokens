@@ -1,31 +1,43 @@
 #!/usr/bin/env node
 const { install, uninstall } = require('../src/install');
 const { start, stop, status } = require('../src/run');
+const { doctor } = require('../src/doctor');
 const autostart = require('../src/autostart');
+const paths = require('../src/paths');
 
-const HELP = `tokentelemetry — install and run the Claude Telemetry Enterprise console
+const HELP = `tokentelemetry ${paths.version()} -- local-first token, tool, skill & MCP observability for Claude Code
 
 Usage:
   tokentelemetry                    Install (if needed) and start everything
-  tokentelemetry install            Copy app files, set up Python env, wire Claude Code hooks
+  tokentelemetry install            Copy app files, set up the Python env, wire Claude Code hooks
   tokentelemetry start              Start the backend, telemetry daemon, and dashboard
   tokentelemetry stop               Stop everything started by "start"
-  tokentelemetry status             Show install location, running processes, health checks
+  tokentelemetry status             Show what's running and health checks
+  tokentelemetry doctor             Diagnose the install and suggest fixes
   tokentelemetry autostart enable   Start automatically at login (Task Scheduler / launchd / systemd)
   tokentelemetry autostart disable  Remove the autostart entry
   tokentelemetry autostart status   Show whether autostart is enabled
-  tokentelemetry uninstall          Remove the Claude Code hooks (add --purge to also delete app files)
+  tokentelemetry uninstall          Remove the Claude Code hooks (keeps app files and data)
+      --purge                       ...also stop services, disable autostart, delete app files
+      --delete-data                 ...also delete the telemetry database
+  tokentelemetry --version          Print the version
 
 Environment:
-  TOKENTELEMETRY_HOME   Install directory (default: ~/.tokentelemetry)
-  CLAUDE_CONFIG_DIR     Claude Code config directory (default: ~/.claude)
+  TOKENTELEMETRY_HOME            Install directory (default: ~/.tokentelemetry)
+  TOKENTELEMETRY_BACKEND_PORT    API port (default: 8000)
+  TOKENTELEMETRY_DASHBOARD_PORT  Dashboard port (default: 5173)
+  CLAUDE_CONFIG_DIR              Claude Code config directory (default: ~/.claude)
+  CLAUDE_TELEMETRY_DB            Database path (default: ~/.claude/telemetry/telemetry.db)
+  TOKENTELEMETRY_NO_OPEN         Set to skip opening the browser on start
+
+Docs: https://sarveshtalele.github.io/tokentelemetry/
 `;
 
 async function main() {
   const [, , cmdArg, subArg, ...rest] = process.argv;
-  const cmd = cmdArg || 'default';
+  const flags = new Set([subArg, ...rest].filter(Boolean));
 
-  switch (cmd) {
+  switch (cmdArg || 'default') {
     case 'install':
       install();
       break;
@@ -38,11 +50,14 @@ async function main() {
     case 'status':
       await status();
       break;
+    case 'doctor':
+      await doctor();
+      break;
     case 'autostart':
       switch (subArg) {
         case 'enable':
           autostart.enable();
-          console.log('Autostart enabled — the dashboard will start automatically at login.');
+          console.log('Autostart enabled -- the dashboard will start automatically at login.');
           break;
         case 'disable':
           autostart.disable();
@@ -52,16 +67,21 @@ async function main() {
           console.log(autostart.isEnabled() ? 'Autostart is enabled.' : 'Autostart is not enabled.');
           break;
         default:
-          console.error(`Usage: tokentelemetry autostart <enable|disable|status>`);
+          console.error('Usage: tokentelemetry autostart <enable|disable|status>');
           process.exitCode = 1;
       }
       break;
     case 'uninstall':
-      uninstall({ purge: [subArg, ...rest].includes('--purge') });
+      uninstall({ purge: flags.has('--purge') || flags.has('--delete-data'), deleteDb: flags.has('--delete-data') });
       break;
     case 'default':
       install();
       await start();
+      break;
+    case '-v':
+    case '--version':
+    case 'version':
+      console.log(paths.version());
       break;
     case '-h':
     case '--help':
@@ -69,7 +89,7 @@ async function main() {
       console.log(HELP);
       break;
     default:
-      console.error(`Unknown command: ${cmd}\n`);
+      console.error(`Unknown command: ${cmdArg}\n`);
       console.log(HELP);
       process.exitCode = 1;
   }
