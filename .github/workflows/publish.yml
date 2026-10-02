@@ -7,7 +7,7 @@ name: Release
 #      the CHANGELOG's Unreleased notes under the new version, commits to main, then publishes.
 #      Nothing to run on your machine.
 #   2. Merge a PR that changes the version in cli/package.json: that version is published.
-#   3. Push a vX.Y.Z tag (or publish a release in the GitHub UI).
+#   3. Push a vX.Y.Z tag (publishing a release in the GitHub UI creates and pushes one).
 #
 # Every step skips what's already done (versions already on npm, an existing release), so re-running
 # is always safe. npm auth: Trusted Publishing (OIDC, no secret) or an NPM_TOKEN repository secret.
@@ -95,14 +95,28 @@ jobs:
           if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "${GITHUB_REF_NAME#v}" != "$want" ]; then
             echo "::error::tag $GITHUB_REF_NAME does not match cli/package.json ($want)"; exit 1
           fi
-          fail=0
-          for v in \
-            "$(node -p "require('./sdk/js/package.json').version")" \
-            "$(python3 -c "import re;print(re.search(r'__version__ = \"(.+)\"', open('telemetry/__init__.py').read()).group(1))")" \
-            "$(python3 -c "import re;print(re.search(r'^version = \"(.+)\"', open('sdk/python/pyproject.toml').read(), re.M).group(1))")"; do
-            if [ "$v" != "$want" ]; then echo "::error::version $v does not match $want"; fail=1; fi
-          done
-          exit $fail
+          # Every place scripts/bump-version.mjs writes the version.
+          python3 - "$want" <<'PY'
+          import json, re, sys
+          want, bad = sys.argv[1], []
+          def check(where, got):
+              if got != want:
+                  bad.append(f"{where}: {got}")
+          for f in ("telemetry/__init__.py", "sdk/python/src/knowyourtokens_client/__init__.py"):
+              check(f, re.search(r'^__version__ = "(.+)"', open(f).read(), re.M).group(1))
+          check("sdk/python/pyproject.toml", re.search(r'^version = "(.+)"', open("sdk/python/pyproject.toml").read(), re.M).group(1))
+          for d in ("cli", "sdk/js", "frontend", "site"):
+              check(f"{d}/package.json", json.load(open(f"{d}/package.json"))["version"])
+              try:
+                  lock = json.load(open(f"{d}/package-lock.json"))
+              except FileNotFoundError:
+                  continue
+              check(f"{d}/package-lock.json", lock["version"])
+          check("docs/openapi.json", json.load(open("docs/openapi.json"))["info"]["version"])
+          for b in bad:
+              print(f"::error::{b} (expected {want}; run node scripts/bump-version.mjs {want})")
+          sys.exit(1 if bad else 0)
+          PY
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
@@ -225,3 +239,17 @@ jobs:
             fi
             npm deprecate "$old" "Renamed to $new (same project, nothing to migrate): npx $new"
           done
+
+  redeploy-site:
+    name: Redeploy the website with the new version
+    # A bump committed by this workflow (GITHUB_TOKEN) doesn't trigger pages.yml on its own.
+    if: github.event_name == 'workflow_dispatch' && inputs.bump != 'none'
+    needs: [prepare, github-release]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run pages.yml --ref main

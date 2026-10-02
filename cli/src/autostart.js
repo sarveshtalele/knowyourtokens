@@ -70,7 +70,7 @@ function windowsStatus() {
     '-NoProfile',
     '-NonInteractive',
     '-Command',
-    `$null -ne (Get-ScheduledTask -TaskName ${psQuote(TASK_NAME)} -ErrorAction SilentlyContinue)`,
+    `@(Get-ScheduledTask -TaskName @(${[TASK_NAME, ...LEGACY_TASK_NAMES].map(psQuote).join(', ')}) -ErrorAction SilentlyContinue).Count -gt 0`,
   ]);
   return !res.error && res.status === 0 && res.stdout.trim() === 'True';
 }
@@ -130,7 +130,7 @@ function macDisable(labels = [LAUNCHD_LABEL, ...LEGACY_LAUNCHD_LABELS]) {
 }
 
 function macStatus() {
-  return fs.existsSync(launchdPlistPath());
+  return [LAUNCHD_LABEL, ...LEGACY_LAUNCHD_LABELS].some((label) => fs.existsSync(launchdPlistPath(label)));
 }
 
 // ---------- Linux (systemd --user) ----------
@@ -191,8 +191,10 @@ function linuxDisable(units = [SYSTEMD_UNIT, ...LEGACY_SYSTEMD_UNITS]) {
 }
 
 function linuxStatus() {
-  const res = run('systemctl', ['--user', 'is-enabled', SYSTEMD_UNIT]);
-  return !res.error && res.stdout.trim() === 'enabled';
+  return [SYSTEMD_UNIT, ...LEGACY_SYSTEMD_UNITS].some((unit) => {
+    const res = run('systemctl', ['--user', 'is-enabled', unit]);
+    return !res.error && res.stdout.trim() === 'enabled';
+  });
 }
 
 // ---------- Dispatch ----------

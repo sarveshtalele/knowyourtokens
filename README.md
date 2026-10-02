@@ -100,7 +100,11 @@ npx knowyourtokens                 # install + start (re-resolves the latest ver
 # or, for daily use:
 npm install -g knowyourtokens
 knowyourtokens                     # install (first run) + start
+kyt doctor                         # kyt is a short alias for every command
 ```
+
+Upgrading from Token Telemetry (the old name)? Run `npx knowyourtokens@latest install`. Your data,
+hooks, launchers and `TOKENTELEMETRY_*` settings carry over as they are.
 
 Per-OS notes, ports and troubleshooting: **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
 

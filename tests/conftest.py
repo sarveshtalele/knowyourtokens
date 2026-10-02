@@ -23,15 +23,21 @@ def env(tmp_path, monkeypatch):
     monkeypatch.setenv("GEMINI_CLI_HOME", str(tmp_path / "gemini-home"))
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "xdg"))
     monkeypatch.delenv("OPENCODE_DB", raising=False)
-    monkeypatch.delenv("KNOWYOURTOKENS_SOURCES", raising=False)
-    for var in (
-        "KNOWYOURTOKENS_OTLP_ENDPOINT",
-        "KNOWYOURTOKENS_WEBHOOK_URL",
-        "KNOWYOURTOKENS_STORE_FULL_TEXT",
-        "KNOWYOURTOKENS_RETENTION_DAYS",
-        "KNOWYOURTOKENS_FULL_TEXT_RETENTION_DAYS",
+    # Both spellings: config.env falls back to the pre-rename TOKENTELEMETRY_* names.
+    for name in (
+        "SOURCES",
+        "OTLP_ENDPOINT",
+        "OTLP_HEADERS",
+        "WEBHOOK_URL",
+        "WEBHOOK_SECRET",
+        "STORE_FULL_TEXT",
+        "RETENTION_DAYS",
+        "FULL_TEXT_RETENTION_DAYS",
+        "EXPORT_BACKFILL",
+        "ALLOWED_HOSTS",
     ):
-        monkeypatch.delenv(var, raising=False)
+        for prefix in ("KNOWYOURTOKENS_", "TOKENTELEMETRY_"):
+            monkeypatch.delenv(prefix + name, raising=False)
     return tmp_path
 
 

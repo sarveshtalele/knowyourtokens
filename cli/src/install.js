@@ -42,6 +42,12 @@ function copyVendorFiles() {
     const from = path.join(paths.packageRoot(), part);
     if (fs.existsSync(from)) fs.cpSync(from, path.join(dest, 'cli', part), { recursive: true, force: true });
   }
+  // Autostart entries and app icons made before the rename run cli/bin/tokentelemetry.js: keep them working.
+  fs.writeFileSync(
+    path.join(dest, 'cli', 'bin', 'tokentelemetry.js'),
+    "#!/usr/bin/env node\n// Kept for launchers created under the project's previous name.\nrequire('./knowyourtokens.js');\n",
+    { mode: 0o755 }
+  );
   fs.writeFileSync(path.join(dest, 'VERSION'), paths.version() + '\n', 'utf8');
   log(`Copied app files to ${dest}`);
 }
