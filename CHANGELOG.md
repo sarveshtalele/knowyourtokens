@@ -7,6 +7,18 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+### Added
+- The dashboard is an installable app (web manifest, app icons, offline shell) with an **Install app**
+  button, so it can live in the Dock or taskbar.
+- `tokentelemetry shortcut [--dock] [--remove]`: native launcher with the app icon on Windows (Start
+  Menu + Desktop), macOS (`~/Applications`, optional Dock) and Linux (app launcher + Desktop).
+- Redesigned website: scroll-driven product hero, a full interactive demo of the dashboard with a
+  guided tour, workflow stories (including prompt debugging), and audience and app-pinning sections.
+
+### Fixed
+- Launchers and autostart no longer point into npx's cache, which `npm cache clean` can delete. They
+  now run a stable copy of the CLI under `~/.tokentelemetry/cli`.
+
 ## [2.0.0] - 2026-10-02
 
 ### Breaking

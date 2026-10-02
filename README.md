@@ -89,7 +89,13 @@ tokentelemetry stop
 tokentelemetry status              # processes + health checks
 tokentelemetry doctor              # diagnose the install, with a fix for anything wrong
 tokentelemetry autostart enable    # start at login (Task Scheduler / launchd / systemd)
+tokentelemetry shortcut            # app icon for your Dock / taskbar / launcher (--dock on macOS)
 ```
+
+**Use it like an app.** Click **Install app** in the dashboard's top bar (Chrome, Edge, Brave, Arc;
+Safari: File → Add to Dock) to get its own window and icon. Or run `tokentelemetry shortcut`, which
+creates a native launcher: a Start Menu/Desktop shortcut on Windows, `~/Applications/Token Telemetry.app`
+on macOS, and an app-launcher entry on Linux. Then pin it like any other app.
 
 **Update:** `npm install -g tokentelemetry@latest && tokentelemetry install` (`npx` is always latest).
 Upgrading from 1.x migrates the database automatically and backs it up first. See the
