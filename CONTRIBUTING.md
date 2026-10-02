@@ -72,6 +72,9 @@ Good first issues are labelled
 
 ## Releasing (maintainers)
 
+First time? Do the one-time setup in [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md) first.
+
+
 1. Bump the version everywhere it appears: `telemetry/__init__.py`, `cli/package.json`,
    `sdk/js/package.json`, `sdk/python/pyproject.toml` +
    `sdk/python/src/tokentelemetry_client/__init__.py`, `frontend/package.json`, `site/package.json`.

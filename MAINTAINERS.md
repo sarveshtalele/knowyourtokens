@@ -4,6 +4,11 @@
 |---|---|---|
 | Sarvesh Talele | [@sarveshtalele](https://github.com/sarveshtalele) | Everything |
 
+## Repository setup
+
+One-time GitHub and npm configuration (About/website/topics, Pages, npm publishing, security,
+branch protection, labels): [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md).
+
 ## Becoming a maintainer
 
 Sustained, high-quality contributions (code, reviews, docs, triage) over a few months are the
