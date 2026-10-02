@@ -86,8 +86,10 @@ test('scheduler quoting helpers escape hostile paths', () => {
 });
 
 test('static server: host allowlist, traversal, headers, SPA fallback', async () => {
-  const dir = tmpdir();
-  fs.mkdirSync(path.join(dir, 'assets'));
+  const parent = tmpdir();
+  const dir = path.join(parent, 'site');
+  fs.mkdirSync(path.join(dir, 'assets'), { recursive: true });
+  fs.writeFileSync(path.join(parent, 'secret.txt'), 'TOP-SECRET');
   fs.writeFileSync(path.join(dir, 'index.html'), '<html>ok</html>');
   fs.writeFileSync(path.join(dir, 'assets', 'a.js'), 'x');
   const saved = process.argv;
@@ -115,7 +117,8 @@ test('static server: host allowlist, traversal, headers, SPA fallback', async ()
     assert.strictEqual((await get('/assets/a.js')).headers['cache-control'], 'public, max-age=31536000, immutable');
     assert.strictEqual((await get('/assets/missing.js')).status, 404);
     assert.strictEqual((await get('/', 'evil.example')).status, 403);
-    assert.notStrictEqual((await get('/..%2f..%2fetc%2fpasswd')).body, fs.readFileSync('/etc/passwd', 'utf8'));
+    assert.doesNotMatch((await get('/..%2fsecret.txt')).body, /TOP-SECRET/);
+    assert.doesNotMatch((await get('/..%5csecret.txt')).body, /TOP-SECRET/);
   } finally {
     server.close();
   }

@@ -1,6 +1,6 @@
 ## What does this PR do?
 
-<!-- One or two sentences. -->
+<!-- One or two sentences. Link the issue it closes, e.g. "Closes #123". -->
 
 ## Why?
 
@@ -8,12 +8,14 @@
 
 ## How was this tested?
 
-- [ ] `pytest tests/test_backend_api.py tests/test_reconcile.py` passes
-- [ ] `cd frontend && npm run build` passes (type-check + build)
-- [ ] Manually verified in the running app (describe what you clicked through, if UI-facing)
+- [ ] `make check` passes (or the individual commands in CONTRIBUTING.md)
+- [ ] New behavior has a test (Python: `tests/`, dashboard: `*.test.ts(x)`, CLI: `cli/test/`)
+- [ ] Manually verified in the running app, if UI-facing (describe what you clicked through)
 
 ## Checklist
 
-- [ ] If this touches schema or collector/reconcile logic, it's in `telemetry/` (the single
-      canonical implementation `backend/` imports directly) -- not a new duplicate copy.
-- [ ] No unrelated changes bundled in.
+- [ ] Schema / collector / reconcile changes are in `telemetry/` and come with a migration in
+      `telemetry/db.py` (never edit an existing migration)
+- [ ] Public API changes: `python scripts/export_openapi.py` re-run, `docs/API.md` and both SDKs updated
+- [ ] `CHANGELOG.md` has an entry under "Unreleased" for user-visible changes
+- [ ] No unrelated changes bundled in

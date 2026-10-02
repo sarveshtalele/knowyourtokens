@@ -20,10 +20,12 @@ What should have happened instead.
 **Environment**
 - OS: [Windows / macOS / Linux]
 - Install method: [`node cli/setup.js` / `tokentelemetry` global command / manual dev setup]
-- `tokentelemetry status` output (or the manual dev setup's backend/frontend versions):
+- `tokentelemetry --version`:
+- `tokentelemetry doctor` output:
 
 **Logs**
-Relevant lines from `~/.tokentelemetry/logs/backend.log` / `daemon.log` / `frontend.log`, or
+Relevant lines from `~/.tokentelemetry/logs/backend.log` / `daemon.log` / `frontend.log`,
+`~/.claude/telemetry/hook-errors.log`, or
 the browser console, if applicable. Please don't paste actual prompt/response content —
 just the error.
 
