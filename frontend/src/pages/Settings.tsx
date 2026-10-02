@@ -20,7 +20,7 @@ export function Settings() {
       <PageHead
         eyebrow="Operations"
         title="Telemetry settings"
-        subtitle="Local-first collector configuration compatible with the Claude Token Telemetry v5 architecture."
+        subtitle="Collector, database, and integration status. Everything here stays on this machine."
         actions={
           <Button variant="primary" onClick={handleReconcile}>
             Reconcile now
