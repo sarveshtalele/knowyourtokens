@@ -18,6 +18,12 @@ def env(tmp_path, monkeypatch):
     (claude / "projects").mkdir(parents=True)
     monkeypatch.setenv("CLAUDE_TELEMETRY_DB", str(tmp_path / "telemetry.db"))
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(claude))
+    # Other agents' data dirs, so a test never reads the developer's real ones.
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex"))
+    monkeypatch.setenv("GEMINI_CLI_HOME", str(tmp_path / "gemini-home"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "xdg"))
+    monkeypatch.delenv("OPENCODE_DB", raising=False)
+    monkeypatch.delenv("TOKENTELEMETRY_SOURCES", raising=False)
     for var in (
         "TOKENTELEMETRY_OTLP_ENDPOINT",
         "TOKENTELEMETRY_WEBHOOK_URL",

@@ -29,25 +29,29 @@ harden the repository and set it up for contributors.
 2. On the right side of the repo home page, click the **⚙ gear** next to **About**.
 3. Fill in:
    - **Description:**
-     `Local-first, open-source token, tool, skill & MCP observability for Claude Code. REST API, SDKs, OpenTelemetry. npx tokentelemetry`
+     `Local-first token observability for every AI coding agent — Claude Code, Codex, Gemini CLI, OpenCode and more. Debug prompts, context and cost.`
    - **Website:** `https://sarveshtalele.github.io/tokentelemetry/`
      (or tick **Use your GitHub Pages website**, which fills in the same URL)
    - **Topics** (press Enter after each):
-     `claude-code` `claude` `anthropic` `token-usage` `llm-observability` `observability`
-     `telemetry` `opentelemetry` `mcp` `developer-tools` `local-first` `dashboard` `fastapi` `react`
+     `ai-agents` `llm` `observability` `tokens` `claude-code` `codex` `gemini-cli` `opencode`
+     `mcp` `opentelemetry` `developer-tools` `local-first` `llm-observability` `token-usage`
 4. Under **Include in the home page**, keep **Releases** and **Packages** ticked and untick
    **Deployments** (optional; the Pages deployment badge is noise).
 5. **Save changes**.
 
 Topics are what make the repo show up in GitHub search and on topic pages such as
-`github.com/topics/claude-code`.
+`github.com/topics/claude-code` or `github.com/topics/ai-agents`. Keep the description and topics
+neutral: Token Telemetry is an independent project, not affiliated with Anthropic, OpenAI, Google or
+any agent vendor, so avoid vendor names that read as an endorsement (such as `anthropic` or
+`openai` on their own).
 
 ## 2. Social preview image
 
 This image shows up when the repo link is shared on Slack, X, LinkedIn and similar sites.
 
 1. **Settings → General → Social preview → Edit → Upload an image…**
-2. Upload [`site/public/og.png`](../site/public/og.png) (1200×630).
+2. Upload [`docs/launch/social-preview-1280x640.png`](launch/social-preview-1280x640.png) (1280×640,
+   GitHub's recommended size), or [`site/public/og.png`](../site/public/og.png) (1200×630).
 
 ## 3. GitHub Pages
 
@@ -89,7 +93,17 @@ The release workflow (`.github/workflows/publish.yml`) publishes two npm package
 
 npm can't attach a trusted publisher to a package that doesn't exist yet, so the very first
 `tokentelemetry-client` release has to be published with your own login. Do this **after** the
-release PR is merged, so you publish exactly what's on `main`:
+release PR is merged, so you publish exactly what's on `main`.
+
+Run these **inside a local clone of the repository**. In any other folder (for example your home
+directory) `git checkout main` fails with `fatal: not a git repository`. If you don't have a clone
+yet:
+
+```bash
+git clone https://github.com/sarveshtalele/tokentelemetry.git && cd tokentelemetry
+```
+
+Then, from the repository root:
 
 ```bash
 git checkout main && git pull
@@ -137,6 +151,7 @@ publish:
 | `ENEEDAUTH` / `401` / `404 Not Found - PUT` | `NPM_TOKEN` missing or wrong (step 4a), or trusted publisher not set up (4b) |
 | `403 ... cannot publish over the previously published version` | That version is already on npm. Bump the version (see CONTRIBUTING → Releasing) |
 | `version X does not match` | A package version differs from the tag. Fix it in a PR, then re-run |
+| `fatal: not a git repository` (on your machine) | You ran the commands outside the repo. `git clone https://github.com/sarveshtalele/tokentelemetry.git && cd tokentelemetry`, then repeat |
 
 Re-run a failed job with **Re-run failed jobs**. Jobs that already published skip themselves.
 
@@ -219,7 +234,7 @@ workflow does the rest.
 | `breaking-change` | `#e99695` | Needs a major version bump |
 
 Then open 3–5 small issues labelled `good first issue` (ideas: server-side search on the Requests page,
-Prometheus `/metrics`, more client detections, translations of the landing page). GitHub highlights
+Prometheus `/metrics`, more client detections, a new agent source, translations of the landing page). GitHub highlights
 repos that have them to new contributors.
 
 ## 9. Actions permissions

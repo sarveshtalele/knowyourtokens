@@ -14,7 +14,7 @@ const KINDS: { value: ReportKind; label: string; description: string }[] = [
   {
     value: 'requests',
     label: 'Requests',
-    description: 'One row per Claude request: tokens, model, client, prompt/response previews.',
+    description: 'One row per model request: tokens, model, agent, prompt/response previews.',
   },
   {
     value: 'projects',

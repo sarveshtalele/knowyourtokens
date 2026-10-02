@@ -80,3 +80,18 @@ def test_verify_signature():
     assert verify_signature("k", body, sig)
     assert not verify_signature("k", body + b" ", sig)
     assert not verify_signature("k", body, "")
+
+
+def test_ingest_round_trip(api):
+    tt = api
+    rec = {
+        "request_id": "cur-1",
+        "session_id": "c1",
+        "cwd": "/work/app",
+        "model": "gpt-5",
+        "input_tokens": 40,
+        "output_tokens": 9,
+    }
+    assert tt.ingest("Cursor", [rec]) == {"accepted": 1, "new": 1}
+    assert tt.ingest("Cursor", [rec])["new"] == 0
+    assert any(c["client"] == "Cursor" for c in tt.clients())

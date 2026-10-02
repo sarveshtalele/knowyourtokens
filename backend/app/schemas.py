@@ -258,6 +258,42 @@ class SettingsInfo(BaseModel):
     exporters: list[ExporterStatus] = []
 
 
+class IngestToolCall(BaseModel):
+    name: str
+    id: str | None = None
+    input: dict | None = None
+
+
+class IngestRecord(BaseModel):
+    """One model request made by an agent."""
+
+    request_id: str | None = Field(None, description="Unique per request; re-sending the same id is a no-op")
+    session_id: str | None = None
+    timestamp: str | None = Field(None, description="ISO-8601; defaults to now")
+    cwd: str | None = Field(None, description="Working directory (becomes the project)")
+    project: str | None = Field(None, description="Project name, if there is no cwd")
+    model: str | None = None
+    input_tokens: int = Field(0, ge=0)
+    output_tokens: int = Field(0, ge=0)
+    cache_read_tokens: int = Field(0, ge=0)
+    cache_write_tokens: int = Field(0, ge=0)
+    prompt: str | None = None
+    response: str | None = None
+    tool_calls: list[IngestToolCall | str] = []
+
+
+class IngestRequest(BaseModel):
+    agent: str = Field(
+        ..., min_length=1, max_length=64, description='Agent name shown as the client, e.g. "Antigravity"'
+    )
+    records: list[IngestRecord] = Field(..., max_length=1000)
+
+
+class IngestResult(BaseModel):
+    accepted: int
+    new: int
+
+
 class ReconcileResult(BaseModel):
     changed: int
     scanned: int = 0

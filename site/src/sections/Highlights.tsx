@@ -13,9 +13,9 @@ const ITEMS = [
     label: 'typed REST endpoints, with Python and TypeScript SDKs.',
   },
   {
-    to: 8,
-    fmt: (n: number) => `${Math.round(n)}`,
-    label: 'Claude Code hook events captured live.',
+    to: 4,
+    fmt: (n: number) => `${Math.round(n)}+`,
+    label: 'agents read automatically. Any other agent: one API call.',
   },
   {
     to: 60,

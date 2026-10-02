@@ -131,7 +131,7 @@ export function Integrations() {
             Integrations
           </motion.div>
           <motion.h2 id="int-title" variants={fadeUp}>
-            Plug your Claude Code usage into anything
+            Plug every agent’s usage into anything
           </motion.h2>
           <motion.p variants={fadeUp}>
             The dashboard is one client among many. Build cost reports, team rollups, Slack bots, or Grafana panels on

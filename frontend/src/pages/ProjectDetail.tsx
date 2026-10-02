@@ -68,12 +68,12 @@ export function ProjectDetail() {
               {
                 label: 'Requests',
                 value: fmt(project.requests),
-                hint: 'Total Claude API requests recorded for this project, all-time.',
+                hint: 'Model requests recorded for this project across every agent, all-time.',
               },
               {
                 label: 'Sessions',
                 value: fmt(project.sessions),
-                hint: 'Number of distinct Claude Code sessions in this project.',
+                hint: 'Distinct agent sessions in this project.',
               },
               {
                 label: 'Health',
@@ -122,7 +122,7 @@ export function ProjectDetail() {
             <div className="bg-surface border border-line rounded-lg p-4">
               <h2 className="text-sm font-bold mb-3">Project profile</h2>
               <KV k="Sessions" v={String(project.sessions)} />
-              <KV k="Clients" v={String(project.client_count)} />
+              <KV k="Agents & IDEs" v={String(project.client_count)} />
               <KV k="Last activity" v={ago(project.last_activity)} />
               <KV k="Attribution" v={<Badge tone="warning">Estimated</Badge>} />
             </div>
@@ -200,7 +200,7 @@ function RequestsTab({ project }: { project: string }) {
             render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
           },
           { key: 'model', label: 'Model' },
-          { key: 'client', label: 'Client' },
+          { key: 'client', label: 'Agent' },
           { key: 'input_tokens', label: 'Input', align: 'right', render: (v) => fmt(v as number) },
           { key: 'output_tokens', label: 'Output', align: 'right', render: (v) => fmt(v as number) },
           { key: 'cache_read_tokens', label: 'Cache read', align: 'right', render: (v) => fmt(v as number) },
@@ -261,7 +261,7 @@ function SessionsTab({ project }: { project: string }) {
           label: 'Session',
           render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
         },
-        { key: 'client', label: 'Client' },
+        { key: 'client', label: 'Agent' },
         { key: 'model', label: 'Model' },
         { key: 'total_tokens', label: 'Tokens', align: 'right', render: (v) => fmt(v as number) },
         { key: 'interactions', label: 'Interactions', align: 'right', render: (v) => fmt(v as number) },

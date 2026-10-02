@@ -1,4 +1,4 @@
-// Offline token estimator for the calculator. Claude's tokenizer isn't
+// Offline token estimator for the calculator. Model tokenizers aren't
 // available locally, so this blends two heuristics (word pieces and a
 // characters-per-token ratio tuned per content type) and is always labelled
 // as an estimate. Typical error is ±10-15% for English prose and code.

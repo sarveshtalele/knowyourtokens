@@ -49,7 +49,7 @@ export function Requests() {
       <PageHead
         eyebrow="Trace explorer"
         title="Requests"
-        subtitle="Inspect individual Claude requests with exact usage and context metadata. Click a row to view the prompt and response."
+        subtitle="Inspect individual model requests from every agent, with exact usage and context metadata. Click a row to view the prompt and response."
         actions={
           <Button onClick={reload} className="flex items-center gap-1.5">
             <IconRefresh width={14} height={14} /> Refresh
@@ -109,7 +109,7 @@ export function Requests() {
             },
             { key: 'project', label: 'Project' },
             { key: 'model', label: 'Model' },
-            { key: 'client', label: 'Client' },
+            { key: 'client', label: 'Agent' },
             { key: 'input_tokens', label: 'Input', align: 'right', render: (v) => fmt(v as number) },
             { key: 'output_tokens', label: 'Output', align: 'right', render: (v) => fmt(v as number) },
             { key: 'cache_read_tokens', label: 'Cache read', align: 'right', render: (v) => fmt(v as number) },

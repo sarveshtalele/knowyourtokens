@@ -22,7 +22,7 @@ export function McpPlugins() {
       <PageHead
         eyebrow="Extension telemetry"
         title="MCP & Plugins"
-        subtitle="MCP server activity, skill plugins, and Claude Code hook events."
+        subtitle="MCP server activity, skill plugins, and live hook events (Claude Code)."
       />
       <TabNav tabs={TABS} active={tab} onChange={setTab} />
 

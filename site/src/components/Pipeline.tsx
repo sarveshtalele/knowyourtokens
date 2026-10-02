@@ -4,9 +4,9 @@ import { Reveal, fadeUp } from './motion';
 type Node = { id: string; x: number; y: number; w: number; title: string; sub: string };
 
 const NODES: Node[] = [
-  { id: 'cc', x: 20, y: 150, w: 170, title: 'Claude Code', sub: 'CLI · IDEs · SDK' },
-  { id: 'hooks', x: 260, y: 60, w: 180, title: 'Hooks', sub: '8 events, live' },
-  { id: 'tx', x: 260, y: 240, w: 180, title: 'Transcripts', sub: '~/.claude/projects/*.jsonl' },
+  { id: 'cc', x: 20, y: 150, w: 170, title: 'Your agents', sub: 'Claude · Codex · Gemini…' },
+  { id: 'hooks', x: 260, y: 60, w: 180, title: 'Session logs', sub: 'read incrementally' },
+  { id: 'tx', x: 260, y: 240, w: 180, title: 'Ingest API', sub: 'any agent · hooks' },
   { id: 'db', x: 510, y: 150, w: 170, title: 'SQLite', sub: 'local · versioned schema' },
   { id: 'api', x: 750, y: 150, w: 170, title: 'REST API', sub: '127.0.0.1 · OpenAPI' },
   { id: 'ui', x: 990, y: 40, w: 170, title: 'Dashboard', sub: 'React · live socket' },
@@ -73,8 +73,9 @@ export function Pipeline() {
           <svg viewBox="0 0 1180 340" role="img" aria-labelledby="pipe-title pipe-desc">
             <title id="pipe-title">Token Telemetry data flow</title>
             <desc id="pipe-desc">
-              Claude Code feeds hooks and transcripts into a local SQLite database, which serves a REST API used by the
-              dashboard and SDKs, and optionally exports to OpenTelemetry and webhooks.
+              Your coding agents' session logs, and usage pushed to the ingest API, flow into a local SQLite database,
+              which serves a REST API used by the dashboard and SDKs, and optionally exports to OpenTelemetry and
+              webhooks.
             </desc>
             {WIRES.map(([a, b, color], i) => {
               const d = wire(a, b);
@@ -126,7 +127,7 @@ export function Pipeline() {
           </svg>
           <ol className="pipeline-mobile">
             <li>
-              <b>Claude Code</b> fires <b>hooks</b> and writes <b>transcripts</b>
+              Your <b>agents</b> write <b>session logs</b>, or push to the <b>ingest API</b>
             </li>
             <li>
               Both land in a local <b>SQLite</b> database
@@ -144,12 +145,12 @@ export function Pipeline() {
             [
               '01',
               'Install',
-              'npx tokentelemetry sets up a Python env, wires the Claude Code hooks, and starts everything.',
+              'npx tokentelemetry sets up a Python env, finds Claude Code, Codex, Gemini CLI and OpenCode, and starts everything.',
             ],
             [
               '02',
-              'Use Claude Code',
-              'Nothing changes in your workflow. Hooks never block a session; failures go to a log.',
+              'Use any agent',
+              'Nothing changes in your workflow. Logs are read, never written; anything else can push one JSON record per request.',
             ],
             [
               '03',

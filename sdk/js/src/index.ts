@@ -1,4 +1,5 @@
 import type {
+  IngestRecord,
   Filters,
   Health,
   McpServer,
@@ -66,10 +67,12 @@ export class TokenTelemetry {
     return `${this.baseUrl}${path}?${q}`;
   }
 
-  private async raw(method: string, path: string, params?: Params): Promise<Response> {
+  private async raw(method: string, path: string, params?: Params, body?: unknown): Promise<Response> {
     const res = await this.fetchImpl(this.url(path, params), {
       method,
-      headers: { Accept: 'application/json' },
+      headers:
+        body === undefined ? { Accept: 'application/json' } : { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(this.timeoutMs),
     });
     if (!res.ok) {
@@ -150,6 +153,15 @@ export class TokenTelemetry {
 
   iterSessions(filters: Filters = {}, pageSize = 500): AsyncGenerator<SessionRow> {
     return this.paged<SessionRow>('/api/v1/sessions', pageSize, { ...filters });
+  }
+
+  /**
+   * Push usage from an agent with no readable local logs (Antigravity, Cursor,
+   * your own agent). Re-sending a `request_id` is a no-op.
+   */
+  async ingest(agent: string, records: IngestRecord[]): Promise<{ accepted: number; new: number }> {
+    const res = await this.raw('POST', '/api/v1/ingest', {}, { agent, records });
+    return ((await res.json()) as Envelope<{ accepted: number; new: number }>).data;
   }
 
   async reconcile(): Promise<{ changed: number; scanned: number }> {

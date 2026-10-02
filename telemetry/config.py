@@ -39,6 +39,15 @@ def projects_dir() -> Path:
     return claude_dir() / "projects"
 
 
+def sources():
+    """Agents to ingest: None (all detected) or a set of source names from
+    TOKENTELEMETRY_SOURCES, e.g. "claude-code,codex"."""
+    raw = _env("TOKENTELEMETRY_SOURCES")
+    if not raw:
+        return None
+    return {s.strip().lower() for s in raw.split(",") if s.strip()}
+
+
 def poll_interval() -> int:
     return max(2, _env_int("CLAUDE_TELEMETRY_INTERVAL", 5))
 

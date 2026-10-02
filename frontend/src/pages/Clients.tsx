@@ -18,18 +18,18 @@ export function Clients() {
     <div className="space-y-6">
       <PageHead
         eyebrow="Environment intelligence"
-        title="Clients & IDEs"
-        subtitle="Best-effort client classification across Claude Code sessions."
+        title="Agents & IDEs"
+        subtitle="Every agent and IDE, side by side: Claude Code (by IDE), Codex CLI, Gemini CLI, OpenCode and any agent pushed through the API."
       />
       <StatRow
         stats={[
           {
-            label: 'Known clients',
+            label: 'Agents & IDEs',
             value: fmt(clients.length),
-            hint: 'Number of distinct IDE/CLI clients detected in telemetry (e.g. Claude Code Terminal, Cursor, VS Code).',
+            hint: 'Distinct agents and IDEs seen (e.g. Codex CLI, Gemini CLI, Claude Code in VS Code or the terminal).',
           },
           {
-            label: 'Top client',
+            label: 'Top agent',
             value: clients[0]?.client || '—',
             hint: 'The client with the most total tokens recorded, all-time.',
           },
@@ -48,17 +48,17 @@ export function Clients() {
       {clients.length > 0 && (
         <TokenBarChart
           data={clients.map((c) => ({ project: c.client, total_tokens: c.total_tokens }))}
-          title="Client mix"
+          title="Agent mix"
         />
       )}
       <div className="bg-surface border border-line rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-line">
-          <span className="font-bold text-sm">Client breakdown</span>
+          <span className="font-bold text-sm">Agent breakdown</span>
           <Badge tone="info">Classification confidence varies</Badge>
         </div>
         <DataTable
           columns={[
-            { key: 'client', label: 'Client' },
+            { key: 'client', label: 'Agent' },
             { key: 'total_tokens', label: 'Tokens', align: 'right', render: (v) => fmt(v as number) },
             { key: 'sessions', label: 'Sessions', align: 'right', render: (v) => fmt(v as number) },
             { key: 'requests', label: 'Requests', align: 'right', render: (v) => fmt(v as number) },

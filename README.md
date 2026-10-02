@@ -2,11 +2,12 @@
 
 # Token Telemetry
 
-### See where every Claude Code token goes.
+### Every AI coding agent. Every token. One local dashboard.
 
-Local-first, open-source observability for Claude Code: exact token usage per request, project, session,
-tool, skill and MCP server, on your own machine. Includes a REST API, Python and TypeScript SDKs,
-OpenTelemetry export and webhooks.
+Local-first, open-source observability for AI coding agents (Claude Code, Codex CLI, Gemini CLI,
+OpenCode, and any other agent through one API call). See exact token usage per request, project,
+session, agent, tool, skill and MCP server, debug the prompt behind any spike, and keep it all on
+your own machine. Includes a REST API, Python and TypeScript SDKs, OpenTelemetry export and webhooks.
 
 <p>
   <a href="https://www.npmjs.com/package/tokentelemetry"><img src="https://img.shields.io/npm/v/tokentelemetry.svg" alt="npm version"></a>
@@ -29,30 +30,50 @@ OpenTelemetry export and webhooks.
 npx tokentelemetry
 ```
 
-One command sets up a Python environment, wires the Claude Code hooks into `~/.claude/settings.json`,
-and starts the backend, the collector daemon and the dashboard at **http://127.0.0.1:5173**. It works
-with the Claude Code CLI, VS Code, JetBrains, Cursor, Windsurf, the Agent SDK and remote sessions, on
+One command sets up a Python environment, starts the backend, the collector daemon and the dashboard
+at **http://127.0.0.1:5173**, and picks up every supported agent it finds on your machine. It runs on
 Windows, macOS and Linux.
+
+## Supported agents
+
+| Agent | How it's read | Live? |
+|---|---|---|
+| **Claude Code** (CLI, VS Code, JetBrains, Agent SDK, remote) | Session transcripts in `~/.claude/projects` + hooks | Live (hooks) |
+| **Codex CLI** | Rollouts in `~/.codex/sessions` (per-response usage records) | Seconds |
+| **Gemini CLI** | Chats in `~/.gemini/tmp/*/chats` | Seconds |
+| **OpenCode** | Its SQLite database (`~/.local/share/opencode/opencode.db`), read-only | Seconds |
+| **Anything else**: Antigravity, Cursor, Copilot CLI, your own agent, a CI job | `POST /api/v1/ingest` or the SDKs' `ingest()` | When you push |
+
+Antigravity encrypts its local conversations and doesn't expose token usage on disk or over
+OpenTelemetry today, so it can only be tracked by pushing usage (for example from headless runs).
+Limit what's read with `TOKENTELEMETRY_SOURCES=claude-code,codex`. Details:
+[INTEGRATIONS](docs/INTEGRATIONS.md#track-any-agent).
 
 <table>
 <tr>
 <td width="50%"><img src="docs/screenshots/dashboard-dark.png" alt="Global dashboard"><p align="center"><sub>Global dashboard</sub></p></td>
 <td width="50%"><img src="docs/screenshots/project-detail-dark.png" alt="Project detail"><p align="center"><sub>Project detail</sub></p></td>
 </tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/agents-light.png" alt="Every agent side by side"><p align="center"><sub>Every agent side by side</sub></p></td>
+<td width="50%"><img src="docs/launch/gallery/07-token-calculator.png" alt="Token calculator"><p align="center"><sub>Token calculator</sub></p></td>
+</tr>
 </table>
 
 ## Why
 
-Claude Code doesn't show you, across every project, how many tokens you're spending, what fills your
-context, or which tools, skills and MCP servers drive it. Token Telemetry does, without sending your
-prompts anywhere.
+Coding agents don't show you, across every project and every agent, how many tokens you're spending,
+what fills your context, or which tools, skills and MCP servers drive it. Token Telemetry does, side
+by side for every agent you use, without sending your prompts anywhere.
 
 ## Features
 
 - **Exact token accounting:** input, output, cache-read and cache-write tokens per API request, read
-  from the usage Claude Code records. Each request is counted once, even when Claude Code splits its
-  message over several transcript lines.
-- **Every dimension:** projects, sessions, models, clients/IDEs, tools, skills, plugins, MCP servers,
+  from the usage each agent records itself. Each request is counted once, even when an agent repeats
+  usage across lines (Claude Code) or reports running totals (Codex).
+- **Every agent side by side:** compare Claude Code, Codex, Gemini CLI, OpenCode and any pushed agent
+  on the same charts.
+- **Every dimension:** projects, sessions, agents, models, IDEs, tools, skills, plugins, MCP servers,
   hook events, all time by default, with local-time-zone date filters.
 - **Context hotspots (estimated, always labelled):** each request's exact total is spread across the
   files and tools around it.
@@ -125,6 +146,14 @@ for p in TokenTelemetry().projects():
 ```
 
 ```bash
+# Track any agent: push one record per model request (request_id makes retries safe)
+curl -X POST http://127.0.0.1:8000/api/v1/ingest -H 'Content-Type: application/json' -d '{
+  "agent": "Antigravity",
+  "records": [{"request_id": "r-1", "cwd": "/work/app", "model": "gemini-3-pro",
+               "input_tokens": 1200, "output_tokens": 300, "cache_read_tokens": 5000}]}'
+```
+
+```bash
 export TOKENTELEMETRY_OTLP_ENDPOINT=http://localhost:4318    # Grafana, Datadog, Honeycomb, ...
 export TOKENTELEMETRY_WEBHOOK_URL=https://example.com/hook   # HMAC-signed batches
 ```
@@ -134,15 +163,15 @@ Details: [API reference](docs/API.md) · [Integrations](docs/INTEGRATIONS.md).
 ## How it works
 
 ```
-Claude Code ──hooks──────────────► SQLite ◄──incremental reconcile── ~/.claude/projects/**/*.jsonl
-                                     │
+Claude Code ──hooks──────────────► SQLite ◄── incremental readers ── Claude Code · Codex · Gemini CLI · OpenCode
+any agent ──POST /api/v1/ingest──►   │
                     FastAPI on 127.0.0.1 (/api/v1, /ws/live, /openapi.json)
                      │            │                 │
                  dashboard     SDKs / curl     OTLP · webhooks (opt-in)
 ```
 
-Hooks capture events the instant they happen. The daemon reads only the bytes appended to session
-transcripts for exact usage and full text, and catches up after downtime. Full diagrams, the schema,
+Hooks capture Claude Code events the instant they happen. The daemon reads only what's new in each
+agent's session logs for exact usage and full text, and catches up after downtime. Full diagrams, the schema,
 and design decisions are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Documentation
@@ -153,7 +182,7 @@ and design decisions are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | [USER_GUIDE](docs/USER_GUIDE.md) | Every page and metric, exact vs. estimated, exports |
 | [API](docs/API.md) | REST conventions and endpoints ([OpenAPI](docs/openapi.json)) |
 | [INTEGRATIONS](docs/INTEGRATIONS.md) | SDKs, OpenTelemetry, webhooks, writing an exporter |
-| [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, data flow, schema v7, migrations |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, agent sources, data flow, schema v8, migrations |
 | [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Threat model and findings |
 | [DESIGN](DESIGN.md) | Dashboard design tokens |
 | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) | Where it's going, what changed |
@@ -167,4 +196,4 @@ vulnerabilities privately: [SECURITY.md](SECURITY.md).
 ## License
 
 [MIT](LICENSE) © Sarvesh Talele and contributors. Token Telemetry is an independent project and is not
-affiliated with or endorsed by Anthropic.
+affiliated with or endorsed by Anthropic, OpenAI, Google, or any agent vendor.

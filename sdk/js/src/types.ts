@@ -133,3 +133,20 @@ export interface Health {
   schema_version: number;
   database: string;
 }
+
+/** One model request pushed with `ingest()`. */
+export interface IngestRecord {
+  request_id?: string;
+  session_id?: string;
+  timestamp?: string;
+  cwd?: string;
+  project?: string;
+  model?: string;
+  input_tokens?: number;
+  output_tokens?: number;
+  cache_read_tokens?: number;
+  cache_write_tokens?: number;
+  prompt?: string;
+  response?: string;
+  tool_calls?: (string | { name: string; id?: string; input?: Record<string, unknown> })[];
+}

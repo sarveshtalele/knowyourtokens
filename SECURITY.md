@@ -35,8 +35,10 @@ hosted service to attack. In-scope reports include:
 - A way for the bundled dashboard (a browser page) to make the backend do
   something a same-origin request shouldn't be able to do (e.g. a CSRF or
   CORS misconfiguration issue).
-- Command or SQL injection anywhere user-controlled or transcript-derived
-  data reaches a shell command or a SQL query.
+- Command or SQL injection anywhere user-controlled, session-file-derived
+  or ingest-API-supplied data reaches a shell command or a SQL query.
+- A way for Token Telemetry to modify another agent's files or database
+  (it should only ever read them).
 - A dependency with a known, exploitable CVE that this project actually
   uses in a vulnerable way.
 
@@ -49,7 +51,15 @@ hosted service to attack. In-scope reports include:
   for the full reasoning).
 - Vulnerabilities that require the attacker to already have local code
   execution as the same user running the tool (at that point they can
-  already read the SQLite database directly).
+  already read the SQLite database directly, or push records to the
+  local ingest API).
+
+## Scope note
+
+Token Telemetry is an independent project, not affiliated with Anthropic,
+OpenAI, Google or any agent vendor. Vulnerabilities in the agents
+themselves (Claude Code, Codex CLI, Gemini CLI, OpenCode, ...) should be
+reported to their vendors.
 
 ## Full security review
 

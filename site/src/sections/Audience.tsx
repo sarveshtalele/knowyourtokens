@@ -7,7 +7,7 @@ const PEOPLE = [
     line: 'Stop guessing why a session got slow and expensive.',
     points: [
       'Spot the prompt that blew the context',
-      'See which files Claude keeps re-reading',
+      'See which files your agent keeps re-reading',
       'Learn what makes prompts cheap',
     ],
   },
@@ -40,7 +40,7 @@ export function Audience() {
   return (
     <section className="audience" id="for-you" aria-labelledby="aud-title">
       <div className="wrap2">
-        <p className="kicker2">Made for everyone who uses Claude Code</p>
+        <p className="kicker2">Made for everyone who codes with AI agents</p>
         <h2 id="aud-title" className="headline">
           Better prompts start with <span className="grad-text">seeing them.</span>
         </h2>
@@ -58,7 +58,7 @@ export function Audience() {
             <p className="kicker2">Debugging prompts</p>
             <h3>From “why is this so slow?” to the exact cause in three clicks.</h3>
             <p>
-              Claude Code shows you the answer. Token Telemetry shows you the question: the full context that was sent,
+              Your agent shows you the answer. Token Telemetry shows you the question: the full context that was sent,
               what each part cost, and which tool result made it explode. Fix the pattern once and every future session
               gets cheaper and sharper.
             </p>

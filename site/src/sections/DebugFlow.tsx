@@ -51,8 +51,8 @@ export function DebugFlow() {
           Debug any prompt <span className="grad-text">in four steps.</span>
         </h2>
         <p className="lede2">
-          Claude Code shows you the answer. Token Telemetry shows you the question: exactly what was sent, what each
-          part cost, and whether your fix worked.
+          Your agent shows you the answer. Token Telemetry shows you the question: exactly what was sent, what each part
+          cost, and whether your fix worked.
         </p>
       </div>
       <div

@@ -4,6 +4,7 @@ from .routes import (
     attributions,
     clients,
     events,
+    ingest,
     mcp,
     plugins,
     projects,
@@ -30,5 +31,6 @@ for module, prefix in (
     (plugins, "plugins"),
     (settings, "settings"),
     (reports, "reports"),
+    (ingest, "ingest"),
 ):
     api_router.include_router(module.router, prefix=f"/{prefix}", tags=[prefix])

@@ -117,6 +117,8 @@ _ENTRYPOINTS = {
 
 def detect_client(path="", obj=None):
     """Best-effort client/IDE classification."""
+    if obj and obj.get("_client"):
+        return obj["_client"]  # set by a non-Claude source adapter
     entry = first(obj or {}, ["entrypoint", "entryPoint"], None)
     if isinstance(entry, str) and entry:
         return _ENTRYPOINTS.get(entry.lower(), f"Claude Code · {entry}")

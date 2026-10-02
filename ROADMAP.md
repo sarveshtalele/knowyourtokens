@@ -3,6 +3,10 @@
 Direction, not promises. Open an issue to discuss any of these, or to propose something else.
 
 **Next**
+- More built-in agent sources where the agent stores per-request token usage locally in a readable
+  form. Until then, other agents (Antigravity, Cursor, GitHub Copilot CLI) are tracked through the
+  ingest API.
+- Ready-made ingest wrappers for headless agent runs (for example in CI).
 - Publish the Python SDK to PyPI and the JS SDK to npm from the release workflow.
 - Per-project budgets/alerts (token thresholds, delivered via webhook).
 - Model/plan-aware cost estimates as an *optional*, clearly labelled export column (never in the core

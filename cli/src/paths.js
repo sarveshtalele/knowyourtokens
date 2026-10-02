@@ -27,6 +27,20 @@ function claudeConfigDir() {
   return process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
 }
 
+/** Where each supported agent keeps its session logs (mirrors telemetry/sources). */
+function agentDataPaths() {
+  const home = os.homedir();
+  const codexHome = process.env.CODEX_HOME || path.join(home, '.codex');
+  const geminiHome = path.join(process.env.GEMINI_CLI_HOME || home, '.gemini');
+  const xdgData = process.env.XDG_DATA_HOME || path.join(home, '.local', 'share');
+  return [
+    { name: 'Claude Code', path: path.join(claudeConfigDir(), 'projects') },
+    { name: 'Codex CLI', path: path.join(codexHome, 'sessions') },
+    { name: 'Gemini CLI', path: path.join(geminiHome, 'tmp') },
+    { name: 'OpenCode', path: process.env.OPENCODE_DB || path.join(xdgData, 'opencode', 'opencode.db') },
+  ];
+}
+
 function claudeSettingsPath() {
   return path.join(claudeConfigDir(), 'settings.json');
 }
@@ -74,6 +88,7 @@ module.exports = {
   venvPython,
   claudeConfigDir,
   claudeSettingsPath,
+  agentDataPaths,
   runStatePath,
   logDir,
   backendPort,

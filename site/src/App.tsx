@@ -3,6 +3,7 @@ import { Integrations } from './components/Integrations';
 import { Nav } from './components/Nav';
 import { Pipeline } from './components/Pipeline';
 import { Faq, FinalCta, Footer, Privacy } from './components/Rest';
+import { Agents } from './sections/Agents';
 import { Audience } from './sections/Audience';
 import { Calculator } from './sections/Calculator';
 import { DebugFlow } from './sections/DebugFlow';
@@ -24,6 +25,7 @@ export default function App() {
       <Hero />
       <main id="main">
         <Highlights />
+        <Agents />
         <Problem />
         <Demo />
         <DebugFlow />

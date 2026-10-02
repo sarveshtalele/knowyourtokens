@@ -10,6 +10,17 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 ## [2.1.0] - 2026-10-02
 
 ### Added
+- **Every AI coding agent, not just Claude Code.** New built-in sources read each agent's own logs,
+  incrementally and read-only:
+  - **Codex CLI** (`~/.codex/sessions`, per-response usage records, no double counting of running totals),
+  - **Gemini CLI** (`~/.gemini/tmp/*/chats`, last write per message wins, rewinds honoured),
+  - **OpenCode** (its SQLite database; one row per `step-finish`).
+  Claude Code keeps its transcripts and live hooks. Limit sources with `TOKENTELEMETRY_SOURCES`.
+- **Ingest API** `POST /api/v1/ingest` (and `ingest()` in both SDKs) for agents without readable logs
+  (Antigravity, Cursor, Copilot CLI, your own agent): one record per model request, idempotent by
+  `request_id`.
+- `tokentelemetry doctor` lists the agents it found on this machine.
+- Website "One dashboard. Every agent." section, and the dashboard's Clients page is now **Agents**.
 - The dashboard is an installable app (web manifest, app icons, offline shell) with an **Install app**
   button, so it can live in the Dock or taskbar.
 - `tokentelemetry shortcut [--dock] [--remove]`: native launcher with the app icon on Windows (Start
@@ -30,6 +41,10 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   motion).
 
 ### Changed
+- Positioned as observability for all AI coding agents across the README, docs, website, dashboard,
+  CLI and package metadata. Not affiliated with any agent vendor.
+- Database schema v8: `transcripts.source` and `source_state` (automatic migration with a backup).
+- New social preview, link card and LinkedIn images (`docs/launch/`).
 - Accessibility: the dashboard and website pass an axe-core WCAG 2.1 AA audit in light and dark
   themes. Text colours meet 4.5:1 contrast, every page has one `h1` and ordered headings, filters
   have labels, and scrollable tables are keyboard-reachable.

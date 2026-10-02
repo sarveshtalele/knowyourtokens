@@ -10,7 +10,7 @@ const LABELS: Record<string, string> = {
   tools: 'Tools',
   skills: 'Skills',
   sessions: 'Sessions',
-  clients: 'Clients & IDEs',
+  clients: 'Agents & IDEs',
   'mcp-plugins': 'MCP & Plugins',
   reports: 'Reports',
   calculator: 'Calculator',

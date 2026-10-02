@@ -43,7 +43,7 @@ export function RequestFull() {
           value={fmt(row.input_tokens)}
           hint="Fresh, uncached tokens the API had to process for this request -- often small once a session's context is warm in the cache."
         />
-        <Metric label="Output" value={fmt(row.output_tokens)} hint="Tokens Claude generated in its response." />
+        <Metric label="Output" value={fmt(row.output_tokens)} hint="Tokens the model generated in its response." />
         <Metric
           label="Cache read"
           value={fmt(row.cache_read_tokens)}
@@ -57,7 +57,7 @@ export function RequestFull() {
         <Metric
           label="Total"
           value={fmt(row.total_tokens)}
-          hint="Input + output + cache read + cache write -- exact, from the Claude API."
+          hint="Input + output + cache read + cache write -- exact, as reported by the agent."
         />
       </div>
 
@@ -70,8 +70,8 @@ export function RequestFull() {
         </div>
         <p className="text-xs text-ink-soft mb-2">
           Every user message and tool result since this session's last reply, in order. The system prompt and tool
-          definitions aren't shown here -- Claude Code doesn't expose them to this collector -- but their exact token
-          cost is fully accounted for above, under Cache read/write.
+          definitions aren't shown here -- agents don't write them to their session logs -- but their exact token cost
+          is fully accounted for above, under Cache read/write.
         </p>
         <pre className="bg-surface-code text-slate-300 rounded-lg p-4 text-xs whitespace-pre-wrap break-words leading-relaxed max-h-[60vh] overflow-y-auto">
           {row.prompt_full ||
@@ -121,7 +121,7 @@ const CONTEXT_SEGMENTS: {
   { key: 'cache_read_tokens', label: 'Cache read (reused system prompt, tools, history)', color: 'bg-accent' },
   { key: 'cache_write_tokens', label: 'Cache write (newly cached this turn)', color: 'bg-info' },
   { key: 'input_tokens', label: 'Fresh input', color: 'bg-success' },
-  { key: 'output_tokens', label: "Claude's response", color: 'bg-warning' },
+  { key: 'output_tokens', label: 'Model response', color: 'bg-warning' },
 ];
 
 function ContextBreakdown({

@@ -216,8 +216,8 @@ export function Calculator() {
             </Select>
           </div>
           <p className="text-xs text-ink-soft">
-            Computed in your browser: nothing is sent anywhere. Claude&apos;s tokenizer isn&apos;t available offline, so
-            this blends two heuristics. The token counts on every other page are exact.
+            Computed in your browser: nothing is sent anywhere. model tokenizers aren&apos;t available offline, so this
+            blends two heuristics. The token counts on every other page are exact.
           </p>
         </Card>
 
@@ -273,7 +273,7 @@ export function Calculator() {
             {pct > 100
               ? 'This request will not fit. Trim tool output or start a new session.'
               : pct > 80
-                ? 'Close to the limit: Claude Code will compact soon. Summarise or trim large tool results.'
+                ? 'Close to the limit: the agent will compact soon. Summarise or trim large tool results.'
                 : `Room for about ${fmt(Math.max(0, windowSize - used))} more tokens.`}
           </p>
         </Card>

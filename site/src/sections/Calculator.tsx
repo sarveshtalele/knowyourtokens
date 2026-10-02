@@ -111,7 +111,7 @@ export function Calculator() {
                 </div>
               </dl>
             </div>
-            <p className="calc-hint">Estimate (±15%). Inside the app, every count from Claude Code itself is exact.</p>
+            <p className="calc-hint">Estimate (±15%). Inside the app, every count your agents record is exact.</p>
           </div>
 
           <div className="calc-right">

@@ -19,7 +19,7 @@ export function Tools() {
       <PageHead
         eyebrow="Tool telemetry"
         title="Tools"
-        subtitle="Understand which Claude Code tools drive context growth and execution volume."
+        subtitle="Understand which agent tools drive context growth and execution volume."
       />
       <StatRow
         stats={[

@@ -7,7 +7,7 @@ const STEPS = [
     n: '1',
     t: 'Install',
     c: 'npx tokentelemetry',
-    d: 'Sets up a private Python env, wires the Claude Code hooks, starts everything. Needs Node 18+ and Python 3.10+.',
+    d: 'Sets up a private Python env, finds your agents, starts everything. Needs Node 18+ and Python 3.10+.',
   },
   {
     n: '2',
@@ -17,7 +17,7 @@ const STEPS = [
   },
   {
     n: '3',
-    t: 'Use Claude Code',
+    t: 'Use any agent',
     c: 'claude',
     d: 'Nothing changes in your workflow. The dashboard fills in live as you work, and history is backfilled.',
   },
@@ -57,7 +57,7 @@ const SPECS: [string, string][] = [
   ],
   [
     'Accuracy',
-    'Exact per-request usage from Claude Code transcripts, de-duplicated per API message. Attribution is estimated and always labelled',
+    'Exact per-request usage from each agent’s own logs (Claude Code, Codex CLI, Gemini CLI, OpenCode) or the ingest API, de-duplicated per request. Attribution is estimated and always labelled',
   ],
   [
     'Storage',
