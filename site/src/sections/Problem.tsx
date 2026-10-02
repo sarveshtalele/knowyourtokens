@@ -198,9 +198,9 @@ function Spikes({ fixed, shown }: { fixed: boolean; shown: boolean }) {
             <AnimatePresence>
               <motion.em
                 key={String(fixed)}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, y: 6, x: '-50%' }}
+                animate={{ opacity: 1, y: 0, x: '-50%' }}
+                exit={{ opacity: 0, x: '-50%' }}
               >
                 {fixed ? '312.4K · Bash › open' : '???'}
               </motion.em>
@@ -298,24 +298,25 @@ function Loop({ fixed, shown }: { fixed: boolean; shown: boolean }) {
   // invisible until you can measure it.
   const d = 'M0 12 L14 16 L28 10 L44 15 L58 13 L64 30 L78 34 L90 32 L100 35';
   return (
-    <svg className="v-loop" viewBox="0 0 100 50" preserveAspectRatio="none">
-      <line x1="58" y1="2" x2="58" y2="44" className="v-loop-mark" />
-      <motion.path
-        d={d}
-        initial={false}
-        animate={{
-          opacity: shown ? 1 : 0,
-          stroke: fixed ? 'var(--c1)' : 'var(--ink-faint)',
-          strokeOpacity: fixed ? 1 : 0.45,
-        }}
-        transition={{ duration: 0.6 }}
-      />
-      <motion.text x="62" y="22" animate={{ opacity: fixed ? 1 : 0 }}>
-        −38% tokens/request
-      </motion.text>
-      <text x="58" y="49" className="v-loop-label">
-        CLAUDE.md change
-      </text>
-    </svg>
+    <div className="v-loop-wrap">
+      <svg className="v-loop" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="58" y1="2" x2="58" y2="44" className="v-loop-mark" />
+        <motion.path
+          d={d}
+          initial={false}
+          animate={{
+            opacity: shown ? 1 : 0,
+            stroke: fixed ? 'var(--c1)' : 'var(--ink-faint)',
+            strokeOpacity: fixed ? 1 : 0.45,
+          }}
+          transition={{ duration: 0.6 }}
+        />
+      </svg>
+      {/* HTML labels: SVG text would be squashed by preserveAspectRatio="none". */}
+      <motion.span className="v-loop-delta" animate={{ opacity: fixed ? 1 : 0 }}>
+        −38% per request
+      </motion.span>
+      <span className="v-loop-label">CLAUDE.md change</span>
+    </div>
   );
 }
