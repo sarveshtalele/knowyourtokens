@@ -1,4 +1,4 @@
-import { fetchApi } from './client';
+import { fetchApi, tzOffset } from './client';
 import type { ReportFormat, ReportKind, ReportPreview } from '../types';
 
 export interface ReportFilters {
@@ -13,11 +13,12 @@ function query({ kind, project, start, end }: ReportFilters) {
   if (project && project !== 'All') params.set('project', project);
   if (start) params.set('start', start);
   if (end) params.set('end', end);
+  params.set('tz_offset', String(tzOffset()));
   return params;
 }
 
-export function getReportPreview(filters: ReportFilters) {
-  return fetchApi<ReportPreview>(`/reports/preview?${query(filters)}`);
+export function getReportPreview(filters: ReportFilters, signal?: AbortSignal) {
+  return fetchApi<ReportPreview>(`/reports/preview?${query(filters)}`, { signal });
 }
 
 export function reportExportUrl(filters: ReportFilters, format: ReportFormat) {

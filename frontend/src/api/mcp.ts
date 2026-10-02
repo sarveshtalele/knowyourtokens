@@ -1,6 +1,6 @@
 import { fetchApi } from './client';
 import type { McpServer } from '../types';
 
-export function getMcpServers() {
-  return fetchApi<McpServer[]>('/mcp');
+export function getMcpServers(signal?: AbortSignal) {
+  return fetchApi<McpServer[]>('/mcp', { signal });
 }

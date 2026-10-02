@@ -8,7 +8,6 @@ from telemetry import __version__, config
 from telemetry.db import SCHEMA_VERSION
 from telemetry.reconcile import reconcile
 
-from ... import bootstrap  # noqa: F401
 from ...deps import get_db
 from ...schemas import Envelope, ReconcileResult, SettingsInfo
 

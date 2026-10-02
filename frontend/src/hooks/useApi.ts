@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface State<T> {
   data: T | undefined;
@@ -6,28 +6,38 @@ interface State<T> {
   error: Error | null;
 }
 
-export function useApi<T>(fetcher: () => Promise<{ data: T }>, deps: unknown[] = []): State<T> & { reload: () => void } {
+/**
+ * Fetch on mount and whenever `deps` change. In-flight requests are aborted
+ * when deps change or the component unmounts, so a slow response can never
+ * overwrite a newer one. Previous data stays visible while refetching.
+ */
+export function useApi<T>(
+  fetcher: (signal: AbortSignal) => Promise<{ data: T }>,
+  deps: unknown[] = [],
+): State<T> & { reload: () => void } {
   const [state, setState] = useState<State<T>>({ data: undefined, loading: true, error: null });
   const fetcherRef = useRef(fetcher);
-  fetcherRef.current = fetcher;
+  useLayoutEffect(() => {
+    fetcherRef.current = fetcher;
+  });
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
     setState((s) => ({ ...s, loading: true, error: null }));
     fetcherRef
-      .current()
+      .current(controller.signal)
       .then((res) => {
-        if (!cancelled) setState({ data: res.data, loading: false, error: null });
+        if (!controller.signal.aborted) setState({ data: res.data, loading: false, error: null });
       })
-      .catch((err) => {
-        if (!cancelled) setState({ data: undefined, loading: false, error: err instanceof Error ? err : new Error(String(err)) });
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        setState((s) => ({ data: s.data, loading: false, error: err instanceof Error ? err : new Error(String(err)) }));
       });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps are the caller's contract
   }, [...deps, tick]);
 
-  return { ...state, reload: () => setTick((t) => t + 1) };
+  const reload = useCallback(() => setTick((t) => t + 1), []);
+  return { ...state, reload };
 }

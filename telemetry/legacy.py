@@ -18,8 +18,8 @@ import sqlite3
 from pathlib import Path
 
 from telemetry import config
-from telemetry.common import mcp_server, normalize_time, project_key, utc_now_iso
-from telemetry.store import upsert_project, upsert_session
+from telemetry.common import mcp_server, normalize_time, utc_now_iso
+from telemetry.store import session_dims, upsert_project, upsert_session
 
 
 def _cols(conn, table):
@@ -59,12 +59,11 @@ class _Importer:
     def dims(self, row, cols, when):
         cwd = _get(row, cols, "cwd")
         transcript = _get(row, cols, "transcript_path")
-        key = project_key(cwd, transcript, self.projects_dir)
-        if key == "unknown" and _get(row, cols, "project"):
-            key = "name:" + row["project"]
-        pid = upsert_project(self.conn, key, cwd, when)
-        sref = upsert_session(self.conn, _get(row, cols, "session_id"), pid, _get(row, cols, "client"), when)
-        return pid, sref
+        if not cwd and not transcript and _get(row, cols, "project"):
+            # No path at all: fall back to the old display name as the identity.
+            pid = upsert_project(self.conn, "name:" + row["project"], None, when)
+            return pid, upsert_session(self.conn, _get(row, cols, "session_id"), pid, _get(row, cols, "client"), when)
+        return session_dims(self.conn, _get(row, cols, "session_id"), cwd, transcript, _get(row, cols, "client"), when)
 
 
 def _when(row, cols):

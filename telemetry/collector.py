@@ -16,12 +16,11 @@ from telemetry.common import (
     first,
     mcp_server,
     normalize_time,
-    project_key,
     slim_payload,
     utc_now_iso,
 )
 from telemetry.db import connect, transaction
-from telemetry.store import upsert_project, upsert_session
+from telemetry.store import session_dims
 
 HOOK_EVENTS = (
     "SessionStart",
@@ -62,9 +61,8 @@ def ingest(payload, db_path=None):
     conn = connect(db_path)
     try:
         with transaction(conn):
-            pid = upsert_project(conn, project_key(cwd, transcript, config.projects_dir()), cwd, event_time)
-            sref = upsert_session(
-                conn, payload.get("session_id"), pid, detect_client(transcript or "", payload), event_time
+            pid, sref = session_dims(
+                conn, payload.get("session_id"), cwd, transcript, detect_client(transcript or "", payload), event_time
             )
             conn.execute(
                 """INSERT INTO events(event_time,event_type,session_ref,project_id,model,tool_name,tool_use_id,

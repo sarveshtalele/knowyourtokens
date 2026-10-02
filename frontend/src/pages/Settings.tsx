@@ -6,7 +6,7 @@ import { fmt } from '../lib/format';
 import { PageHead, ErrorPanel } from './GlobalDashboard';
 
 export function Settings() {
-  const { data: s, loading, error, reload } = useApi(() => getSettings(), []);
+  const { data: s, loading, error, reload } = useApi((signal) => getSettings(signal), []);
   if (error) return <ErrorPanel message={error.message} />;
   if (loading || !s) return <div className="p-10 text-center text-ink-soft">Loading settings…</div>;
 
@@ -27,9 +27,10 @@ export function Settings() {
           </Button>
         }
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-surface border border-line rounded-lg p-4">
           <div className="font-bold text-sm mb-3">Collector</div>
+          <KV k="Version" v={s.version ? `v${s.version} · schema v${s.schema_version}` : '—'} />
           <KV k="Database" v={<span className="font-mono text-xs">{s.db_path}</span>} />
           <KV k="DB size" v={`${fmt(s.db_size)} bytes`} />
           <KV k="Poll interval" v={`${s.env.CLAUDE_TELEMETRY_INTERVAL || '5'} seconds`} />
@@ -42,9 +43,34 @@ export function Settings() {
           <KV k="Skills" v={<Badge tone="info">Tracked</Badge>} />
         </div>
       </div>
+      {s.exporters && (
+        <div className="bg-surface border border-line rounded-lg p-4">
+          <div className="font-bold text-sm mb-3">Integrations</div>
+          {s.exporters.map((e) => (
+            <KV
+              key={e.name}
+              k={e.name === 'otlp' ? 'OpenTelemetry (OTLP)' : 'Webhook'}
+              v={
+                e.enabled ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Badge tone="success">On</Badge>
+                    <span className="font-mono text-xs break-all">{e.target}</span>
+                    <span className="text-ink-soft text-xs">{fmt(e.pending_rows)} rows pending</span>
+                  </span>
+                ) : (
+                  <span className="text-ink-soft text-xs">
+                    Off — set {e.name === 'otlp' ? 'TOKENTELEMETRY_OTLP_ENDPOINT' : 'TOKENTELEMETRY_WEBHOOK_URL'} to
+                    enable
+                  </span>
+                )
+              }
+            />
+          ))}
+        </div>
+      )}
       <div className="bg-surface border border-line rounded-lg p-4">
         <div className="font-bold text-sm mb-3">Table counts</div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {Object.entries(s.table_counts).map(([k, v]) => (
             <div key={k} className="bg-surface-muted rounded-lg p-3.5">
               <div className="text-ink-soft text-[11px]">{k}</div>

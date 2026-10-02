@@ -23,17 +23,22 @@ const TABS = ['Summary', 'Requests', 'Hotspots', 'Sessions'];
 export function ProjectDetail() {
   const { id = '' } = useParams();
   const [tab, setTab] = useState('Summary');
-  const { data: projects = [], loading, error } = useApi(() => getProjects(), []);
-  const { data: attributions = [] } = useApi(() => getAttributions(), []);
+  const { data: projects = [], loading, error } = useApi((signal) => getProjects(signal), []);
+  const { data: attributions = [] } = useApi((signal) => getAttributions(signal), []);
 
-  const { data: attrSummary } = useApi(() => getProjectAttributionSummary(id), [id]);
+  const { data: attrSummary } = useApi((signal) => getProjectAttributionSummary(id, signal), [id]);
 
   const project = useMemo(() => projects.find((p) => p.project === id), [projects, id]);
   const projectAttrs = useMemo(() => attributions.filter((a) => a.project === id), [attributions, id]);
 
   if (error) return <ErrorPanel message={error.message} />;
   if (loading) return <div className="p-10 text-center text-ink-soft">Loading project…</div>;
-  if (!project) return <div className="p-10 text-center text-ink-soft bg-surface border border-line rounded-lg">No project named "{id}" found in telemetry data.</div>;
+  if (!project)
+    return (
+      <div className="p-10 text-center text-ink-soft bg-surface border border-line rounded-lg">
+        No project named "{id}" found in telemetry data.
+      </div>
+    );
 
   const health = healthOf(project.last_activity);
 
@@ -60,8 +65,16 @@ export function ProjectDetail() {
                 value: fmt(project.total_tokens),
                 hint: 'Total tokens (input + output + cache read + cache write) recorded for this project, all-time — exact API usage.',
               },
-              { label: 'Requests', value: fmt(project.requests), hint: 'Total Claude API requests recorded for this project, all-time.' },
-              { label: 'Sessions', value: fmt(project.sessions), hint: 'Number of distinct Claude Code sessions in this project.' },
+              {
+                label: 'Requests',
+                value: fmt(project.requests),
+                hint: 'Total Claude API requests recorded for this project, all-time.',
+              },
+              {
+                label: 'Sessions',
+                value: fmt(project.sessions),
+                hint: 'Number of distinct Claude Code sessions in this project.',
+              },
               {
                 label: 'Health',
                 value: `${health}%`,
@@ -94,12 +107,17 @@ export function ProjectDetail() {
                         <b>{fmt(a.estimated_tokens)}</b>
                       </div>
                       <div className="h-1.5 rounded-full bg-line mt-1.5 overflow-hidden">
-                        <div className="h-full bg-accent rounded-full" style={{ width: `${(a.estimated_tokens / max) * 100}%` }} />
+                        <div
+                          className="h-full bg-accent rounded-full"
+                          style={{ width: `${(a.estimated_tokens / max) * 100}%` }}
+                        />
                       </div>
                     </div>
                   );
                 })}
-              {projectAttrs.length === 0 && <div className="text-ink-soft text-sm">No attribution data for this project.</div>}
+              {projectAttrs.length === 0 && (
+                <div className="text-ink-soft text-sm">No attribution data for this project.</div>
+              )}
             </div>
             <div className="bg-surface border border-line rounded-lg p-4">
               <h3 className="text-sm font-bold mb-3">Project profile</h3>
@@ -168,7 +186,7 @@ function KV({ k, v }: { k: string; v: React.ReactNode }) {
 }
 
 function RequestsTab({ project }: { project: string }) {
-  const { data: usage = [], loading } = useApi(() => getUsageByProject(project), [project]);
+  const { data: usage = [], loading } = useApi((signal) => getUsageByProject(project, signal), [project]);
   const [selected, setSelected] = useState<UsageRow | null>(null);
   if (loading) return <div className="p-10 text-center text-ink-soft">Loading…</div>;
   return (
@@ -176,7 +194,11 @@ function RequestsTab({ project }: { project: string }) {
       <DataTable<UsageRow>
         onRowClick={(row) => setSelected(row)}
         columns={[
-          { key: 'session_id', label: 'Session', render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span> },
+          {
+            key: 'session_id',
+            label: 'Session',
+            render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
+          },
           { key: 'model', label: 'Model' },
           { key: 'client', label: 'Client' },
           { key: 'input_tokens', label: 'Input', align: 'right', render: (v) => fmt(v as number) },
@@ -186,7 +208,11 @@ function RequestsTab({ project }: { project: string }) {
         data={usage.slice(0, 50)}
         emptyLabel="No requests for this project."
       />
-      <Drawer open={!!selected} title={selected ? `Request · ${selected.session_id.slice(0, 12)}` : ''} onClose={() => setSelected(null)}>
+      <Drawer
+        open={!!selected}
+        title={selected ? `Request · ${selected.session_id.slice(0, 12)}` : ''}
+        onClose={() => setSelected(null)}
+      >
         {selected && <RequestDetail row={selected} />}
       </Drawer>
     </>
@@ -224,13 +250,17 @@ function HotspotsTab({ attrs }: { attrs: { category: string; estimated_tokens: n
 }
 
 function SessionsTab({ project }: { project: string }) {
-  const { data: sessions = [], loading } = useApi(() => getSessions(), []);
+  const { data: sessions = [], loading } = useApi((signal) => getSessions(signal), []);
   if (loading) return <div className="p-10 text-center text-ink-soft">Loading…</div>;
   const scoped = sessions.filter((s) => s.project === project);
   return (
     <DataTable
       columns={[
-        { key: 'session_id', label: 'Session', render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span> },
+        {
+          key: 'session_id',
+          label: 'Session',
+          render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
+        },
         { key: 'client', label: 'Client' },
         { key: 'model', label: 'Model' },
         { key: 'total_tokens', label: 'Tokens', align: 'right', render: (v) => fmt(v as number) },

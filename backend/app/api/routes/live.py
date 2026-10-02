@@ -13,7 +13,6 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from telemetry.common import utc_now_iso
 from telemetry.db import connect
 
-from ... import bootstrap  # noqa: F401
 from ...security import _hostname, allowed_hosts, origin_allowed
 
 router = APIRouter()

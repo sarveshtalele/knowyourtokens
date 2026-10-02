@@ -11,8 +11,16 @@ import type { ReportKind } from '../types';
 import { PageHead, ErrorPanel } from './GlobalDashboard';
 
 const KINDS: { value: ReportKind; label: string; description: string }[] = [
-  { value: 'requests', label: 'Requests', description: 'One row per Claude request: tokens, model, client, prompt/response previews.' },
-  { value: 'projects', label: 'Projects', description: 'One row per project: totals, sessions, and its most-used tool.' },
+  {
+    value: 'requests',
+    label: 'Requests',
+    description: 'One row per Claude request: tokens, model, client, prompt/response previews.',
+  },
+  {
+    value: 'projects',
+    label: 'Projects',
+    description: 'One row per project: totals, sessions, and its most-used tool.',
+  },
 ];
 
 function startDateFor(days: string): string | undefined {
@@ -24,17 +32,21 @@ function startDateFor(days: string): string | undefined {
 }
 
 export function Reports() {
-  const { data: projects = [] } = useApi(() => getProjects(), []);
+  const { data: projects = [] } = useApi((signal) => getProjects(signal), []);
   const [kind, setKind] = useState<ReportKind>('requests');
   const [project, setProject] = useState('All');
   const [days, setDays] = useState('0');
 
   const filters = useMemo(
     () => ({ kind, project: project === 'All' ? undefined : project, start: startDateFor(days) }),
-    [kind, project, days]
+    [kind, project, days],
   );
 
-  const { data: preview, loading, error } = useApi(() => getReportPreview(filters), [filters.kind, filters.project, filters.start]);
+  const {
+    data: preview,
+    loading,
+    error,
+  } = useApi((signal) => getReportPreview(filters, signal), [filters.kind, filters.project, filters.start]);
 
   return (
     <div className="space-y-6">
@@ -47,8 +59,15 @@ export function Reports() {
       <div className="bg-surface border border-line rounded-lg p-4 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-ink-soft mb-1.5">Report type</label>
-            <Select value={kind} onChange={(e) => setKind(e.target.value as ReportKind)} className="w-full">
+            <label htmlFor="report-kind" className="block text-xs font-semibold text-ink-soft mb-1.5">
+              Report type
+            </label>
+            <Select
+              id="report-kind"
+              value={kind}
+              onChange={(e) => setKind(e.target.value as ReportKind)}
+              className="w-full"
+            >
               {KINDS.map((k) => (
                 <option key={k.value} value={k.value}>
                   {k.label}
@@ -57,8 +76,10 @@ export function Reports() {
             </Select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-ink-soft mb-1.5">Project</label>
-            <Select value={project} onChange={(e) => setProject(e.target.value)} className="w-full">
+            <label htmlFor="report-project" className="block text-xs font-semibold text-ink-soft mb-1.5">
+              Project
+            </label>
+            <Select id="report-project" value={project} onChange={(e) => setProject(e.target.value)} className="w-full">
               <option value="All">All projects</option>
               {projects.map((p) => (
                 <option key={p.project} value={p.project}>
@@ -68,8 +89,10 @@ export function Reports() {
             </Select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-ink-soft mb-1.5">Date range</label>
-            <DateRangeFilter value={days} onChange={setDays} />
+            <label htmlFor="report-range" className="block text-xs font-semibold text-ink-soft mb-1.5">
+              Date range
+            </label>
+            <DateRangeFilter id="report-range" value={days} onChange={setDays} />
           </div>
         </div>
         <p className="text-xs text-ink-soft">{KINDS.find((k) => k.value === kind)?.description}</p>

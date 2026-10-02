@@ -11,27 +11,30 @@ import { useLive } from '../../context/LiveContext';
  */
 export function ConnectionBanner() {
   const { connected } = useLive();
-  const [showDisconnected, setShowDisconnected] = useState(false);
+  const [graceOver, setGraceOver] = useState(false);
 
   useEffect(() => {
-    if (connected) {
-      setShowDisconnected(false);
-      return;
-    }
+    if (connected) return;
     // Grace period so a normal page-load reconnect blip doesn't flash a
     // banner every single navigation.
-    const t = setTimeout(() => setShowDisconnected(true), 4000);
-    return () => clearTimeout(t);
+    const t = setTimeout(() => setGraceOver(true), 4000);
+    return () => {
+      clearTimeout(t);
+      setGraceOver(false);
+    };
   }, [connected]);
 
-  if (!showDisconnected) return null;
+  if (connected || !graceOver) return null;
 
   return (
-    <div className="bg-warning-soft text-warning px-7 py-2 text-sm flex items-center justify-between gap-3">
+    <div
+      role="alert"
+      className="bg-warning-soft text-warning px-7 py-2 text-sm flex items-center justify-between gap-3"
+    >
       <span>
-        <b>Not connected to the telemetry backend.</b> New data won't load automatically until the connection is
-        back — the numbers on screen may be out of date. Check <code className="font-mono">tokentelemetry status</code>{' '}
-        if this doesn't clear on its own.
+        <b>Not connected to the telemetry backend.</b> New data won't load automatically until the connection is back —
+        the numbers on screen may be out of date. Check <code className="font-mono">tokentelemetry status</code> if this
+        doesn't clear on its own.
       </span>
       <button
         onClick={() => window.location.reload()}

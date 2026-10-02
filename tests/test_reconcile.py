@@ -232,3 +232,18 @@ def test_secrets_are_redacted(env):
     )
     reconcile()
     assert "sk-ant" not in _rows("SELECT prompt_full FROM usage")[0]["prompt_full"]
+
+
+def test_cd_inside_a_session_keeps_one_project(env):
+    write_transcript(
+        env,
+        [
+            user("start", cwd="/work/repo"),
+            assistant([{"type": "text", "text": "a"}], msg_id="m1", usage=U, cwd="/work/repo"),
+            user("cd into a subfolder", cwd="/work/repo/backend"),
+            assistant([{"type": "text", "text": "b"}], msg_id="m2", usage=U, cwd="/work/repo/backend"),
+        ],
+    )
+    reconcile()
+    assert [r["name"] for r in _rows("SELECT name FROM projects")] == ["repo"]
+    assert len(_rows("SELECT id FROM usage WHERE project_id IS NOT NULL")) == 2

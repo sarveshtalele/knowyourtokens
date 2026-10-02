@@ -7,8 +7,6 @@ from fastapi import HTTPException, Query
 
 from telemetry.db import connect
 
-from . import bootstrap  # noqa: F401
-
 
 def get_db() -> Iterator:
     """Read-only connection for one request, always closed afterwards."""

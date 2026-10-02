@@ -1,31 +1,37 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { LiveUpdate } from '../types';
 
 interface LiveState {
   metrics: Record<string, number>;
   connected: boolean;
-  /** Increments every time a live update is received -- pass into a useApi
-   * deps array to auto-refetch that page's data when the backend reports
-   * new numbers, instead of requiring a manual Refresh click. */
+  /** Increments on every live update -- put it in a useApi deps array to refetch when data changes. */
   version: number;
 }
 
 const LiveContext = createContext<LiveState>({ metrics: {}, connected: false, version: 0 });
 
+/** Same origin as the page: the Vite dev proxy and the CLI's static server both forward /ws. */
+export function liveSocketUrl(loc: Pick<Location, 'protocol' | 'host'> = window.location): string {
+  return `${loc.protocol === 'https:' ? 'wss' : 'ws'}://${loc.host}/ws/live`;
+}
+
 export function LiveProvider({ children }: { children: ReactNode }) {
   const [metrics, setMetrics] = useState<Record<string, number>>({});
   const [connected, setConnected] = useState(false);
   const [version, setVersion] = useState(0);
-  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     let closedByUs = false;
-    let retryTimer: ReturnType<typeof setTimeout>;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let attempt = 0;
+    let ws: WebSocket | null = null;
 
     function connect() {
-      const host = window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname;
-      const ws = new WebSocket(`ws://${host}:8000/ws/live`);
-      ws.onopen = () => setConnected(true);
+      ws = new WebSocket(liveSocketUrl());
+      ws.onopen = () => {
+        attempt = 0;
+        setConnected(true);
+      };
       ws.onmessage = (e) => {
         try {
           const p: LiveUpdate = JSON.parse(e.data);
@@ -37,16 +43,18 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       };
       ws.onclose = () => {
         setConnected(false);
-        if (!closedByUs) retryTimer = setTimeout(connect, 5000);
+        if (closedByUs) return;
+        // Exponential backoff, capped at 30s.
+        const delay = Math.min(30_000, 1000 * 2 ** attempt++);
+        retryTimer = setTimeout(connect, delay);
       };
-      ws.onerror = () => ws.close();
-      wsRef.current = ws;
+      ws.onerror = () => ws?.close();
     }
     connect();
     return () => {
       closedByUs = true;
       clearTimeout(retryTimer);
-      wsRef.current?.close();
+      ws?.close();
     };
   }, []);
 

@@ -20,15 +20,23 @@ export function Requests() {
   const [q, setQ] = useState('');
   const [selected, setSelected] = useState<UsageRow | null>(null);
   const { version: liveVersion } = useLive();
-  const { data: usage = [], loading, error, reload } = useApi(
-    () => getUsage({ page: String(page), page_size: '100', ...(project ? { project } : {}) }),
-    [page, project, liveVersion]
+  const {
+    data: usage = [],
+    loading,
+    error,
+    reload,
+  } = useApi(
+    (signal) => getUsage({ page: String(page), page_size: '100', ...(project ? { project } : {}) }, signal),
+    [page, project, liveVersion],
   );
-  const { data: projects = [] } = useApi(() => getProjects(), []);
+  const { data: projects = [] } = useApi((signal) => getProjects(signal), []);
 
   const filtered = useMemo(
-    () => usage.filter((r) => [r.project, r.model, r.client, r.session_id].join(' ').toLowerCase().includes(q.toLowerCase())),
-    [usage, q]
+    () =>
+      usage.filter((r) =>
+        [r.project, r.model, r.client, r.session_id].join(' ').toLowerCase().includes(q.toLowerCase()),
+      ),
+    [usage, q],
   );
 
   const totalTokens = usage.reduce((a, r) => a + (r.total_tokens || 0), 0);
@@ -65,7 +73,11 @@ export function Requests() {
             value: fmt(cacheRead),
             hint: 'Total cache-read tokens across the requests on this page — tokens served from cache instead of reprocessed.',
           },
-          { label: 'Page', value: String(page), hint: 'The current page number. Use the Prev/Next buttons below to move through pages of 100.' },
+          {
+            label: 'Page',
+            value: String(page),
+            hint: 'The current page number. Use the Prev/Next buttons below to move through pages of 100.',
+          },
         ]}
       />
       <div className="flex gap-2 flex-wrap">
@@ -75,7 +87,14 @@ export function Requests() {
           placeholder="Search project, model, client…"
           className="h-10 border border-line bg-surface rounded-md px-3 text-sm min-w-[260px] flex-1 outline-none focus:border-accent focus:ring-4 focus:ring-accent-soft"
         />
-        <ProjectFilter projects={projects.map((p) => p.project)} value={project} onChange={(v) => { setProject(v); setPage(1); }} />
+        <ProjectFilter
+          projects={projects.map((p) => p.project)}
+          value={project}
+          onChange={(v) => {
+            setProject(v);
+            setPage(1);
+          }}
+        />
       </div>
       {loading && usage.length === 0 ? (
         <div className="p-10 text-center text-ink-soft">Loading requests…</div>
@@ -83,7 +102,11 @@ export function Requests() {
         <DataTable<UsageRow>
           onRowClick={(row) => setSelected(row)}
           columns={[
-            { key: 'session_id', label: 'Session', render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span> },
+            {
+              key: 'session_id',
+              label: 'Session',
+              render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
+            },
             { key: 'project', label: 'Project' },
             { key: 'model', label: 'Model' },
             { key: 'client', label: 'Client' },
@@ -102,7 +125,11 @@ export function Requests() {
         <Button onClick={() => setPage((p) => p + 1)}>Next →</Button>
       </div>
 
-      <Drawer open={!!selected} title={selected ? `Request · ${selected.session_id.slice(0, 12)}` : ''} onClose={() => setSelected(null)}>
+      <Drawer
+        open={!!selected}
+        title={selected ? `Request · ${selected.session_id.slice(0, 12)}` : ''}
+        onClose={() => setSelected(null)}
+      >
         {selected && <RequestDetail row={selected} />}
       </Drawer>
     </div>

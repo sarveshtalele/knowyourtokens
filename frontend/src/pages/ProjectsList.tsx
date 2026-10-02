@@ -9,10 +9,13 @@ import { PageHead, ErrorPanel } from './GlobalDashboard';
 
 export function ProjectsList() {
   const { version: liveVersion } = useLive();
-  const { data: projects = [], loading, error, reload } = useApi(() => getProjects(), [liveVersion]);
+  const { data: projects = [], loading, error, reload } = useApi((signal) => getProjects(signal), [liveVersion]);
   const [q, setQ] = useState('');
 
-  const filtered = useMemo(() => projects.filter((p) => p.project.toLowerCase().includes(q.toLowerCase())), [projects, q]);
+  const filtered = useMemo(
+    () => projects.filter((p) => p.project.toLowerCase().includes(q.toLowerCase())),
+    [projects, q],
+  );
 
   if (error) return <ErrorPanel message={error.message} />;
   if (loading && projects.length === 0) return <div className="p-10 text-center text-ink-soft">Loading projects…</div>;
@@ -37,7 +40,9 @@ export function ProjectsList() {
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.length === 0 ? (
-          <div className="col-span-full p-10 text-center text-ink-soft bg-surface border border-line rounded-lg">No projects match.</div>
+          <div className="col-span-full p-10 text-center text-ink-soft bg-surface border border-line rounded-lg">
+            No projects match.
+          </div>
         ) : (
           filtered.map((p) => <ProjectCard key={p.project} p={p} />)
         )}

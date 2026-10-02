@@ -25,13 +25,12 @@ from telemetry.common import (
     first,
     mcp_server,
     normalize_time,
-    project_key,
     redact,
     text_of_content,
     utc_now_iso,
 )
 from telemetry.db import connect, transaction
-from telemetry.store import upsert_project, upsert_session
+from telemetry.store import session_dims, upsert_session
 
 log = logging.getLogger("telemetry.reconcile")
 
@@ -43,30 +42,37 @@ RESPONSE_FULL_CAP = 40000
 
 class _Dims:
     """Per-transcript cache of project/session ids so a long transcript
-    doesn't upsert the same dimension rows once per line."""
+    doesn't upsert the same dimension rows once per line.
+
+    A session belongs to the project it started in: `cd` inside a session
+    changes each line's cwd, but must not split one session across
+    several "projects"."""
 
     def __init__(self, conn, path):
         self.conn, self.path = conn, path
-        self.projects, self.sessions, self.span = {}, {}, {}
+        self.sessions, self.span = {}, {}
 
     def ids(self, session_id, cwd, client, when):
-        key = project_key(cwd, self.path, config.projects_dir())
-        pid = self.projects.get(key)
-        if pid is None:
-            pid = self.projects[key] = upsert_project(self.conn, key, cwd, when)
-        sref = self.sessions.get(session_id)
-        if sref is None:
-            sref = self.sessions[session_id] = upsert_session(self.conn, session_id, pid, client, when)
-        lo, hi = self.span.get((session_id, key), (when, when))
-        self.span[(session_id, key)] = (min(lo, when), max(hi, when))
+        cached = self.sessions.get(session_id)
+        if cached is None:
+            cached = self.sessions[session_id] = session_dims(self.conn, session_id, cwd, self.path, client, when)
+        pid, sref = cached
+        lo, hi = self.span.get(session_id, (when, when))
+        self.span[session_id] = (min(lo, when), max(hi, when))
         return pid, sref
 
     def flush(self):
-        for (session_id, key), (lo, hi) in self.span.items():
-            upsert_session(self.conn, session_id, seen=lo)
-            upsert_session(self.conn, session_id, seen=hi)
-            upsert_project(self.conn, key, seen=lo)
-            upsert_project(self.conn, key, seen=hi)
+        for session_id, (lo, hi) in self.span.items():
+            pid, _ = self.sessions[session_id]
+            for seen in (lo, hi):
+                upsert_session(self.conn, session_id, seen=seen)
+                self.conn.execute(
+                    """UPDATE projects SET
+                         first_seen = CASE WHEN first_seen IS NULL OR ? < first_seen THEN ? ELSE first_seen END,
+                         last_seen  = CASE WHEN last_seen  IS NULL OR ? > last_seen  THEN ? ELSE last_seen  END
+                       WHERE id=?""",
+                    (seen, seen, seen, seen, pid),
+                )
 
 
 def _read_new_lines(path, offset):

@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "jsx-a11y", "import"],
+  "categories": { "correctness": "error", "suspicious": "warn" },
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react/react-in-jsx-scope": "off",
+    "jsx-a11y/no-autofocus": "off",
+    "import/no-unassigned-import": "off"
+  },
+  "ignorePatterns": ["dist"]
+}

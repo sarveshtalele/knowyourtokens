@@ -9,7 +9,6 @@ from fastapi.responses import StreamingResponse
 
 from telemetry.db import connect
 
-from ... import bootstrap  # noqa: F401
 from ...deps import Filters
 from ...schemas import Envelope, ReportPreview
 

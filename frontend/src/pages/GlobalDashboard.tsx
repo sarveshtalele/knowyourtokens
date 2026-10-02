@@ -19,12 +19,17 @@ export function GlobalDashboard() {
   // live.version bumps whenever the backend pushes a change over /ws/live,
   // so these refetch on their own as new data lands instead of only on a
   // manual Refresh click.
-  const { data: projects = [], loading: loadingProjects, error: errProjects } = useApi(() => getProjects(), [live.version]);
-  const { data: timeline = [], loading: loadingTimeline, error: errTimeline } = useApi(
-    () => getUsageTimeline(Number(days)),
-    [days, live.version]
-  );
-  const { data: clients = [] } = useApi(() => getClients(), [live.version]);
+  const {
+    data: projects = [],
+    loading: loadingProjects,
+    error: errProjects,
+  } = useApi((signal) => getProjects(signal), [live.version]);
+  const {
+    data: timeline = [],
+    loading: loadingTimeline,
+    error: errTimeline,
+  } = useApi((signal) => getUsageTimeline(Number(days), signal), [days, live.version]);
+  const { data: clients = [] } = useApi((signal) => getClients(signal), [live.version]);
 
   const totals = useMemo(() => {
     const input = timeline.reduce((a, d) => a + (d.input || 0), 0);
@@ -84,7 +89,10 @@ export function GlobalDashboard() {
       />
 
       <div className="grid grid-cols-[1.35fr_.65fr] gap-4">
-        <TokenTrendChart data={timeline.map((d) => ({ day: d.day, tokens: d.tokens }))} title={`Token consumption (${rangeLabel})`} />
+        <TokenTrendChart
+          data={timeline.map((d) => ({ day: d.day, tokens: d.tokens }))}
+          title={`Token consumption (${rangeLabel})`}
+        />
         <div className="bg-surface border border-line rounded-lg p-4">
           <h3 className="text-sm font-bold mb-4">Token mix</h3>
           {[
@@ -94,7 +102,7 @@ export function GlobalDashboard() {
             ['Output', totals.output],
           ].map(([label, val]) => {
             const total = totals.input + totals.cacheRead + totals.cacheWrite + totals.output || 1;
-            const pct = Math.round((val as number) / total * 100);
+            const pct = Math.round(((val as number) / total) * 100);
             return (
               <div key={label as string} className="my-4">
                 <div className="flex justify-between text-sm">
@@ -118,7 +126,11 @@ export function GlobalDashboard() {
             value: fmt(totals.totalRequests),
             hint: 'Total Claude API requests recorded across every project, always all-time — independent of the date range selected above.',
           },
-          { label: 'Projects', value: fmt(projects.length), hint: 'Number of distinct projects with recorded telemetry.' },
+          {
+            label: 'Projects',
+            value: fmt(projects.length),
+            hint: 'Number of distinct projects with recorded telemetry.',
+          },
           {
             label: 'Top client',
             value: topClient ? topClient.client : '—',
@@ -132,7 +144,11 @@ export function GlobalDashboard() {
         ]}
       />
 
-      {projects.length > 0 && <TokenBarChart data={projects.slice(0, 20).map((p) => ({ project: p.project, total_tokens: p.total_tokens }))} />}
+      {projects.length > 0 && (
+        <TokenBarChart
+          data={projects.slice(0, 20).map((p) => ({ project: p.project, total_tokens: p.total_tokens }))}
+        />
+      )}
 
       <div className="bg-surface border border-line rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-line">
@@ -155,7 +171,17 @@ export function GlobalDashboard() {
   );
 }
 
-export function PageHead({ eyebrow, title, subtitle, actions }: { eyebrow: string; title: string; subtitle?: string; actions?: React.ReactNode }) {
+export function PageHead({
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}) {
   return (
     <div className="flex items-start justify-between gap-5 flex-wrap">
       <div>

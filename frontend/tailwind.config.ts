@@ -31,7 +31,7 @@ export default {
         'on-accent': '#FFFFFF',
       },
       borderRadius: { sm: '6px', md: '10px', lg: '14px', xl: '18px' },
-      fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      fontFamily: { sans: ['Inter Variable', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
       maxWidth: { app: '1440px' },
     },
   },

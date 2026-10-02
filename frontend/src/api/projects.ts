@@ -1,14 +1,14 @@
 import { fetchApi } from './client';
 import type { AttributionSummary, ProjectSummary } from '../types';
 
-export function getProjects() {
-  return fetchApi<ProjectSummary[]>('/projects');
+export function getProjects(signal?: AbortSignal) {
+  return fetchApi<ProjectSummary[]>('/projects', { signal });
 }
 
-export function getProjectDetail(project: string) {
-  return fetchApi<ProjectSummary>(`/projects/${encodeURIComponent(project)}`);
+export function getProjectDetail(project: string, signal?: AbortSignal) {
+  return fetchApi<ProjectSummary>(`/projects/${encodeURIComponent(project)}`, { signal });
 }
 
-export function getProjectAttributionSummary(project: string) {
-  return fetchApi<AttributionSummary>(`/projects/${encodeURIComponent(project)}/attribution-summary`);
+export function getProjectAttributionSummary(project: string, signal?: AbortSignal) {
+  return fetchApi<AttributionSummary>(`/projects/${encodeURIComponent(project)}/attribution-summary`, { signal });
 }

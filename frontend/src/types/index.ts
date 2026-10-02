@@ -12,13 +12,14 @@ export interface UsageRow {
   cache_read_tokens: number;
   cache_write_tokens: number;
   total_tokens: number;
-  cost_usd: number;
   context_window: number;
   max_output_tokens: number;
   prompt_preview: string;
   response_preview: string;
-  prompt_full?: string;
-  response_full?: string;
+  prompt_full?: string | null;
+  response_full?: string | null;
+  transcript_path?: string | null;
+  transcript_line?: number | null;
 }
 
 export interface TimelinePoint {
@@ -28,6 +29,7 @@ export interface TimelinePoint {
   output: number;
   cache_read: number;
   cache_write: number;
+  requests?: number;
 }
 
 export interface ProjectSummary {
@@ -42,6 +44,8 @@ export interface ProjectSummary {
 
 export interface ToolStats {
   tool_name: string;
+  mcp_server?: string | null;
+  projects?: number;
   call_count: number;
   unique_sessions: number;
   first_seen: string | null;
@@ -85,6 +89,8 @@ export interface Attribution {
 export interface McpServer {
   server_name: string;
   call_count: number;
+  sessions?: number;
+  tools?: number;
   first_seen: string | null;
   last_seen: string | null;
 }
@@ -101,7 +107,18 @@ export interface HookStats {
   call_count: number;
 }
 
+export interface ExporterStatus {
+  name: string;
+  enabled: boolean;
+  target: string | null;
+  cursor: number | null;
+  pending_rows: number;
+}
+
 export interface SettingsInfo {
+  version?: string;
+  schema_version?: number;
+  exporters?: ExporterStatus[];
   db_path: string;
   db_size: number;
   table_counts: Record<string, number>;
@@ -127,7 +144,7 @@ export interface ApiEnvelope<T> {
 }
 
 export type ReportKind = 'requests' | 'projects';
-export type ReportFormat = 'csv' | 'json';
+export type ReportFormat = 'csv' | 'json' | 'ndjson';
 
 export interface ReportPreview {
   row_count: number;

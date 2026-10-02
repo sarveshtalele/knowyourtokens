@@ -9,7 +9,6 @@ from fastapi.responses import JSONResponse
 from telemetry import __version__
 from telemetry.db import SCHEMA_VERSION, connect
 
-from . import bootstrap  # noqa: F401
 from .api.router import api_router
 from .api.routes.live import broadcaster
 from .api.routes.live import router as live_router

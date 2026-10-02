@@ -68,3 +68,18 @@ def upsert_session(conn, session_id, project_id=None, client=None, seen=None):
         (session_id, project_id, client, seen, seen),
     )
     return cur.lastrowid
+
+
+def session_dims(conn, session_id, cwd, transcript_path, client, when):
+    """(project_id, session_ref) for a session, reusing the project the
+    session was first seen in; only a brand-new session derives its project
+    from ``cwd``."""
+    from telemetry import config
+    from telemetry.common import project_key
+
+    row = conn.execute("SELECT id, project_id FROM sessions WHERE session_id=?", (session_id or "unknown",)).fetchone()
+    if row and row[1] is not None:
+        upsert_session(conn, session_id, client=client, seen=when)
+        return row[1], row[0]
+    pid = upsert_project(conn, project_key(cwd, transcript_path, config.projects_dir()), cwd, when)
+    return pid, upsert_session(conn, session_id, pid, client, when)

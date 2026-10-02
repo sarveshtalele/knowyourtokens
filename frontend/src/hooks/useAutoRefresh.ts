@@ -1,9 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
+/** Call `callback` every `intervalMs` while the tab is visible; always the latest callback. */
 export function useAutoRefresh(callback: () => void, intervalMs = 10000) {
+  const ref = useRef(callback);
   useEffect(() => {
-    const id = setInterval(callback, intervalMs);
+    ref.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === 'visible') ref.current();
+    }, intervalMs);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intervalMs]);
 }

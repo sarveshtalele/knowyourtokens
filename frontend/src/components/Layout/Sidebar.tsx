@@ -46,9 +46,13 @@ export function Sidebar() {
   }, []);
 
   return (
-    <aside className={`${expanded ? 'w-60' : 'w-[76px]'} bg-[#0f172a] text-slate-300 h-screen flex flex-col transition-all duration-200 shrink-0`}>
+    <aside
+      className={`${expanded ? 'w-60' : 'w-[76px]'} bg-[#0f172a] text-slate-300 h-screen flex flex-col transition-all duration-200 shrink-0`}
+    >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-slate-800">
-        <span className="w-8 h-8 rounded-md bg-accent grid place-items-center text-white font-bold text-sm shrink-0">CT</span>
+        <span className="w-8 h-8 rounded-md bg-accent grid place-items-center text-white font-bold text-sm shrink-0">
+          CT
+        </span>
         {expanded && <span className="font-bold text-white truncate">Telemetry</span>}
         <button
           onClick={() => setExpanded((e) => !e)}
