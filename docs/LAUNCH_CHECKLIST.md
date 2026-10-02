@@ -10,7 +10,8 @@ GitHub and npm setting are in [GITHUB_SETUP.md](GITHUB_SETUP.md).
 - [x] npm account set up and logged in (`npm whoami` prints `sarveshtalele`)
 - [x] `tokentelemetry-client@2.1.0` published. It was built from `main` before the multi-agent work,
       so it has no `ingest()`. 2.2.0 replaces it.
-- [ ] **Merge the release PR** (multi-agent support + v2.2.0) on GitHub
+- [x] Merge the multi-agent PR
+- [ ] **Merge the v2.2.0 release PR** (version bump, this checklist, the release script)
 - [ ] **Run the release script** in Terminal on your Mac:
 
       ```bash
