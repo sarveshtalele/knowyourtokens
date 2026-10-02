@@ -11,10 +11,11 @@ import { fmt, ago } from '../lib/format';
 import { PageHead, ErrorPanel } from './GlobalDashboard';
 
 export function Skills() {
-  const { data: skills = [], loading, error, reload } = useApi(() => getSkills(), []);
+  const { data: skills = [], loading, error, reload } = useApi((signal) => getSkills(signal), []);
   const triggerDist = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const s of skills) counts[s.trigger_type || 'unknown'] = (counts[s.trigger_type || 'unknown'] || 0) + s.call_count;
+    for (const s of skills)
+      counts[s.trigger_type || 'unknown'] = (counts[s.trigger_type || 'unknown'] || 0) + s.call_count;
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [skills]);
 
@@ -43,7 +44,11 @@ export function Skills() {
             value: fmt(totalCalls),
             hint: 'Total number of times any Skill has been invoked, across all recorded activity.',
           },
-          { label: 'Unique skills', value: fmt(skills.length), hint: 'Number of distinct Skills that have been activated at least once.' },
+          {
+            label: 'Unique skills',
+            value: fmt(skills.length),
+            hint: 'Number of distinct Skills that have been activated at least once.',
+          },
           {
             label: 'Last activated',
             value: skills[0] ? ago(skills[0].last_activated) : '—',
@@ -60,7 +65,11 @@ export function Skills() {
         <DataTable
           columns={[
             { key: 'skill_name', label: 'Skill' },
-            { key: 'trigger_type', label: 'Trigger', render: (v) => <Badge tone={v === 'tool' ? 'info' : 'success'}>{String(v || '—')}</Badge> },
+            {
+              key: 'trigger_type',
+              label: 'Trigger',
+              render: (v) => <Badge tone={v === 'tool' ? 'info' : 'success'}>{String(v || '—')}</Badge>,
+            },
             { key: 'plugin_name', label: 'Plugin', render: (v) => String(v || '—') },
             { key: 'call_count', label: 'Activations', align: 'right', render: (v) => fmt(v as number) },
             { key: 'last_activated', label: 'Last activated', render: (v) => ago(v as string) },

@@ -71,7 +71,10 @@ export function DataTable<T extends object>({ columns, data, onRowClick, emptyLa
                 className={`border-b border-line last:border-0 ${onRowClick ? 'cursor-pointer hover:bg-surface-muted' : ''}`}
               >
                 {columns.map((c, ci) => (
-                  <td key={`${c.key}-${ci}`} className={`px-4 py-2.5 text-ink whitespace-nowrap ${c.align === 'right' ? 'text-right font-mono text-xs' : ''}`}>
+                  <td
+                    key={`${c.key}-${ci}`}
+                    className={`px-4 py-2.5 text-ink whitespace-nowrap ${c.align === 'right' ? 'text-right font-mono text-xs' : ''}`}
+                  >
                     {c.render ? c.render(at(row, c.key), row) : String(at(row, c.key) ?? '—')}
                   </td>
                 ))}

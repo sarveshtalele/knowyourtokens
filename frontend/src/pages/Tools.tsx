@@ -8,7 +8,7 @@ import { fmt, ago } from '../lib/format';
 import { PageHead, ErrorPanel } from './GlobalDashboard';
 
 export function Tools() {
-  const { data: tools = [], loading, error } = useApi(() => getTools(), []);
+  const { data: tools = [], loading, error } = useApi((signal) => getTools(signal), []);
   if (error) return <ErrorPanel message={error.message} />;
   if (loading) return <div className="p-10 text-center text-ink-soft">Loading tools…</div>;
 
@@ -16,7 +16,11 @@ export function Tools() {
 
   return (
     <div className="space-y-6">
-      <PageHead eyebrow="Tool telemetry" title="Tools" subtitle="Understand which Claude Code tools drive context growth and execution volume." />
+      <PageHead
+        eyebrow="Tool telemetry"
+        title="Tools"
+        subtitle="Understand which Claude Code tools drive context growth and execution volume."
+      />
       <StatRow
         stats={[
           {

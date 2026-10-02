@@ -25,7 +25,9 @@ function copyFiltered(src, dest) {
     recursive: true,
     filter: (srcPath) => {
       const base = path.basename(srcPath);
-      if (base === '__pycache__' || base.endsWith('.pyc')) return false;
+      if (base === '__pycache__' || base.endsWith('.pyc') || base === 'requirements-dev.txt' || base === 'run.py') {
+        return false;
+      }
       return true;
     },
   });
@@ -51,9 +53,9 @@ function main() {
   copyFiltered(path.join(REPO_ROOT, 'backend'), path.join(VENDOR, 'backend'));
   copyFiltered(path.join(REPO_ROOT, 'telemetry'), path.join(VENDOR, 'telemetry'));
   copyFiltered(path.join(REPO_ROOT, 'hooks'), path.join(VENDOR, 'hooks'));
-  fs.copyFileSync(path.join(REPO_ROOT, 'example-settings.json'), path.join(VENDOR, 'example-settings.json'));
   // backend/requirements.txt (the only Python deps "tokentelemetry start" needs)
   // is already inside vendor/backend/ from the copy above.
+  fs.copyFileSync(path.join(REPO_ROOT, 'LICENSE'), path.join(CLI_ROOT, 'LICENSE'));
 
   log('Building frontend…');
   const dist = buildFrontend();

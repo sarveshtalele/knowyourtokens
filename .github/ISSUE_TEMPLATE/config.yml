@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or usage help
-    url: https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/USER_GUIDE.md
-    about: Check the user guide first — most "how do I..." questions are answered there.
+    url: https://github.com/sarveshtalele/tokentelemetry/discussions
+    about: Ask in Discussions -- and check the user guide (docs/USER_GUIDE.md) first.
   - name: Security vulnerability
-    url: https://github.com/sarveshtalele/tokentelemetry/blob/main/SECURITY.md
-    about: Please report security issues privately (see SECURITY.md) instead of opening a public issue.
+    url: https://github.com/sarveshtalele/tokentelemetry/security/advisories/new
+    about: Please report security issues privately instead of opening a public issue.

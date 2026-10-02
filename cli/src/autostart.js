@@ -1,21 +1,23 @@
-// Registers/removes an OS-level "start tokentelemetry at login" entry, so
-// running it every day doesn't require remembering to type `tokentelemetry
-// start` yourself. One implementation per platform:
-//   Windows -> a Task Scheduler task (via PowerShell)
-//   macOS   -> a launchd LaunchAgent
-//   Linux   -> a systemd --user service
+// Registers/removes an OS-level "start tokentelemetry at login" entry:
+//   Windows -> Task Scheduler task (PowerShell)
+//   macOS   -> launchd LaunchAgent
+//   Linux   -> systemd --user service
 //
-// All three invoke the *full* `start` (backend + daemon + dashboard) using
-// absolute paths to `node` and this package's own bin script -- not a bare
-// `tokentelemetry` resolved via PATH, which launchd/systemd/Task Scheduler
-// often can't see (they don't source your shell profile).
+// Each runs `start` via absolute paths to node and this package's bin script
+// (schedulers don't source your shell profile, so PATH lookups fail).
+//
+// `start` spawns detached services and exits. The scheduler entries are
+// written so that exit is expected and the children are left running:
+//   systemd: Type=oneshot + RemainAfterExit + KillMode=process
+//   launchd: AbandonProcessGroup
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
 const paths = require('./paths');
 
-const TASK_NAME = 'Claude Token Telemetry';
+const TASK_NAME = 'Token Telemetry';
+const LEGACY_TASK_NAME = 'Claude Token Telemetry';
 const LAUNCHD_LABEL = 'com.tokentelemetry.app';
 const SYSTEMD_UNIT = 'tokentelemetry.service';
 
@@ -24,36 +26,39 @@ function binScriptPath() {
 }
 
 function run(cmd, args, opts = {}) {
-  return spawnSync(cmd, args, { encoding: 'utf8', ...opts });
+  return spawnSync(cmd, args, { encoding: 'utf8', windowsHide: true, ...opts });
 }
 
 // ---------- Windows (Task Scheduler) ----------
 
+/** PowerShell single-quoted literal: only ' needs escaping (as ''). */
+function psQuote(s) {
+  return `'${String(s).replace(/'/g, "''")}'`;
+}
+
 function windowsEnable() {
-  const node = process.execPath;
-  const script = path.join(paths.packageRoot(), 'bin', 'tokentelemetry.js');
-  const ps = `
-$Action = New-ScheduledTaskAction -Execute "${node}" -Argument '"${script}" start'
-$Trigger = New-ScheduledTaskTrigger -AtLogOn
-$Principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
-Register-ScheduledTask -TaskName "${TASK_NAME}" -Action $Action -Trigger $Trigger -Principal $Principal -Force | Out-Null
-`.trim();
+  const ps = [
+    `$Action = New-ScheduledTaskAction -Execute ${psQuote(process.execPath)} -Argument ${psQuote(`"${binScriptPath()}" start`)}`,
+    '$Trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME',
+    '$Principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited',
+    '$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 5)',
+    `Register-ScheduledTask -TaskName ${psQuote(TASK_NAME)} -Action $Action -Trigger $Trigger -Principal $Principal -Settings $Settings -Force | Out-Null`,
+  ].join('\n');
   const res = run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps]);
   if (res.error || res.status !== 0) {
-    throw new Error(
-      `Could not register the Task Scheduler task: ${res.stderr || res.error?.message || 'unknown error'}.\n` +
-        `You can register it manually -- see the PowerShell snippet in the README.`
-    );
+    throw new Error(`Could not register the Task Scheduler task: ${res.stderr || res.error?.message || 'unknown error'}`);
   }
 }
 
 function windowsDisable() {
-  run('powershell.exe', [
-    '-NoProfile',
-    '-NonInteractive',
-    '-Command',
-    `Unregister-ScheduledTask -TaskName "${TASK_NAME}" -Confirm:$false -ErrorAction SilentlyContinue`,
-  ]);
+  for (const name of [TASK_NAME, LEGACY_TASK_NAME]) {
+    run('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      `Unregister-ScheduledTask -TaskName ${psQuote(name)} -Confirm:$false -ErrorAction SilentlyContinue`,
+    ]);
+  }
 }
 
 function windowsStatus() {
@@ -61,7 +66,7 @@ function windowsStatus() {
     '-NoProfile',
     '-NonInteractive',
     '-Command',
-    `(Get-ScheduledTask -TaskName "${TASK_NAME}" -ErrorAction SilentlyContinue) -ne $null`,
+    `$null -ne (Get-ScheduledTask -TaskName ${psQuote(TASK_NAME)} -ErrorAction SilentlyContinue)`,
   ]);
   return !res.error && res.status === 0 && res.stdout.trim() === 'True';
 }
@@ -72,11 +77,13 @@ function launchdPlistPath() {
   return path.join(os.homedir(), 'Library', 'LaunchAgents', `${LAUNCHD_LABEL}.plist`);
 }
 
+function xmlEscape(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function macEnable() {
-  const node = process.execPath;
-  const script = binScriptPath();
-  const logDir = path.join(paths.installDir(), 'logs');
-  fs.mkdirSync(logDir, { recursive: true });
+  fs.mkdirSync(paths.logDir(), { recursive: true });
+  const logFile = xmlEscape(path.join(paths.logDir(), 'autostart.log'));
   const plist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -84,20 +91,23 @@ function macEnable() {
   <key>Label</key><string>${LAUNCHD_LABEL}</string>
   <key>ProgramArguments</key>
   <array>
-    <string>${node}</string>
-    <string>${script}</string>
+    <string>${xmlEscape(process.execPath)}</string>
+    <string>${xmlEscape(binScriptPath())}</string>
     <string>start</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict><key>TOKENTELEMETRY_NO_OPEN</key><string>1</string></dict>
   <key>RunAtLoad</key><true/>
-  <key>StandardOutPath</key><string>${path.join(logDir, 'autostart.log')}</string>
-  <key>StandardErrorPath</key><string>${path.join(logDir, 'autostart.log')}</string>
+  <key>AbandonProcessGroup</key><true/>
+  <key>StandardOutPath</key><string>${logFile}</string>
+  <key>StandardErrorPath</key><string>${logFile}</string>
 </dict>
 </plist>
 `;
   const plistPath = launchdPlistPath();
   fs.mkdirSync(path.dirname(plistPath), { recursive: true });
   fs.writeFileSync(plistPath, plist, 'utf8');
-  run('launchctl', ['unload', plistPath]); // ignore failure if not already loaded
+  run('launchctl', ['unload', plistPath]); // fine if it wasn't loaded
   const res = run('launchctl', ['load', '-w', plistPath]);
   if (res.error || res.status !== 0) {
     throw new Error(`Could not load the launchd agent: ${res.stderr || res.error?.message || 'unknown error'}`);
@@ -119,40 +129,51 @@ function macStatus() {
 // ---------- Linux (systemd --user) ----------
 
 function systemdUnitPath() {
-  return path.join(os.homedir(), '.config', 'systemd', 'user', SYSTEMD_UNIT);
+  const base = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
+  return path.join(base, 'systemd', 'user', SYSTEMD_UNIT);
 }
 
-function linuxEnable() {
-  const node = process.execPath;
-  const script = binScriptPath();
-  const unit = `[Unit]
-Description=Claude Token Telemetry (backend + daemon + dashboard)
+/** systemd quoting: double quotes, with \ and " escaped; % doubled (specifier char). */
+function sdQuote(s) {
+  return `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/%/g, '%%')}"`;
+}
+
+function linuxUnit() {
+  const node = sdQuote(process.execPath);
+  const script = sdQuote(binScriptPath());
+  return `[Unit]
+Description=Token Telemetry (backend + daemon + dashboard)
+After=default.target
 
 [Service]
-Type=simple
-ExecStart="${node}" "${script}" start
-ExecStop="${node}" "${script}" stop
-Restart=on-failure
+Type=oneshot
+RemainAfterExit=yes
+KillMode=process
+Environment=TOKENTELEMETRY_NO_OPEN=1
+ExecStart=${node} ${script} start
+ExecStop=${node} ${script} stop
 
 [Install]
 WantedBy=default.target
 `;
+}
+
+function linuxEnable() {
   const unitPath = systemdUnitPath();
   fs.mkdirSync(path.dirname(unitPath), { recursive: true });
-  fs.writeFileSync(unitPath, unit, 'utf8');
+  fs.writeFileSync(unitPath, linuxUnit(), 'utf8');
   run('systemctl', ['--user', 'daemon-reload']);
   const res = run('systemctl', ['--user', 'enable', '--now', SYSTEMD_UNIT]);
   if (res.error || res.status !== 0) {
     throw new Error(
       `Could not enable the systemd user service: ${res.stderr || res.error?.message || 'unknown error'}.\n` +
-        `Some minimal/headless Linux setups don't run a user systemd instance -- see the README for the ` +
-        `manual unit file as a fallback.`
+        `Minimal/headless Linux setups may not run a user systemd instance -- see docs/INSTALLATION.md.`
     );
   }
 }
 
 function linuxDisable() {
-  run('systemctl', ['--user', 'disable', '--now', SYSTEMD_UNIT]);
+  run('systemctl', ['--user', 'disable', SYSTEMD_UNIT]);
   const unitPath = systemdUnitPath();
   if (fs.existsSync(unitPath)) fs.rmSync(unitPath, { force: true });
   run('systemctl', ['--user', 'daemon-reload']);
@@ -165,24 +186,25 @@ function linuxStatus() {
 
 // ---------- Dispatch ----------
 
-function enable() {
-  if (process.platform === 'win32') return windowsEnable();
-  if (process.platform === 'darwin') return macEnable();
-  if (process.platform === 'linux') return linuxEnable();
-  throw new Error(`Autostart isn't supported on platform "${process.platform}".`);
+const IMPL = {
+  win32: { enable: windowsEnable, disable: windowsDisable, isEnabled: windowsStatus },
+  darwin: { enable: macEnable, disable: macDisable, isEnabled: macStatus },
+  linux: { enable: linuxEnable, disable: linuxDisable, isEnabled: linuxStatus },
+};
+
+function impl() {
+  const i = IMPL[process.platform];
+  if (!i) throw new Error(`Autostart isn't supported on platform "${process.platform}".`);
+  return i;
 }
 
-function disable() {
-  if (process.platform === 'win32') return windowsDisable();
-  if (process.platform === 'darwin') return macDisable();
-  if (process.platform === 'linux') return linuxDisable();
-}
-
-function isEnabled() {
-  if (process.platform === 'win32') return windowsStatus();
-  if (process.platform === 'darwin') return macStatus();
-  if (process.platform === 'linux') return linuxStatus();
-  return false;
-}
-
-module.exports = { enable, disable, isEnabled };
+module.exports = {
+  enable: () => impl().enable(),
+  disable: () => impl().disable(),
+  isEnabled: () => (IMPL[process.platform] ? impl().isEnabled() : false),
+  // exported for tests
+  linuxUnit,
+  psQuote,
+  xmlEscape,
+  sdQuote,
+};

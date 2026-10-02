@@ -1,269 +1,267 @@
 # Architecture
 
-This document explains how Claude Telemetry Enterprise is put together: the
-components, how data flows from a Claude Code session into the dashboard,
-the database schema, and the reasoning behind the main design decisions.
-For a page-by-page tour of the product itself, see the [User Guide](USER_GUIDE.md).
+How Token Telemetry is put together: the components, how data gets from a Claude Code session into
+the database, the schema, and why the main design decisions were made. For a tour of the dashboard,
+see the [User Guide](USER_GUIDE.md). For the HTTP contract, see the [API reference](API.md).
 
 ## System overview
 
-The system has four moving parts, all running on the user's own machine:
+Everything runs on your machine. Nothing is sent anywhere unless you configure an exporter.
 
 ```mermaid
 flowchart LR
-    subgraph CC["Claude Code"]
-        H["Hooks\nSessionStart · UserPromptSubmit\nPreToolUse · PostToolUse · Stop"]
+    subgraph CC["Claude Code (CLI, IDEs, Agent SDK)"]
+        H["Hooks\nSessionStart · SessionEnd · UserPromptSubmit\nPreToolUse · PostToolUse · Stop\nSubagentStop · PreCompact"]
         T["Session transcripts\n~/.claude/projects/**/*.jsonl"]
     end
 
-    subgraph Collector["telemetry/ (Python)"]
-        HK["hooks/claude-telemetry-hook.py"]
-        D["daemon.py\npolls every 5s"]
-        R["reconcile.py\nparses transcripts"]
+    subgraph Collector["telemetry/ (Python, stdlib only)"]
+        HK["collector.py\n(hook entry point)"]
+        D["daemon.py\npoll + retention + exporters"]
+        R["reconcile.py\nincremental transcript ingest"]
     end
 
-    DB[("SQLite\n~/.claude/telemetry/telemetry.db")]
+    DB[("SQLite (WAL)\n~/.claude/telemetry/telemetry.db")]
 
-    subgraph Server["backend/ (FastAPI)"]
-        API["/api/v1/*"]
+    subgraph Server["backend/ (FastAPI, 127.0.0.1)"]
+        API["/api/v1/*  +  /openapi.json"]
         WS["/ws/live"]
     end
 
-    subgraph UI["frontend/ (React)"]
-        Dash["Dashboard, Projects, Requests,\nTools, Skills, Reports, ..."]
+    subgraph Clients
+        UI["frontend/ dashboard"]
+        SDK["sdk/python · sdk/js"]
     end
 
-    H -->|invokes on every event| HK
-    HK -->|INSERT| DB
-    D --> R
-    T -->|read-only parse| R
-    R -->|INSERT / UPSERT| DB
-    DB --> API
-    API --> Dash
-    WS -.->|live token counter| Dash
+    EXP["OTLP metrics · webhooks\n(opt-in)"]
+
+    H --> HK --> DB
+    T --> R
+    D --> R --> DB
+    D --> EXP
+    DB --> API --> UI
+    API --> SDK
+    WS -.-> UI
 ```
 
-Two capture paths write to the same database, independently:
+There are two independent capture paths into the same database:
 
-1. **Hooks** (`hooks/claude-telemetry-hook.py`) run synchronously whenever
-   Claude Code fires one of the five wired events. They write raw tool-call
-   and skill-activation rows to SQLite immediately — this works even if
-   `tokentelemetry start` has never been run, because Claude Code invokes
-   the hook script directly.
-2. **Reconcile** (`telemetry/reconcile.py`), driven by `telemetry/daemon.py`
-   on a timer, parses Claude Code's own session transcript files
-   (`~/.claude/projects/**/*.jsonl`). This is the only source of *exact*
-   per-request token usage — the Claude API reports usage per request, not
-   per tool call, and the hooks never see the model's raw response — so
-   reconcile is what backfills the `usage` table, full prompt/response
-   text, and per-file/tool attribution.
+1. **Hooks.** Claude Code runs `hooks/claude-telemetry-hook.py` → `telemetry.collector` on every
+   wired event. Each run writes one `events` row, plus a `skill_events` row for Skill invocations and a
+   provisional `tool_calls` row on `PreToolUse`. A hook never fails the session: errors go to
+   `hook-errors.log` next to the database and the process exits 0. Bulky fields such as `tool_response`
+   are dropped before storage, and likely secrets are redacted.
+2. **Reconcile.** `telemetry.daemon` calls `telemetry.reconcile` every `CLAUDE_TELEMETRY_INTERVAL`
+   seconds. It reads only the bytes appended to each transcript since the last poll, using a stored
+   offset. Transcripts are the only source of **exact** per-request token usage and full
+   prompt/response text, so reconcile fills `usage`, completes the `tool_calls` rows that hooks created,
+   and recomputes attributions for the lines that changed.
 
-Reconcile is idempotent: it tracks each transcript file's `(mtime, size)`
-in `reconcile_state` and only re-parses files that changed, so turning the
-daemon off for a while and back on catches up automatically with nothing
-duplicated or lost.
+If the daemon was stopped, the next poll catches up from the stored offsets, so nothing is lost or
+duplicated.
 
-## Request lifecycle
+## Ingest details
 
-What happens between a user sending a prompt and a row showing up on the
-dashboard:
+**One API request = one `usage` row.** Claude Code writes an assistant message as several JSONL lines,
+one per content block (thinking, text, tool_use…), and **each line repeats the same `usage` object**.
+Rows are keyed by `message.id + requestId` (`usage.message_key`). Repeated lines merge their text and
+take the per-field maximum token count. Before v7, each line became its own row, which over-counted
+tokens by about 2.5× on real transcripts.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant CC as Claude Code
-    participant Hook as claude-telemetry-hook.py
-    participant DB as SQLite
-    participant Daemon as telemetry/daemon.py
-    participant API as FastAPI backend
-    participant UI as React dashboard
+**Prompt context.** All user-role blocks since the previous reply (the user message and every
+`tool_result`) are joined into `prompt_full`, each block capped at 8 KB and the whole at 40 KB. Context
+that isn't answered yet is persisted in `transcripts.pending_context`, so incremental reads don't lose
+it.
 
-    User->>CC: sends a prompt
-    CC->>Hook: UserPromptSubmit / PreToolUse / PostToolUse hooks
-    Hook->>DB: INSERT into events, skill_events
-    CC->>CC: writes the full turn to its session transcript (.jsonl)
-    loop every CLAUDE_TELEMETRY_INTERVAL seconds
-        Daemon->>Daemon: scan ~/.claude/projects/**/*.jsonl for changed files
-        Daemon->>DB: parse changed transcripts, INSERT into usage, tool_calls, attributions
-    end
-    UI->>API: GET /api/v1/usage, /api/v1/projects, ...
-    API->>DB: SELECT (parameterized queries)
-    API-->>UI: JSON
-    API-->>UI: WebSocket /ws/live pushes token-count deltas
-```
+**Partial writes.** Only complete lines are consumed. A final line without a newline is read only if it
+already parses as JSON. A transcript that shrank (rewritten) is re-ingested from the start.
 
-## Database schema
+**Projects.** A project is identified by the session's starting directory (`projects.project_key` =
+resolved path), not by its folder name. Two repos both called `api` stay separate (the second is
+displayed as `api (parent)`). A `cd` inside a session does not move that session to another project.
 
-All tables live in one SQLite database (WAL mode), defined once in
-`telemetry/db.py` and shared by the daemon and the backend (see
-[Single source of schema](#single-source-of-schema-and-collector-logic)
-below).
+**Clients.** Classified from Claude Code's `entrypoint` field when present (`cli`, `claude-vscode`,
+`sdk-py`, …), otherwise by best-effort sniffing for IDE names.
+
+**Attribution (estimated).** A request's exact token total is split evenly across tool calls within ±5
+transcript lines of it, then each tool's share evenly across the file paths it touched (or
+`[unattributed]`). It's useful for finding hotspots. It is not a measurement, and it is labelled as an
+estimate everywhere.
+
+## Database schema (v7)
+
+Defined once in [`telemetry/db.py`](../telemetry/db.py) and used by the hook, the daemon and the API.
 
 ```mermaid
 erDiagram
-    USAGE ||--o{ ATTRIBUTIONS : "splits into"
-    TOOL_CALLS ||--o{ TOOL_PATHS : "touched files"
+    PROJECTS ||--o{ SESSIONS : contains
+    SESSIONS ||--o{ USAGE : "made requests"
+    SESSIONS ||--o{ TOOL_CALLS : "called tools"
+    SESSIONS ||--o{ SKILL_EVENTS : "activated skills"
+    SESSIONS ||--o{ EVENTS : "fired hooks"
+    TRANSCRIPTS ||--o{ USAGE : "parsed into"
+    TRANSCRIPTS ||--o{ TOOL_CALLS : "parsed into"
+    TOOL_CALLS ||--o{ TOOL_PATHS : touched
+    USAGE ||--o{ ATTRIBUTIONS : "estimated split"
     TOOL_CALLS ||--o{ ATTRIBUTIONS : "attributed to"
 
-    USAGE {
-        int id PK
-        text event_time
-        text session_id
-        text project
-        text model
-        int input_tokens
-        int output_tokens
-        int cache_read_tokens
-        int cache_write_tokens
-        int total_tokens
-        real cost_usd
-        text prompt_preview
-        text response_preview
-        text prompt_full
-        text response_full
-    }
-    EVENTS {
-        int id PK
-        text event_type
-        text session_id
-        text project
-        text tool_name
-        text skill_name
-    }
-    TOOL_CALLS {
-        int id PK
-        text session_id
-        text project
-        text tool_name
-        text tool_use_id
-    }
-    TOOL_PATHS {
-        int id PK
-        int tool_call_id FK
-        text path
-        text category
-    }
-    SKILL_EVENTS {
-        int id PK
-        text session_id
-        text project
-        text skill_name
-        text plugin_name
-    }
-    ATTRIBUTIONS {
-        int id PK
-        int usage_id FK
-        int tool_call_id FK
-        text path
-        text category
-        real estimated_tokens
-        real allocation_weight
-        text method
-    }
-    RECONCILE_STATE {
-        text transcript_path PK
-        int mtime_ns
-        int size_bytes
-    }
+    PROJECTS { int id PK
+      text project_key UK "resolved cwd"
+      text name UK "display, collision-free"
+      text first_seen
+      text last_seen }
+    SESSIONS { int id PK
+      text session_id UK
+      int project_id FK
+      text client }
+    TRANSCRIPTS { int id PK
+      text path UK
+      int offset_bytes "resume point"
+      int line_count
+      text pending_context }
+    USAGE { int id PK
+      text message_key UK "msg id + request id"
+      int session_ref FK
+      int project_id FK
+      text event_time "ISO-8601 UTC"
+      int input_tokens
+      int output_tokens
+      int cache_read_tokens
+      int cache_write_tokens
+      int total_tokens
+      text prompt_full "nullable"
+      text response_full "nullable" }
+    TOOL_CALLS { int id PK
+      text tool_use_id UK
+      text tool_name
+      text mcp_server "derived"
+      int transcript_line }
+    SKILL_EVENTS { int id PK
+      text dedupe_key UK "tool_use_id"
+      text skill_name
+      text plugin_name
+      text source "hook|transcript|legacy" }
+    EVENTS { int id PK
+      text event_type
+      text event_time
+      text payload_json "slimmed + redacted" }
+    ATTRIBUTIONS { int id PK
+      text path
+      text category
+      real estimated_tokens }
 ```
 
-- **`usage`** is the source of truth for token counts — one row per
-  Claude API response, always exact.
-- **`events`** holds raw, live hook firings (fast, but not exact usage).
-- **`tool_calls`** / **`tool_paths`** come from reconcile parsing tool-use
-  blocks in transcripts, including which file paths each call touched.
-- **`skill_events`** records skill activations, with `plugin_name` split
-  out when a skill identifier is namespaced as `plugin:skill`.
-- **`attributions`** is the *estimated* layer: each `usage` row's exact
-  token count is divided across the tool calls active near it in the
-  transcript, then split again across the file paths those tools touched.
-  A slice that can't be matched to a nearby tool call is bucketed as
-  `[unattributed]` rather than dropped — see the in-app **About** page for
-  the full explanation of exact vs. estimated.
-- **`reconcile_state`** is reconcile's own bookkeeping (not exposed in the
-  UI) — one row per transcript file, used to skip unchanged files.
+Conventions:
 
-## Component responsibilities
+- **Timestamps** are ISO-8601 UTC with millisecond precision and a `Z` suffix
+  (`2025-01-02T03:04:05.678Z`), normalized on write. Plain string comparison is chronological. The API
+  shifts day buckets to the caller's time zone (`tz_offset`).
+- **Uniqueness carries the de-duplication rules.** `usage.message_key`, `tool_calls.tool_use_id` and
+  `skill_events.dedupe_key` make every write idempotent. Hook and transcript sightings of the same
+  Skill call collapse into one row.
+- **Foreign keys** are enforced, and deleting a session or transcript cascades to its facts.
+- **Views** (`v_usage`, `v_tool_calls`, `v_skill_events`, `v_events`, `v_attributions`) join the
+  dimension names back in, so API queries stay simple.
+- **Indexes** match the API's access paths: time ranges, `(project_id, event_time)`, model, client,
+  MCP server, and transcript line.
+- New databases are created `0600` (directory `0700`) with `auto_vacuum=INCREMENTAL`.
 
-| Component | Responsibility | Depends on |
-|---|---|---|
-| `hooks/claude-telemetry-hook.py` | Entry point Claude Code invokes for each hook event | `telemetry.collector` |
-| `telemetry/collector.py` | Parses a single hook payload, writes `events`/`skill_events` | `telemetry.db` |
-| `telemetry/reconcile.py` | Parses session transcripts, writes `usage`/`tool_calls`/`attributions` | `telemetry.db` |
-| `telemetry/daemon.py` | Runs `reconcile()` on a poll loop | `telemetry.reconcile` |
-| `telemetry/db.py` | Canonical schema (`SCHEMA`) + migrations (`migrate()`) + `connect()` | stdlib `sqlite3` |
-| `backend/app/db/schema.py` | Re-exports `telemetry.db`'s schema/migrations | `telemetry.db` |
-| `backend/app/api/routes/*.py` | One FastAPI router per resource, read-only except `/settings/reconcile` | `backend/app/db/connection.py` |
-| `frontend/src/pages/*.tsx` | One React page per route | `frontend/src/api/*.ts` |
-| `cli/` | Cross-platform installer, process manager, and OS autostart registration | Node.js stdlib + `child_process` |
+### Migrations
 
-### Single source of schema and collector logic
+`PRAGMA user_version` holds the schema version. `telemetry/db.py:MIGRATIONS` maps each version to a
+function. Each migration runs inside one `BEGIN IMMEDIATE` transaction, so a crash leaves the old
+version intact and concurrent processes can't both migrate. Before migrating an existing file,
+`connect()` writes a consistent backup (`telemetry.db.bak-v<old>`) with SQLite's online backup API. A
+database newer than the running code is refused with an upgrade hint, not opened.
 
-Earlier revisions of this project had three independently copied
-implementations of the schema, collector, and reconcile logic — one under
-`telemetry/`, one under `backend/app/services/`, and inline migrations in
-`backend/app/db/schema.py`. They drifted from each other more than once
-(most notably, a schema migration existed in one copy but not the others).
-The current structure makes `telemetry/` the single canonical
-implementation: `backend/app/main.py` adds the repo root to `sys.path` at
-startup so `backend/` can `import telemetry` directly, and
-`backend/app/db/schema.py` is now a two-line re-export. There is exactly
-one place that defines the schema and exactly one place that parses a
-transcript.
+The v7 migration imports pre-v7 (unversioned) databases ([`telemetry/legacy.py`](../telemetry/legacy.py)):
 
-## Why two capture paths instead of one
+- Rows from transcripts that **still exist** are dropped. The next reconcile rebuilds them correctly,
+  which fixes the old over-counting.
+- Rows from transcripts Claude Code has **since deleted** are copied (their consecutive duplicate lines
+  collapsed best-effort), since they can't be rebuilt.
+- Hook events and skill events are copied, with timestamps normalized and missing ones backfilled.
 
-An earlier, simpler design considered relying on hooks alone. That doesn't
-work for two reasons: `PostToolUse` fires before the model's response
-finishes streaming, so hooks never see the actual token usage for that
-turn; and a hook only fires while Claude Code is running, so anything that
-happened before `tokentelemetry install` was run would be invisible.
-Reconcile solves both — it reads the durable transcript files Claude Code
-already writes for its own purposes, so it can backfill historical data and
-capture exact usage that hooks structurally cannot see. Keeping the hooks
-around as well (rather than reconcile-only) is what makes `tool_calls`
-and `skill_events` show up **immediately**, without waiting for the next
-poll — useful for the live event feed and the `/ws/live` counter.
+To add a migration: append `MIGRATIONS[8] = _migrate_to_v8`, bump `SCHEMA_VERSION`, and add a test in
+`tests/test_migration.py`. Never edit a migration that has shipped.
 
-## Frontend structure
+### Retention
 
-The React app (`frontend/src/`) is organized by concern, not by page:
+Off by default. The daemon applies it hourly:
 
-- **`pages/`** — one component per route (`GlobalDashboard`, `ProjectDetail`,
-  `Requests`, `Reports`, `About`, ...), each responsible for its own data
-  fetching via `useApi()` and layout.
-- **`components/`** — shared building blocks: `Layout/` (sidebar, top bar,
-  the `Outlet`-based `AppLayout`), `charts/` (Recharts wrappers with a
-  shared `chartTheme.ts`), `data/` (`MetricCard`, `StatRow`), `ui/`
-  (buttons, badges, tooltips, icons), `filters/` (`DateRangeFilter`).
-- **`api/`** — one typed fetch wrapper module per backend resource,
-  all going through `api/client.ts`'s `fetchApi()`, which prefixes
-  `/api/v1` and throws on a non-2xx response.
-- **`hooks/`** — `useApi` (fetch + loading/error state), `useLiveData`
-  (subscribes to `/ws/live`), `useTheme` (dark/light mode, persisted to
-  `localStorage` plus `prefers-color-scheme` as the default).
+| Variable | Effect |
+|---|---|
+| `TOKENTELEMETRY_RETENTION_DAYS` | Delete usage/tool/skill/event rows older than N days, then orphaned sessions |
+| `TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS` | Blank `prompt_full`/`response_full` older than N days (token counts kept) |
+| `TOKENTELEMETRY_STORE_FULL_TEXT=0` | Never store full text (previews only) |
 
-There is no separate static-HTML fallback UI — the React app is the one
-real frontend, served by Vite in development and by the CLI's own minimal
-static file server (`cli/src/static-server.js`) in production, which also
-reverse-proxies `/api` and `/ws` to the FastAPI backend so the built
-frontend and the API can share an origin.
+## API server
+
+[`backend/app`](../backend/app):
+
+- `main.py`: app factory, error envelope (`{"error": {"code", "message"}}`), `/health` with a DB check.
+- `security.py`: **Host allowlist** (blocks DNS rebinding) and **Origin check** on state-changing
+  requests (blocks CSRF), plus `nosniff`, `no-referrer`, `DENY` framing, and `no-store` on API
+  responses. `TOKENTELEMETRY_ALLOWED_HOSTS` extends the allowlist if you deliberately put a proxy in
+  front.
+- `deps.py`: per-request **read-only** connections (`mode=ro`, always closed), shared filters
+  (`project`, `client`, `model`, `session_id`, `start`, `end`, `tz_offset`), and pagination.
+- `schemas.py`: Pydantic response models. They drive the published
+  [`docs/openapi.json`](openapi.json), and CI fails if that file goes stale.
+- `api/routes/*`: sync handlers (FastAPI runs them in its thread pool, so SQLite never blocks the event
+  loop). Reports stream without loading every row into memory.
+- `api/routes/live.py`: one background broadcaster per process. It polls `PRAGMA data_version` (a
+  cheap integer) every 2 s and pushes totals to every connected socket only when another connection
+  committed.
+
+## Dashboard
+
+[`frontend/`](../frontend) is React 18, Vite, TypeScript, Tailwind and Recharts.
+
+- `api/`: one module per resource over `fetchApi`, which handles timeouts, abort, typed `ApiError`, and
+  sends `tz_offset` automatically.
+- `hooks/useApi`: aborts stale requests and keeps the last data while refetching.
+- `context/LiveContext`: same-origin `/ws/live` with exponential backoff. Pages put `live.version` in
+  their deps to refetch on new data.
+- Routes are lazy-loaded. The Inter font is bundled (no third-party requests). A strict CSP is set by
+  the CLI's static server.
 
 ## CLI / installer
 
-`cli/` is a self-contained npm package (see [`cli/README.md`](../cli/README.md)
-for the full command reference). At a high level:
+[`cli/`](../cli) is a Node 18+ package with zero runtime dependencies.
 
-- `install.js` copies the vendored `backend/`, `telemetry/`, and `hooks/`
-  sources plus the built `frontend/dist` into `~/.tokentelemetry`, creates
-  a Python virtualenv (preferring `uv`), and merges the five hook entries
-  into `~/.claude/settings.json`.
-- `run.js` spawns the backend (`uvicorn`), the daemon (`python -m
-  telemetry.daemon`), and the static file server as detached background
-  processes, tracking their PIDs in `~/.tokentelemetry/run.json` so
-  `stop`/`status` can find them again later.
-- `autostart.js` registers an OS-native autostart entry (Windows Task
-  Scheduler, macOS launchd, or a Linux systemd `--user` service) that runs
-  `node <path to tokentelemetry.js> start` at login, using absolute paths
-  throughout since OS schedulers typically don't see a login shell's
-  `PATH`.
+- `install`: validates `~/.claude/settings.json` first, copies the bundled app (`vendor/`) into
+  `~/.tokentelemetry` (replacing managed directories wholesale), creates a venv (uv if available), and
+  writes the hooks **atomically** with a one-time backup. Our hooks are recognized by script name, so
+  moved installs are cleaned up.
+- `start`: launches backend, daemon and static server detached. It waits for `/health` instead of
+  sleeping, checks ports first, and rotates logs.
+- `stop`/`status`: only act on a PID whose command line is still ours, because PIDs get reused.
+- `static-server.js`: SPA fallback, `/api` + `/ws` reverse proxy, the same Host allowlist as the API
+  (the proxy rewrites Host, so it must check first), CSP and immutable asset caching.
+- `autostart`: Task Scheduler / launchd (`AbandonProcessGroup`) / systemd
+  (`Type=oneshot` + `RemainAfterExit` + `KillMode=process`), so the detached services survive the
+  launcher exiting.
+- `doctor`: checks Node, Python, deps, app version, hooks, hook errors, and both ports.
+
+## Integrations
+
+See [INTEGRATIONS.md](INTEGRATIONS.md). Exporters (`telemetry/integrations/`) are opt-in, cursor-based
+(`meta.export_cursor:<name>`), and at-least-once. A cursor advances only after the receiver accepts a
+batch, and failures back off exponentially up to 5 minutes without blocking ingest.
+
+## Repository layout
+
+```
+backend/     FastAPI app (REST + WebSocket)
+telemetry/   schema, migrations, hook collector, reconcile, daemon, retention, exporters
+hooks/       the script Claude Code invokes
+frontend/    dashboard (React)
+cli/         npm package: installer + process manager + static server
+sdk/python   tokentelemetry-client (PyPI-ready)
+sdk/js       tokentelemetry-client (npm-ready)
+site/        landing page (GitHub Pages)
+docs/        guides, API reference, OpenAPI document
+scripts/     maintenance scripts (OpenAPI export)
+tests/       Python test suite (collector, reconcile, migration, API, integrations)
+```

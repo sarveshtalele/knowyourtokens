@@ -1,14 +1,7 @@
 import type { ReactNode, SVGProps } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../components/ui/Badge';
-import {
-  IconDashboard,
-  IconWrench,
-  IconBolt,
-  IconPlug,
-  IconDownload,
-  IconMoon,
-} from '../components/ui/Icons';
+import { IconDashboard, IconWrench, IconBolt, IconPlug, IconDownload, IconMoon } from '../components/ui/Icons';
 import { PageHead } from './GlobalDashboard';
 
 export function About() {
@@ -16,24 +9,22 @@ export function About() {
     <div className="space-y-8 max-w-3xl">
       <PageHead
         eyebrow="Product"
-        title="About Claude Telemetry Enterprise"
+        title="About Token Telemetry"
         subtitle="A local-first observability console for Claude Code — see exactly where your tokens, tool calls, and skills go, without sending any of that data anywhere but your own machine."
       />
 
       <Section title="What this is, in plain terms">
         <p>
-          Claude Telemetry Enterprise is a small program that runs on your own computer,
-          alongside Claude Code. It quietly keeps a record of how Claude Code is being used —
-          how many tokens each request costs, which tools and skills get called, which MCP
-          servers are active, and which project each of those happened in — and shows it back
-          to you in a dashboard you can search, filter, and export.
+          Token Telemetry is a small program that runs on your own computer, alongside Claude Code. It quietly keeps a
+          record of how Claude Code is being used — how many tokens each request costs, which tools and skills get
+          called, which MCP servers are active, and which project each of those happened in — and shows it back to you
+          in a dashboard you can search, filter, and export.
         </p>
         <p className="mt-3">
-          Nothing about that record is guessed after the fact from a bill or an invoice: it is
-          built the moment things actually happen, by reading the same files Claude Code
-          already writes for itself. Nothing about it is sent anywhere either — there is no
-          account to sign into and no server to trust besides the one already running on your
-          machine.
+          Nothing about that record is guessed after the fact from a bill or an invoice: it is built the moment things
+          actually happen, by reading the same files Claude Code already writes for itself. Nothing about it is sent
+          anywhere either — there is no account to sign into and no server to trust besides the one already running on
+          your machine.
         </p>
       </Section>
 
@@ -44,25 +35,27 @@ export function About() {
       <Section title="How it works, without the jargon">
         <ol className="space-y-3 list-none">
           <Step n={1} title="Claude Code tells us when something happens">
-            Five small hooks (already wired in automatically during install) notify this tool
-            the instant a session starts, a prompt is sent, or a tool runs — so live activity
-            shows up right away, not on a delay.
+            Five small hooks (already wired in automatically during install) notify this tool the instant a session
+            starts, a prompt is sent, or a tool runs — so live activity shows up right away, not on a delay.
           </Step>
           <Step n={2} title="A background process fills in the exact numbers">
-            Every request's real token usage only exists in Claude Code's own session files, so
-            a background process reads those files on a short timer and fills in the precise
-            counts — catching up automatically on anything it missed if it was off for a while.
+            Every request's real token usage only exists in Claude Code's own session files, so a background process
+            reads those files on a short timer and fills in the precise counts — catching up automatically on anything
+            it missed if it was off for a while.
           </Step>
           <Step n={3} title="The dashboard shows you both">
-            Everything lands in one local database, and this dashboard reads from it — nothing
-            you see here required Claude Code to be told about this tool, or required any data
-            to leave your machine.
+            Everything lands in one local database, and this dashboard reads from it — nothing you see here required
+            Claude Code to be told about this tool, or required any data to leave your machine.
           </Step>
         </ol>
         <p className="mt-3">
-          The technical version of this — the actual database tables and data-flow diagrams —
-          is in{' '}
-          <a href="https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noreferrer" className="text-accent-strong hover:underline">
+          The technical version of this — the actual database tables and data-flow diagrams — is in{' '}
+          <a
+            href="https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/ARCHITECTURE.md"
+            target="_blank"
+            rel="noreferrer"
+            className="text-accent-strong hover:underline"
+          >
             docs/ARCHITECTURE.md
           </a>
           .
@@ -71,25 +64,25 @@ export function About() {
 
       <Section title="Exact vs. estimated — what “attributed” means">
         <p className="mb-3">
-          The Claude API reports token usage per <em>request</em>, not per file or tool call. So anywhere
-          you see an <Badge tone="success">Exact</Badge> badge, that number came straight from the API.
-          Anywhere you see an <Badge tone="warning">Estimated</Badge> badge — attribution hotspots, top
-          files/paths, per-project token breakdowns by category — that number is a heuristic: each
-          request's exact token count is divided across the tool calls active near it in the transcript,
-          then split again across the file paths each of those tools touched.
+          The Claude API reports token usage per <em>request</em>, not per file or tool call. So anywhere you see an{' '}
+          <Badge tone="success">Exact</Badge> badge, that number came straight from the API. Anywhere you see an{' '}
+          <Badge tone="warning">Estimated</Badge> badge — attribution hotspots, top files/paths, per-project token
+          breakdowns by category — that number is a heuristic: each request's exact token count is divided across the
+          tool calls active near it in the transcript, then split again across the file paths each of those tools
+          touched.
         </p>
         <p>
           A slice that couldn't be matched to any nearby tool call is bucketed as{' '}
-          <span className="font-mono">[unattributed]</span> rather than silently dropped or guessed. Treat
-          estimated numbers as directionally useful for finding hotspots, not as a precise per-file cost.
+          <span className="font-mono">[unattributed]</span> rather than silently dropped or guessed. Treat estimated
+          numbers as directionally useful for finding hotspots, not as a precise per-file cost.
         </p>
       </Section>
 
       <Section title="Full prompts and responses">
         <p>
-          List views (Requests, Project → Requests) show short truncated previews for speed. Click a row,
-          then “Open full prompt &amp; response” to open the complete, untruncated prompt and response for
-          that request in its own page —{' '}
+          List views (Requests, Project → Requests) show short truncated previews for speed. Click a row, then “Open
+          full prompt &amp; response” to open the complete, untruncated prompt and response for that request in its own
+          page —{' '}
           <Link to="/requests" className="text-accent-strong hover:underline">
             start from Requests
           </Link>
@@ -99,47 +92,52 @@ export function About() {
 
       <Section title="Why is “cache read” so much bigger than “input”?">
         <p className="mb-3">
-          Claude Code sends your entire conversation on every request (the API is stateless), but most of that —
-          the system prompt, tool definitions, and everything said earlier in the session — is usually a prompt-cache
-          hit by the second turn. The API bills that reused portion as <span className="font-mono">cache read</span>,
-          at a fraction of fresh-token cost, and only counts genuinely new content as{' '}
-          <span className="font-mono">input</span>. So a request showing <b>Input: 2</b> and{' '}
-          <b>Cache read: 764,387</b> isn't hiding anything — that 764K really is mostly your system prompt and prior
-          conversation, exact and fully accounted for, just filed under a different label than you might expect.
+          Claude Code sends your entire conversation on every request (the API is stateless), but most of that — the
+          system prompt, tool definitions, and everything said earlier in the session — is usually a prompt-cache hit by
+          the second turn. The API bills that reused portion as <span className="font-mono">cache read</span>, at a
+          fraction of fresh-token cost, and only counts genuinely new content as{' '}
+          <span className="font-mono">input</span>. So a request showing <b>Input: 2</b> and <b>Cache read: 764,387</b>{' '}
+          isn't hiding anything — that 764K really is mostly your system prompt and prior conversation, exact and fully
+          accounted for, just filed under a different label than you might expect.
         </p>
         <p>
-          One limitation worth naming directly: Claude Code doesn't expose the literal system prompt or tool
-          definition text anywhere this collector can see — not in session transcripts, not in hook payloads. So the{' '}
+          One limitation worth naming directly: Claude Code doesn't expose the literal system prompt or tool definition
+          text anywhere this collector can see — not in session transcripts, not in hook payloads. So the{' '}
           <Link to="/requests" className="text-accent-strong hover:underline">
             full prompt view
           </Link>{' '}
-          can show you every user message and tool result that went into a request, but never the system prompt
-          itself. Its exact token cost is still fully captured above — just not its content.
+          can show you every user message and tool result that went into a request, but never the system prompt itself.
+          Its exact token cost is still fully captured above — just not its content.
         </p>
       </Section>
 
       <Section title="What's excluded on purpose">
         <p>
-          Cost/pricing columns are intentionally left out of the primary UI — billing depends on the plan in
-          effect and isn't a reliable token-telemetry primitive, so it would be misleading to display it
-          alongside exact/estimated token data.
+          Cost/pricing columns are intentionally left out of the primary UI — billing depends on the plan in effect and
+          isn't a reliable token-telemetry primitive, so it would be misleading to display it alongside exact/estimated
+          token data.
         </p>
       </Section>
 
       <Section title="Local-first and private by design">
         <p>
-          Everything runs on your machine: a Python collector + FastAPI backend on top of a local SQLite
-          file, and this React UI talking to it over <span className="font-mono">/api/v1</span> — never a
-          request outside <span className="font-mono">127.0.0.1</span>. See{' '}
+          Everything runs on your machine: a Python collector + FastAPI backend on top of a local SQLite file, and this
+          React UI talking to it over <span className="font-mono">/api/v1</span> — never a request outside{' '}
+          <span className="font-mono">127.0.0.1</span>. See{' '}
           <Link to="/settings" className="text-accent-strong hover:underline">
             Settings
           </Link>{' '}
           for the exact database path and collector status on this machine.
         </p>
         <p className="mt-3">
-          The project is open source under the MIT license. The full source, the installation
-          guide, and a complete security review are on{' '}
-          <a href="https://github.com/sarveshtalele/tokentelemetry" target="_blank" rel="noreferrer" className="text-accent-strong hover:underline">
+          The project is open source under the MIT license. The full source, the installation guide, and a complete
+          security review are on{' '}
+          <a
+            href="https://github.com/sarveshtalele/tokentelemetry"
+            target="_blank"
+            rel="noreferrer"
+            className="text-accent-strong hover:underline"
+          >
             GitHub
           </a>
           .
@@ -173,12 +171,36 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 }
 
 const FEATURES: { Icon: (props: SVGProps<SVGSVGElement>) => ReactNode; title: string; body: string }[] = [
-  { Icon: IconDashboard, title: 'Token & cost visibility', body: 'Every request, every project, all time by default — not capped at 30 days.' },
-  { Icon: IconWrench, title: 'Tool & skill breakdowns', body: 'See which tools, skills, and MCP servers actually drive usage, per project.' },
-  { Icon: IconBolt, title: 'Live activity', body: 'A live indicator and event feed reflect what Claude Code is doing right now.' },
-  { Icon: IconPlug, title: 'Full trace inspection', body: 'Open the complete, untruncated prompt and response behind any request.' },
-  { Icon: IconDownload, title: 'Report export', body: 'Download usage or project summaries as CSV or JSON for your own analysis.' },
-  { Icon: IconMoon, title: 'Dark & light mode', body: 'Matches your OS preference by default, with a persistent manual toggle.' },
+  {
+    Icon: IconDashboard,
+    title: 'Token visibility',
+    body: 'Every request, every project, all time by default — not capped at 30 days.',
+  },
+  {
+    Icon: IconWrench,
+    title: 'Tool & skill breakdowns',
+    body: 'See which tools, skills, and MCP servers actually drive usage, per project.',
+  },
+  {
+    Icon: IconBolt,
+    title: 'Live activity',
+    body: 'A live indicator and event feed reflect what Claude Code is doing right now.',
+  },
+  {
+    Icon: IconPlug,
+    title: 'Full trace inspection',
+    body: 'Open the complete, untruncated prompt and response behind any request.',
+  },
+  {
+    Icon: IconDownload,
+    title: 'Report export',
+    body: 'Download usage or project summaries as CSV or JSON for your own analysis.',
+  },
+  {
+    Icon: IconMoon,
+    title: 'Dark & light mode',
+    body: 'Matches your OS preference by default, with a persistent manual toggle.',
+  },
 ];
 
 function FeatureGrid() {

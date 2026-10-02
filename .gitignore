@@ -36,3 +36,21 @@ Thumbs.db
 *.key
 *.p12
 credentials.json
+
+# Coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Landing site build
+site/node_modules/
+site/dist/
+sdk/js/node_modules/
+sdk/js/dist/
+sdk/python/build/
+*.egg-info/
+.ruff_cache/
+
+# Copied from the repo root at pack time
+cli/LICENSE

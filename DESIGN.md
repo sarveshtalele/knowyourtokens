@@ -1,7 +1,7 @@
 ---
 version: alpha
-name: Claude Telemetry Enterprise
-description: Enterprise observability design system for Claude Code token, request, tool, skill, client, and project telemetry.
+name: Token Telemetry
+description: Observability design system for Claude Code token, request, tool, skill, client, and project telemetry.
 colors:
   ink: "#111827"
   ink-soft: "#475569"
@@ -88,7 +88,7 @@ components:
 
 ## Overview
 
-Claude Telemetry Enterprise is an operational observability console for engineering teams. The visual language is precise, quiet, data-dense, and trustworthy: closer to an infrastructure control plane than a marketing dashboard. Use strong hierarchy, generous whitespace around major sections, and compact information rows inside analytical surfaces.
+Token Telemetry is an operational observability console for engineering teams. The visual language is precise, quiet, data-dense, and trustworthy: closer to an infrastructure control plane than a marketing dashboard. Use strong hierarchy, generous whitespace around major sections, and compact information rows inside analytical surfaces.
 
 The UI should make high-volume token telemetry legible without visual noise. Primary actions use the single violet accent. Status colors communicate operational state only. Project-level views must feel independently scoped while preserving global navigation.
 

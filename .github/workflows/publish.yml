@@ -1,4 +1,4 @@
-name: Publish to npm
+name: Release
 
 on:
   release:
@@ -9,32 +9,46 @@ permissions:
   id-token: write
 
 jobs:
-  publish:
+  npm-cli:
+    name: Publish CLI to npm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-
-      # Trusted publishing (OIDC) needs npm >=11.5.1; pin to latest so the
-      # runner's bundled npm version doesn't silently fall back to a token.
-      - name: Ensure npm supports trusted publishing (OIDC)
-        run: npm install -g npm@latest
-
-      - name: Verify cli/package.json version matches the release tag
-        working-directory: cli
+      # Trusted publishing (OIDC) needs npm >= 11.5.1.
+      - run: npm install -g npm@latest
+      - name: Release tag must match every package version
         run: |
           tag="${GITHUB_REF_NAME#v}"
-          pkg_version=$(node -p "require('./package.json').version")
-          if [ "$tag" != "$pkg_version" ]; then
-            echo "::error::Release tag v$tag does not match cli/package.json version $pkg_version"
-            exit 1
-          fi
-
-      # prepack (npm's own lifecycle hook) builds cli/vendor/ automatically.
+          fail=0
+          for v in \
+            "$(node -p "require('./cli/package.json').version")" \
+            "$(node -p "require('./sdk/js/package.json').version")" \
+            "$(python3 -c "import re;print(re.search(r'__version__ = \"(.+)\"', open('telemetry/__init__.py').read()).group(1))")" \
+            "$(python3 -c "import re;print(re.search(r'^version = \"(.+)\"', open('sdk/python/pyproject.toml').read(), re.M).group(1))")"; do
+            if [ "$v" != "$tag" ]; then echo "::error::version $v does not match release tag v$tag"; fail=1; fi
+          done
+          exit $fail
+      # prepack builds cli/vendor/ (backend, telemetry, hooks, built dashboard).
       - name: Publish
         working-directory: cli
-        run: npm publish
+        run: npm publish --provenance --access public
+
+  npm-sdk:
+    name: Publish JS SDK to npm
+    needs: npm-cli
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm install -g npm@latest
+      - working-directory: sdk/js
+        run: |
+          npm ci
+          npm publish --provenance --access public

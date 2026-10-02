@@ -9,8 +9,8 @@ import { PageHead, ErrorPanel } from './GlobalDashboard';
 import type { SessionRow } from '../types';
 
 export function Sessions() {
-  const { data: sessions = [], loading, error } = useApi(() => getSessions(), []);
-  const { data: projects = [] } = useApi(() => getProjects(), []);
+  const { data: sessions = [], loading, error } = useApi((signal) => getSessions(signal), []);
+  const { data: projects = [] } = useApi((signal) => getProjects(signal), []);
   const [project, setProject] = useState('');
   const [q, setQ] = useState('');
 
@@ -19,7 +19,7 @@ export function Sessions() {
       sessions
         .filter((s) => !project || s.project === project)
         .filter((s) => [s.project, s.client, s.model, s.session_id].join(' ').toLowerCase().includes(q.toLowerCase())),
-    [sessions, project, q]
+    [sessions, project, q],
   );
 
   if (error) return <ErrorPanel message={error.message} />;
@@ -27,7 +27,11 @@ export function Sessions() {
 
   return (
     <div className="space-y-6">
-      <PageHead eyebrow="Execution history" title="Sessions" subtitle="Session-level context for diagnosing high-volume Claude Code workflows." />
+      <PageHead
+        eyebrow="Execution history"
+        title="Sessions"
+        subtitle="Session-level context for diagnosing high-volume Claude Code workflows."
+      />
       <div className="flex gap-2 flex-wrap">
         <ProjectFilter projects={projects.map((p) => p.project)} value={project} onChange={setProject} />
         <input
@@ -39,7 +43,11 @@ export function Sessions() {
       </div>
       <DataTable<SessionRow>
         columns={[
-          { key: 'session_id', label: 'Session', render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span> },
+          {
+            key: 'session_id',
+            label: 'Session',
+            render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
+          },
           { key: 'project', label: 'Project' },
           { key: 'client', label: 'Client' },
           { key: 'model', label: 'Model' },

@@ -46,10 +46,12 @@ export function Sidebar() {
   }, []);
 
   return (
-    <aside className={`${expanded ? 'w-60' : 'w-[76px]'} bg-[#0f172a] text-slate-300 h-screen flex flex-col transition-all duration-200 shrink-0`}>
+    <aside
+      className={`${expanded ? 'w-60' : 'w-[76px]'} bg-[#0f172a] text-slate-300 h-screen flex flex-col transition-all duration-200 shrink-0`}
+    >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-slate-800">
-        <span className="w-8 h-8 rounded-md bg-accent grid place-items-center text-white font-bold text-sm shrink-0">CT</span>
-        {expanded && <span className="font-bold text-white truncate">Telemetry</span>}
+        <img src="/favicon.svg" alt="" width={32} height={32} className="w-8 h-8 rounded-md shrink-0" />
+        {expanded && <span className="font-bold text-white truncate">Token Telemetry</span>}
         <button
           onClick={() => setExpanded((e) => !e)}
           className="ml-auto text-slate-400 hover:text-white grid place-items-center w-7 h-7 rounded hover:bg-slate-800"
@@ -97,7 +99,7 @@ export function Sidebar() {
         <div className="px-4 py-3 text-[11px] text-slate-500 border-t border-slate-800">
           Local-first · SQLite
           <br />
-          Telemetry v5 compatible
+          Token Telemetry v2 · schema v7
         </div>
       )}
     </aside>

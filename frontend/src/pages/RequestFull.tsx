@@ -9,7 +9,7 @@ import { ErrorPanel } from './GlobalDashboard';
 
 export function RequestFull() {
   const { id = '' } = useParams();
-  const { data: row, loading, error } = useApi(() => getUsageById(id), [id]);
+  const { data: row, loading, error } = useApi((signal) => getUsageById(id, signal), [id]);
 
   if (error) return <ErrorPanel message={error.message} />;
   if (loading || !row) return <div className="p-10 text-center text-ink-soft">Loading request…</div>;
@@ -25,7 +25,9 @@ export function RequestFull() {
       <div className="flex items-start justify-between gap-5 flex-wrap">
         <div>
           <div className="text-accent text-[11px] font-extrabold uppercase tracking-wide">Full transcript</div>
-          <div className="text-[27px] font-extrabold tracking-tight mt-1 mb-1.5">Request · {row.session_id.slice(0, 12)}</div>
+          <div className="text-[27px] font-extrabold tracking-tight mt-1 mb-1.5">
+            Request · {row.session_id.slice(0, 12)}
+          </div>
           <div className="flex items-center gap-2 flex-wrap text-sm">
             <Badge tone="accent">{row.model || '—'}</Badge>
             <Badge>{row.client || '—'}</Badge>
@@ -52,7 +54,11 @@ export function RequestFull() {
           value={fmt(row.cache_write_tokens)}
           hint="Tokens newly written into the cache on this turn, for the next turn to read back cheaply."
         />
-        <Metric label="Total" value={fmt(row.total_tokens)} hint="Input + output + cache read + cache write -- exact, from the Claude API." />
+        <Metric
+          label="Total"
+          value={fmt(row.total_tokens)}
+          hint="Input + output + cache read + cache write -- exact, from the Claude API."
+        />
       </div>
 
       <ContextBreakdown row={row} />
@@ -107,14 +113,28 @@ function Metric({ label, value, hint }: { label: string; value: string; hint?: s
   );
 }
 
-const CONTEXT_SEGMENTS: { key: 'cache_read_tokens' | 'cache_write_tokens' | 'input_tokens' | 'output_tokens'; label: string; color: string }[] = [
+const CONTEXT_SEGMENTS: {
+  key: 'cache_read_tokens' | 'cache_write_tokens' | 'input_tokens' | 'output_tokens';
+  label: string;
+  color: string;
+}[] = [
   { key: 'cache_read_tokens', label: 'Cache read (reused system prompt, tools, history)', color: 'bg-accent' },
   { key: 'cache_write_tokens', label: 'Cache write (newly cached this turn)', color: 'bg-info' },
   { key: 'input_tokens', label: 'Fresh input', color: 'bg-success' },
   { key: 'output_tokens', label: "Claude's response", color: 'bg-warning' },
 ];
 
-function ContextBreakdown({ row }: { row: { input_tokens: number; output_tokens: number; cache_read_tokens: number; cache_write_tokens: number; total_tokens: number } }) {
+function ContextBreakdown({
+  row,
+}: {
+  row: {
+    input_tokens: number;
+    output_tokens: number;
+    cache_read_tokens: number;
+    cache_write_tokens: number;
+    total_tokens: number;
+  };
+}) {
   const total = row.total_tokens || 1;
   const dominant = CONTEXT_SEGMENTS.reduce((a, b) => (row[a.key] >= row[b.key] ? a : b));
 
@@ -136,7 +156,14 @@ function ContextBreakdown({ row }: { row: { input_tokens: number; output_tokens:
       <div className="flex h-3 rounded-full overflow-hidden bg-line">
         {CONTEXT_SEGMENTS.map((seg) => {
           const pct = (row[seg.key] / total) * 100;
-          return pct > 0 ? <div key={seg.key} className={seg.color} style={{ width: `${pct}%` }} title={`${seg.label}: ${fmt(row[seg.key])}`} /> : null;
+          return pct > 0 ? (
+            <div
+              key={seg.key}
+              className={seg.color}
+              style={{ width: `${pct}%` }}
+              title={`${seg.label}: ${fmt(row[seg.key])}`}
+            />
+          ) : null;
         })}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">

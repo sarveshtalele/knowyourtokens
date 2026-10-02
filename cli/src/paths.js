@@ -35,6 +35,27 @@ function runStatePath() {
   return path.join(installDir(), 'run.json');
 }
 
+function logDir() {
+  return path.join(installDir(), 'logs');
+}
+
+function intEnv(name, fallback) {
+  const n = Number.parseInt(process.env[name] || '', 10);
+  return Number.isInteger(n) && n > 0 && n < 65536 ? n : fallback;
+}
+
+function backendPort() {
+  return intEnv('TOKENTELEMETRY_BACKEND_PORT', 8000);
+}
+
+function dashboardPort() {
+  return intEnv('TOKENTELEMETRY_DASHBOARD_PORT', 5173);
+}
+
+function version() {
+  return require(path.join(packageRoot(), 'package.json')).version;
+}
+
 module.exports = {
   packageRoot,
   vendorDir,
@@ -44,4 +65,8 @@ module.exports = {
   claudeConfigDir,
   claudeSettingsPath,
   runStatePath,
+  logDir,
+  backendPort,
+  dashboardPort,
+  version,
 };

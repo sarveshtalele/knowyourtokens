@@ -8,9 +8,17 @@ const OPTIONS = [
   { label: 'Last 365 days', value: '365' },
 ];
 
-export function DateRangeFilter({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function DateRangeFilter({
+  value,
+  onChange,
+  id,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  id?: string;
+}) {
   return (
-    <Select value={value} onChange={(e) => onChange(e.target.value)}>
+    <Select id={id} aria-label={id ? undefined : 'Date range'} value={value} onChange={(e) => onChange(e.target.value)}>
       {OPTIONS.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}

@@ -24,7 +24,7 @@ Every number in the dashboard carries one of two labels, and the
 distinction matters:
 
 - **Exact** — read straight from the Claude API's own usage reporting for
-  that request (input/output/cache tokens, cost). Shown with a green badge.
+  that request (input/output/cache tokens). Shown with a green badge.
 - **Estimated** — a heuristic. The Claude API reports token usage per
   *request*, not per file or tool call, so anywhere you see a per-file or
   per-tool token breakdown, that number was computed by dividing a
@@ -114,7 +114,8 @@ dashboard.
 
 **Report type:**
 - **Requests** — one row per Claude request: timestamp, project, session,
-  client, model, exact token counts, cost, and prompt/response previews.
+  client, model, exact token counts, and prompt/response previews. CSV, JSON or NDJSON, with no row
+  cap. Date ranges are whole local days, end day included.
 - **Projects** — one row per project: total tokens, request count,
   session count, and that project's most-used tool.
 
@@ -156,3 +157,13 @@ Toggle in the top bar (sun/moon icon). Defaults to your OS preference
 (`prefers-color-scheme`) on first visit, then remembers your choice in
 `localStorage` — every page, chart, and table repaints to match, not just
 the base background.
+
+## Time zones
+
+Daily charts and date filters use your browser's time zone, so a request at 23:30 on the 1st (local)
+counts on the 1st even if that is already the 2nd in UTC. Stored timestamps are UTC.
+
+## Integrations
+
+Settings shows whether the OpenTelemetry and webhook exporters are on and how many rows are pending.
+See [INTEGRATIONS.md](INTEGRATIONS.md) to enable them, and [API.md](API.md) to query your data directly.

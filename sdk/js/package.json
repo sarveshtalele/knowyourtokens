@@ -1,0 +1,46 @@
+{
+  "name": "tokentelemetry-client",
+  "version": "2.0.0",
+  "description": "TypeScript/JavaScript client for the Token Telemetry local API (Claude Code token/tool/skill/MCP observability)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "telemetry",
+    "tokens",
+    "observability",
+    "mcp",
+    "sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarveshtalele/tokentelemetry.git",
+    "directory": "sdk/js"
+  },
+  "homepage": "https://sarveshtalele.github.io/tokentelemetry/",
+  "license": "MIT",
+  "author": "Sarvesh Talele",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

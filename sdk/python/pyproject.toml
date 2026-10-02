@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tokentelemetry-client"
+version = "2.0.0"
+description = "Python client for the Token Telemetry local API (Claude Code token/tool/skill/MCP observability)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "Sarvesh Talele" }]
+keywords = ["claude", "claude-code", "telemetry", "tokens", "observability", "mcp"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://sarveshtalele.github.io/tokentelemetry/"
+Source = "https://github.com/sarveshtalele/tokentelemetry"
+Issues = "https://github.com/sarveshtalele/tokentelemetry/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tokentelemetry_client = ["py.typed"]

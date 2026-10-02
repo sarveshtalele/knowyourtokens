@@ -1,48 +1,85 @@
 import os
-from fastapi import APIRouter
-from ...db.connection import connect, DEFAULT_DB
+import threading
+
+from fastapi import APIRouter, Depends
+from starlette.concurrency import run_in_threadpool
+
+from telemetry import __version__, config
+from telemetry.db import SCHEMA_VERSION
+from telemetry.reconcile import reconcile
+
+from ...deps import get_db
+from ...schemas import Envelope, ReconcileResult, SettingsInfo
 
 router = APIRouter()
+_reconcile_lock = threading.Lock()
+
+TABLES = [
+    "projects",
+    "sessions",
+    "transcripts",
+    "usage",
+    "tool_calls",
+    "tool_paths",
+    "skill_events",
+    "events",
+    "attributions",
+]
+ENV_KEYS = [
+    "CLAUDE_TELEMETRY_DB",
+    "CLAUDE_CONFIG_DIR",
+    "CLAUDE_TELEMETRY_INTERVAL",
+    "TOKENTELEMETRY_RETENTION_DAYS",
+    "TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS",
+    "TOKENTELEMETRY_STORE_FULL_TEXT",
+    "TOKENTELEMETRY_OTLP_ENDPOINT",
+    "TOKENTELEMETRY_WEBHOOK_URL",
+]
 
 
-@router.get("")
-async def get_settings():
-    db_path = DEFAULT_DB
-    conn = connect()
-    tables = {}
-    for t in ["events", "usage", "tool_calls", "tool_paths", "skill_events", "attributions", "reconcile_state"]:
-        try:
-            c = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-            tables[t] = c
-        except Exception:
-            tables[t] = 0
+def exporter_status(conn):
+    out = []
+    for name, target in (("otlp", config.otlp_endpoint()), ("webhook", config.webhook_url())):
+        cursor = conn.execute("SELECT value FROM meta WHERE key=?", (f"export_cursor:{name}",)).fetchone()
+        cursor = int(cursor[0]) if cursor else None
+        pending = (
+            conn.execute("SELECT COUNT(*) FROM usage WHERE id > ?", (cursor or 0,)).fetchone()[0]
+            if target and cursor is not None
+            else 0
+        )
+        out.append({"name": name, "enabled": bool(target), "target": target, "cursor": cursor, "pending_rows": pending})
+    return out
+
+
+@router.get("", response_model=Envelope[SettingsInfo], summary="Database, collector, and integration status")
+def get_settings(conn=Depends(get_db)):
+    db_path = config.db_path()
     try:
         db_size = os.path.getsize(db_path)
-    except Exception:
+    except OSError:
         db_size = 0
-    last_reconcile = conn.execute(
-        "SELECT MAX(reconciled_at) FROM reconcile_state"
-    ).fetchone()[0]
-    conn.close()
+    last = conn.execute("SELECT value FROM meta WHERE key='last_reconcile'").fetchone()
     return {
         "data": {
+            "version": __version__,
+            "schema_version": SCHEMA_VERSION,
             "db_path": str(db_path),
             "db_size": db_size,
-            "table_counts": tables,
-            "last_reconcile": last_reconcile,
-            "env": {
-                "CLAUDE_TELEMETRY_DB": os.environ.get("CLAUDE_TELEMETRY_DB", ""),
-                "CLAUDE_CONFIG_DIR": os.environ.get("CLAUDE_CONFIG_DIR", ""),
-                "CLAUDE_TELEMETRY_INTERVAL": os.environ.get("CLAUDE_TELEMETRY_INTERVAL", "5"),
-            },
+            "table_counts": {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in TABLES},
+            "last_reconcile": last[0] if last else None,
+            "env": {k: os.environ.get(k, "") for k in ENV_KEYS},
+            "exporters": exporter_status(conn),
         }
     }
 
 
-@router.post("/reconcile")
-async def trigger_reconcile():
-    # The canonical implementation -- see the sys.path bootstrap in app/main.py.
-    from telemetry.reconcile import reconcile
+def _run_reconcile():
+    # One at a time: a second click while one is running just waits for it.
+    with _reconcile_lock:
+        return reconcile()
 
-    changed, _ = reconcile()
-    return {"data": {"changed": changed}}
+
+@router.post("/reconcile", response_model=Envelope[ReconcileResult], summary="Re-scan transcripts now")
+async def trigger_reconcile():
+    changed, scanned = await run_in_threadpool(_run_reconcile)
+    return {"data": {"changed": changed, "scanned": scanned}}

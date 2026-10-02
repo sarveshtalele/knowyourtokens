@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Token Telemetry: see where every Claude Code token goes</title>
+    <meta
+      name="description"
+      content="Free, open-source (MIT), local-first observability for Claude Code. Exact token usage per request, project, tool, skill and MCP server, with a REST API, Python/TypeScript SDKs, OpenTelemetry export and webhooks. One command: npx tokentelemetry."
+    />
+    <meta name="keywords" content="Claude Code, token usage, token tracking, Claude tokens, MCP, observability, telemetry, OpenTelemetry, local-first, open source, Anthropic" />
+    <meta name="author" content="Sarvesh Talele" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://sarveshtalele.github.io/tokentelemetry/" />
+    <meta name="theme-color" content="#0b0b14" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="dark light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Token Telemetry" />
+    <meta property="og:title" content="Token Telemetry: see where every Claude Code token goes" />
+    <meta property="og:description" content="Local-first, open-source token, tool, skill and MCP observability for Claude Code. One command: npx tokentelemetry." />
+    <meta property="og:url" content="https://sarveshtalele.github.io/tokentelemetry/" />
+    <meta property="og:image" content="https://sarveshtalele.github.io/tokentelemetry/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Token Telemetry: local-first observability for Claude Code" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Token Telemetry: see where every Claude Code token goes" />
+    <meta name="twitter:description" content="Local-first, open-source token, tool, skill and MCP observability for Claude Code." />
+    <meta name="twitter:image" content="https://sarveshtalele.github.io/tokentelemetry/og.png" />
+
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        var t = localStorage.getItem('tt-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <link rel="manifest" href="%BASE_URL%site.webmanifest" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Token Telemetry",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "Local-first token, tool, skill and MCP observability for Claude Code, with a REST API, SDKs, OpenTelemetry export and webhooks.",
+        "url": "https://sarveshtalele.github.io/tokentelemetry/",
+        "downloadUrl": "https://www.npmjs.com/package/tokentelemetry",
+        "softwareVersion": "2.0.0",
+        "license": "https://opensource.org/licenses/MIT",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "Sarvesh Talele", "url": "https://github.com/sarveshtalele" },
+        "codeRepository": "https://github.com/sarveshtalele/tokentelemetry"
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"><!--app--></div>
+    <noscript>
+      <p style="padding:24px;font-family:sans-serif">
+        Token Telemetry: local-first token, tool, skill and MCP observability for Claude Code. Install with
+        <code>npx tokentelemetry</code>. Source: https://github.com/sarveshtalele/tokentelemetry
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # Installation Guide
 
-Everything needed to get Claude Telemetry Enterprise running, per platform,
+Everything needed to get Token Telemetry running, per platform,
 plus what to do when something doesn't come up cleanly. For what the
 dashboard actually shows once it's running, see the
 [User Guide](USER_GUIDE.md); for how the pieces fit together, see
@@ -25,7 +25,7 @@ dashboard actually shows once it's running, see the
 | Requirement | Minimum | Notes |
 |---|---|---|
 | Node.js | 18+ | Needed to build and run the `tokentelemetry` CLI itself |
-| Python | 3.9+ | Runs the collector and the FastAPI backend |
+| Python | 3.10+ | Runs the collector and the FastAPI backend |
 | [`uv`](https://docs.astral.sh/uv/) | any | Optional but recommended — the installer uses it automatically when present for a much faster virtual environment setup; falls back to the standard `venv`/`pip` otherwise |
 | Claude Code | any recent version | The tool wires into Claude Code's own hook system — it has nothing to observe without it |
 
@@ -44,7 +44,9 @@ npx tokentelemetry
 That one command sets up a Python virtual environment (`uv venv` if [`uv`](https://docs.astral.sh/uv/)
 is available, otherwise `python3 -m venv`), installs the backend's Python dependencies,
 merges five hook entries into Claude Code's own `~/.claude/settings.json`
-(`SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop` — safe to run more
+(`SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop`, `SubagentStop`,
+`PreCompact`; your other hooks are preserved and `settings.json` is backed up once to
+`settings.json.bak-tokentelemetry`. Safe to run more
 than once, entries are de-duplicated by command string rather than appended again), and then
 starts the backend, daemon, and dashboard. Your default browser opens to
 `http://127.0.0.1:5173` automatically once the dashboard is actually reachable (not just "the
@@ -109,7 +111,7 @@ This one command:
 
 ## Linux-specific notes
 
-- Any distribution with Node 18+ and Python 3.9+ available works; there's
+- Any distribution with Node 18+ and Python 3.10+ available works; there's
   no distro-specific packaging.
 - The autostart mechanism (below) needs a running `systemd --user`
   instance. Most desktop distributions have one by default; minimal or
@@ -149,6 +151,7 @@ After `tokentelemetry start`, confirm all three pieces are actually up:
 
 ```bash
 tokentelemetry status
+tokentelemetry doctor   # checks every moving part and prints a fix for anything wrong
 ```
 
 This prints the install directory, each process's PID (or "not running"),
@@ -189,7 +192,8 @@ needs the full `node cli/setup.js` run once.
 
 ```bash
 tokentelemetry uninstall            # remove the Claude Code hooks only
-tokentelemetry uninstall --purge    # remove hooks AND delete ~/.tokentelemetry (app files + database)
+tokentelemetry uninstall --purge                 # also stop services, disable autostart, delete ~/.tokentelemetry
+tokentelemetry uninstall --purge --delete-data   # ...and delete the telemetry database too
 ```
 
 `uninstall` alone leaves your collected data and the installed app files
@@ -202,7 +206,7 @@ package itself — remove that separately with
 ## Troubleshooting
 
 **"npm not found" / "No Python 3 interpreter found"** — install Node.js
-18+ and Python 3.9+ and make sure they're on `PATH`, then re-run
+18+ and Python 3.10+ and make sure they're on `PATH`, then re-run
 `node cli/setup.js`.
 
 **`tokentelemetry` command not found after install** — the global npm bin
@@ -245,3 +249,27 @@ If you're working on the app itself rather than just running it, skip the
 CLI entirely and run the pieces directly — see
 [README: Development](../README.md#development)
 for the exact commands.
+
+## Ports and other settings
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `TOKENTELEMETRY_BACKEND_PORT` | `8000` | API port |
+| `TOKENTELEMETRY_DASHBOARD_PORT` | `5173` | Dashboard port |
+| `TOKENTELEMETRY_HOME` | `~/.tokentelemetry` | App files, venv, logs |
+| `CLAUDE_TELEMETRY_DB` | `~/.claude/telemetry/telemetry.db` | Database path |
+| `CLAUDE_CONFIG_DIR` | `~/.claude` | Claude Code config directory |
+| `CLAUDE_TELEMETRY_INTERVAL` | `5` | Daemon poll interval (seconds) |
+| `TOKENTELEMETRY_RETENTION_DAYS` | `0` (keep) | Delete rows older than N days |
+| `TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS` | `0` (keep) | Blank prompt/response text older than N days |
+| `TOKENTELEMETRY_STORE_FULL_TEXT` | `1` | `0` = never store full prompt/response text |
+| `TOKENTELEMETRY_NO_OPEN` | unset | Don't open a browser on `start` |
+
+Exporter settings are in [INTEGRATIONS.md](INTEGRATIONS.md).
+
+## Upgrading from 1.x
+
+The first start after upgrading migrates the database to schema v7 automatically. A backup is written
+next to it first (`telemetry.db.bak-v0`). Request totals may *drop*: 1.x counted multi-block
+assistant messages several times, and v2 counts each API request once. History from transcripts that
+Claude Code has since deleted is kept as it was.

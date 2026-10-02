@@ -1,38 +1,29 @@
-from fastapi import APIRouter
-from ...db.connection import connect
+from fastapi import APIRouter, Depends, HTTPException
+
+from ...deps import Filters, get_db
+from ...schemas import Envelope, ToolStats
 
 router = APIRouter()
 
+COLUMNS = """tool_name, MAX(mcp_server) AS mcp_server, COUNT(*) AS call_count,
+             COUNT(DISTINCT session_ref) AS unique_sessions, COUNT(DISTINCT project_id) AS projects,
+             MIN(event_time) AS first_seen, MAX(event_time) AS last_seen"""
 
-@router.get("")
-async def get_tools():
-    conn = connect()
+
+@router.get("", response_model=Envelope[list[ToolStats]], summary="Tool call counts")
+def list_tools(f: Filters = Depends(), conn=Depends(get_db)):
+    where, params = f.where(model_col=None)
     rows = conn.execute(
-        """
-        SELECT tool_name, COUNT(*) as call_count,
-               COUNT(DISTINCT session_id) as unique_sessions,
-               MIN(event_time) as first_seen,
-               MAX(event_time) as last_seen
-        FROM tool_calls GROUP BY tool_name ORDER BY call_count DESC
-        """,
+        f"SELECT {COLUMNS} FROM v_tool_calls {where} GROUP BY tool_name ORDER BY call_count DESC", params
     ).fetchall()
-    conn.close()
     return {"data": [dict(r) for r in rows]}
 
 
-@router.get("/{tool_name}")
-async def get_tool_detail(tool_name: str):
-    conn = connect()
+@router.get("/{tool_name}", response_model=Envelope[ToolStats], summary="One tool's stats")
+def tool_detail(tool_name: str, conn=Depends(get_db)):
     row = conn.execute(
-        """
-        SELECT tool_name, COUNT(*) as call_count,
-               COUNT(DISTINCT session_id) as unique_sessions,
-               COUNT(DISTINCT project) as projects,
-               MIN(event_time) as first_seen,
-               MAX(event_time) as last_seen
-        FROM tool_calls WHERE tool_name=? GROUP BY tool_name
-        """,
-        (tool_name,),
+        f"SELECT {COLUMNS} FROM v_tool_calls WHERE tool_name=? GROUP BY tool_name", (tool_name,)
     ).fetchone()
-    conn.close()
-    return {"data": dict(row) if row else {}}
+    if not row:
+        raise HTTPException(status_code=404, detail="Tool not found")
+    return {"data": dict(row)}

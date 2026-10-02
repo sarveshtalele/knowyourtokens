@@ -1,7 +1,7 @@
 {
   "name": "tokentelemetry",
-  "version": "1.0.1",
-  "description": "Install and run the Claude Telemetry Enterprise console (local FastAPI backend + React dashboard, with Claude Code hook wiring) as a global tool on Windows, macOS, and Linux.",
+  "version": "2.0.0",
+  "description": "Local-first token, tool, skill & MCP observability for Claude Code. One command installs a FastAPI backend, a React dashboard, and the Claude Code hooks -- on Windows, macOS, and Linux.",
   "bin": {
     "tokentelemetry": "bin/tokentelemetry.js"
   },
@@ -9,10 +9,12 @@
     "bin",
     "src",
     "vendor",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "prepack": "node scripts/build-vendor.js"
+    "prepack": "node scripts/build-vendor.js",
+    "test": "node --test test/*.test.js"
   },
   "engines": {
     "node": ">=18"
@@ -20,18 +22,25 @@
   "keywords": [
     "claude",
     "claude-code",
+    "anthropic",
     "telemetry",
     "observability",
-    "dashboard"
+    "tokens",
+    "token-usage",
+    "mcp",
+    "dashboard",
+    "opentelemetry",
+    "local-first"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sarveshtalele/tokentelemetry.git"
+    "url": "git+https://github.com/sarveshtalele/tokentelemetry.git",
+    "directory": "cli"
   },
-  "homepage": "https://github.com/sarveshtalele/tokentelemetry#readme",
+  "homepage": "https://sarveshtalele.github.io/tokentelemetry/",
   "bugs": {
     "url": "https://github.com/sarveshtalele/tokentelemetry/issues"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "Sarvesh Talele"
 }

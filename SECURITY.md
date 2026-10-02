@@ -45,7 +45,7 @@ hosted service to attack. In-scope reports include:
 - "The backend has no authentication" — this is intentional for a
   local-first, single-user tool bound to `127.0.0.1`; it is not designed
   to be exposed on a network, and doing so is a deployment choice outside
-  this project's threat model (see [docs/SECURITY.md](docs/SECURITY.md)
+  this project's threat model (see [docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md)
   for the full reasoning).
 - Vulnerabilities that require the attacker to already have local code
   execution as the same user running the tool (at that point they can
@@ -55,4 +55,4 @@ hosted service to attack. In-scope reports include:
 
 A complete, point-in-time cybersecurity review of this codebase — attack
 surface, dependency audit, and findings — is in
-[docs/SECURITY.md](docs/SECURITY.md).
+[docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md).

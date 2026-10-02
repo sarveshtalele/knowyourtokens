@@ -4,31 +4,81 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  backend:
-    name: Backend (lint + tests)
+  python-lint:
+    name: Python lint, format, OpenAPI drift
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Install dependencies
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r backend/requirements-dev.txt
+      - run: ruff check .
+      - run: ruff format --check .
+      - name: docs/openapi.json matches the API
+        run: python scripts/export_openapi.py --check
+      - name: Dependency audit
+        run: pip-audit -r backend/requirements.txt --progress-spinner off
+
+  python-test:
+    name: Python ${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: macos-latest
+            python: "3.12"
+          - os: windows-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Tests (+ coverage gate on one leg)
+        shell: bash
         run: |
-          python -m pip install --upgrade pip "ruff==0.16.5"
-          pip install -r backend/requirements-dev.txt
-      - name: Lint (ruff)
-        run: ruff check backend telemetry hooks
-      - name: Test
-        run: python -m pytest tests/test_backend_api.py tests/test_reconcile.py -v
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ] && [ "${{ matrix.python }}" = "3.12" ]; then
+            python -m pytest --cov --cov-report=term --cov-report=xml
+          else
+            python -m pytest
+          fi
+      - if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  sdk-python-39:
+    name: Python SDK on 3.9
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.9"
+      - run: pip install ./sdk/python && python -c "import tokentelemetry_client as t; print(t.__version__)"
 
   frontend:
-    name: Frontend (typecheck + build)
+    name: Dashboard (lint, format, typecheck, test, build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,24 +87,96 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: "22"
+          cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
       - run: npm run build
       - name: Audit (fails on high/critical)
         run: npm audit --audit-level=high
 
-  cli-smoke:
-    name: CLI (syntax + install-time checks)
+  sdk-js:
+    name: JS SDK
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/js
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: sdk/js/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  cli:
+    name: CLI on ${{ matrix.os }} (Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ["22"]
+        include:
+          - os: ubuntu-latest
+            node: "18"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
       - name: Syntax-check every CLI script
+        shell: bash
+        run: for f in cli/bin/*.js cli/src/*.js cli/setup.js cli/scripts/*.js; do node --check "$f"; done
+      - name: Unit tests
+        working-directory: cli
+        shell: bash
+        run: node --test test/*.test.js
+
+  e2e:
+    name: Package -> install -> start -> health (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: [python-test, frontend, cli]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    env:
+      TOKENTELEMETRY_NO_OPEN: "1"
+      TOKENTELEMETRY_BACKEND_PORT: "18000"
+      TOKENTELEMETRY_DASHBOARD_PORT: "15173"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Pack and install globally
+        shell: bash
         run: |
-          for f in cli/bin/*.js cli/src/*.js cli/setup.js; do
-            node --check "$f"
-          done
+          cd cli && npm pack --pack-destination "$RUNNER_TEMP"
+          npm install -g "$RUNNER_TEMP"/tokentelemetry-*.tgz
+      - name: Install into an isolated home and start
+        shell: bash
+        run: |
+          export TOKENTELEMETRY_HOME="$RUNNER_TEMP/tt-home" CLAUDE_CONFIG_DIR="$RUNNER_TEMP/claude"
+          tokentelemetry --version
+          tokentelemetry install
+          tokentelemetry start
+          tokentelemetry doctor
+          curl -fsS "http://127.0.0.1:15173/health"
+          curl -fsS "http://127.0.0.1:15173/api/v1/usage/summary"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://127.0.0.1:15173/api/v1/usage)" = "403"
+          tokentelemetry stop
+          tokentelemetry uninstall --purge --delete-data
+      - name: Logs on failure
+        if: failure()
+        shell: bash
+        run: cat "$RUNNER_TEMP"/tt-home/logs/*.log || true

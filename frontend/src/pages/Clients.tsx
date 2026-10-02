@@ -8,7 +8,7 @@ import { fmt } from '../lib/format';
 import { PageHead, ErrorPanel } from './GlobalDashboard';
 
 export function Clients() {
-  const { data: clients = [], loading, error } = useApi(() => getClients(), []);
+  const { data: clients = [], loading, error } = useApi((signal) => getClients(signal), []);
   if (error) return <ErrorPanel message={error.message} />;
   if (loading) return <div className="p-10 text-center text-ink-soft">Loading clients…</div>;
 
@@ -16,7 +16,11 @@ export function Clients() {
 
   return (
     <div className="space-y-6">
-      <PageHead eyebrow="Environment intelligence" title="Clients & IDEs" subtitle="Best-effort client classification across Claude Code sessions." />
+      <PageHead
+        eyebrow="Environment intelligence"
+        title="Clients & IDEs"
+        subtitle="Best-effort client classification across Claude Code sessions."
+      />
       <StatRow
         stats={[
           {
@@ -41,7 +45,12 @@ export function Clients() {
           },
         ]}
       />
-      {clients.length > 0 && <TokenBarChart data={clients.map((c) => ({ project: c.client, total_tokens: c.total_tokens }))} title="Client mix" />}
+      {clients.length > 0 && (
+        <TokenBarChart
+          data={clients.map((c) => ({ project: c.client, total_tokens: c.total_tokens }))}
+          title="Client mix"
+        />
+      )}
       <div className="bg-surface border border-line rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-line">
           <span className="font-bold text-sm">Client breakdown</span>
@@ -68,8 +77,8 @@ export function Clients() {
       <div className="bg-surface border border-line rounded-lg p-4">
         <div className="font-bold text-sm mb-1">Classification note</div>
         <p className="text-ink-soft text-sm">
-          The telemetry layer uses available process/environment signals and transcript metadata. Treat the client field as analytical
-          classification, not a cryptographic source of truth.
+          The telemetry layer uses available process/environment signals and transcript metadata. Treat the client field
+          as analytical classification, not a cryptographic source of truth.
         </p>
       </div>
     </div>

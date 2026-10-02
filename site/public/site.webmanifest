@@ -1,0 +1,10 @@
+{
+  "name": "Token Telemetry",
+  "short_name": "TokenTelemetry",
+  "description": "Local-first token, tool, skill and MCP observability for Claude Code",
+  "start_url": "/tokentelemetry/",
+  "display": "standalone",
+  "background_color": "#0b0b14",
+  "theme_color": "#7c6cff",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

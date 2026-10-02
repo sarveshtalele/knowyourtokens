@@ -1,0 +1,14 @@
+{
+  "name": "Token Telemetry",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+  "postCreateCommand": "make setup",
+  "forwardPorts": [8000, 5173],
+  "customizations": {
+    "vscode": {
+      "extensions": ["charliermarsh.ruff", "esbenp.prettier-vscode", "oxc.oxc-vscode"]
+    }
+  }
+}

@@ -1,25 +1,19 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Enterprise Claude Code telemetry console" />
-  <title>Claude Telemetry Enterprise</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;650;700&display=swap" />
-  <link rel="icon" href="/favicon.svg" />
-  <script>
-    (function () {
-      try {
-        var stored = localStorage.getItem('theme');
-        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (dark) document.documentElement.classList.add('dark');
-      } catch (e) {}
-    })();
-  </script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Token Telemetry: local-first token, tool, skill and MCP observability for Claude Code"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <title>Token Telemetry</title>
+    <link rel="icon" href="/favicon.svg" />
+    <script src="/theme-init.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

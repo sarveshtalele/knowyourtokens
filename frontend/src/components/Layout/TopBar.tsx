@@ -60,7 +60,9 @@ export function TopBar() {
           <IconRefresh width={14} height={14} /> Refresh
         </button>
         <span
-          title={connected ? 'Connected — new data refreshes automatically as it arrives' : 'Not connected — reconnecting…'}
+          title={
+            connected ? 'Connected — new data refreshes automatically as it arrives' : 'Not connected — reconnecting…'
+          }
           className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold ${
             connected ? 'bg-accent text-on-accent' : 'bg-surface-muted text-ink-soft border border-line'
           }`}

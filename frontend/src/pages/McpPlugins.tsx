@@ -11,15 +11,19 @@ const TABS = ['MCP servers', 'Plugins & hooks'];
 
 export function McpPlugins() {
   const [tab, setTab] = useState('MCP servers');
-  const { data: mcp = [], loading: loadingMcp, error: errMcp } = useApi(() => getMcpServers(), []);
-  const { data: plugins, loading: loadingPlugins, error: errPlugins } = useApi(() => getPlugins(), []);
+  const { data: mcp = [], loading: loadingMcp, error: errMcp } = useApi((signal) => getMcpServers(signal), []);
+  const { data: plugins, loading: loadingPlugins, error: errPlugins } = useApi((signal) => getPlugins(signal), []);
 
   const error = errMcp || errPlugins;
   if (error) return <ErrorPanel message={error.message} />;
 
   return (
     <div className="space-y-6">
-      <PageHead eyebrow="Extension telemetry" title="MCP & Plugins" subtitle="MCP server activity, skill plugins, and Claude Code hook events." />
+      <PageHead
+        eyebrow="Extension telemetry"
+        title="MCP & Plugins"
+        subtitle="MCP server activity, skill plugins, and Claude Code hook events."
+      />
       <TabNav tabs={TABS} active={tab} onChange={setTab} />
 
       {tab === 'MCP servers' &&
