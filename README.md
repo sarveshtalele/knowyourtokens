@@ -54,6 +54,10 @@ Limit what's read with `TOKENTELEMETRY_SOURCES=claude-code,codex`. Details:
 <td width="50%"><img src="docs/screenshots/dashboard-dark.png" alt="Global dashboard"><p align="center"><sub>Global dashboard</sub></p></td>
 <td width="50%"><img src="docs/screenshots/project-detail-dark.png" alt="Project detail"><p align="center"><sub>Project detail</sub></p></td>
 </tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/agents-light.png" alt="Every agent side by side"><p align="center"><sub>Every agent side by side</sub></p></td>
+<td width="50%"><img src="docs/launch/gallery/07-token-calculator.png" alt="Token calculator"><p align="center"><sub>Token calculator</sub></p></td>
+</tr>
 </table>
 
 ## Why
