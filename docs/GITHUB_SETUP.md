@@ -3,7 +3,7 @@
 A one-time checklist for the repository owner. Each step says **where to click** and **what to enter**.
 None of this can be done from a pull request: these are repository, organization or npm settings.
 
-Work through it in order. Steps 1–5 get v2.1.0 published and the project discoverable; the rest
+Work through it in order. Steps 1–5 get v2.2.0 published and the project discoverable; the rest
 harden the repository and set it up for contributors.
 
 | # | Step | Time | Status |
@@ -12,7 +12,7 @@ harden the repository and set it up for contributors.
 | 2 | [Social preview image](#2-social-preview-image) | 1 min | ☐ |
 | 3 | [GitHub Pages](#3-github-pages) | 1 min | ☐ |
 | 4 | [npm token + trusted publishing](#4-npm-publishing-credentials) | 5 min | ☐ |
-| 5 | [Publish the v2.1.0 release](#5-publish-the-v210-release) | 2 min | ☐ |
+| 5 | [Publish the v2.2.0 release](#5-publish-the-v220-release) | 2 min | ☐ |
 | 6 | [Security features](#6-security-features) | 3 min | ☐ |
 | 7 | [Protect `main`](#7-protect-the-main-branch) | 5 min | ☐ |
 | 8 | [Community features & labels](#8-community-features-and-labels) | 5 min | ☐ |
@@ -129,17 +129,21 @@ publish:
    **Require two-factor authentication and disallow tokens**. Only do this once both packages are
    on trusted publishing; after that, delete the `NPM_TOKEN` secret.
 
-## 5. Publish the v2.1.0 release
+## 5. Publish the v2.2.0 release
+
+**Fastest:** after merging the release PR, run `bash scripts/release-macos.sh` in a clone on your Mac.
+It publishes both npm packages from your login and pushes the tag; the steps below are the
+browser-only alternative. The ticked overview is in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md).
 
 1. **Releases → Draft a new release** (https://github.com/sarveshtalele/tokentelemetry/releases/new).
-2. **Choose a tag:** type `v2.1.0` → **Create new tag: v2.1.0 on publish** · **Target:** `main`.
-3. **Release title:** `v2.1.0`.
-4. **Description:** paste the `## [2.1.0]` section of [`CHANGELOG.md`](../CHANGELOG.md), or click
+2. **Choose a tag:** type `v2.2.0` → **Create new tag: v2.2.0 on publish** · **Target:** `main`.
+3. **Release title:** `v2.2.0`.
+4. **Description:** paste the `## [2.2.0]` section of [`CHANGELOG.md`](../CHANGELOG.md), or click
    **Generate release notes** and put the changelog section above it.
 5. Tick **Set as the latest release** → **Publish release**.
 6. Open **Actions → Release** and watch the run:
    `verify` → `Publish CLI to npm` + `Publish JS SDK to npm` should all go green (about 3 minutes).
-7. Check https://www.npmjs.com/package/tokentelemetry shows **2.1.0**, and that
+7. Check https://www.npmjs.com/package/tokentelemetry shows **2.2.0**, and that
    https://www.npmjs.com/package/tokentelemetry-client exists.
 
 **If a publish job fails:**
@@ -279,9 +283,9 @@ The Python client (`sdk/python`) is ready to publish but has no workflow yet. If
 
 - [ ] Repo page shows the description, the **website link**, topics, and the social image
 - [ ] https://sarveshtalele.github.io/tokentelemetry/ loads (try it on your phone too)
-- [ ] `npx tokentelemetry@latest --version` prints `2.1.0`
+- [ ] `npx tokentelemetry@latest --version` prints `2.2.0`
 - [ ] https://www.npmjs.com/package/tokentelemetry-client exists
-- [ ] **Releases** shows `v2.1.0` marked *Latest*
+- [ ] **Releases** shows `v2.2.0` marked *Latest*
 - [ ] **Security** tab: private reporting on, Dependabot alerts on, no open secret-scanning alerts
 - [ ] Opening a test PR shows the required status checks
 - [ ] README badges (npm version, CI) render with real values

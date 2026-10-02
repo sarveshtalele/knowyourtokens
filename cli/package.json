@@ -1,6 +1,6 @@
 {
   "name": "tokentelemetry",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Local-first token observability for every AI coding agent: Claude Code, Codex CLI, Gemini CLI, OpenCode and more. Debug prompts, context and cost.",
   "bin": {
     "tokentelemetry": "bin/tokentelemetry.js"
