@@ -10,6 +10,7 @@ import {
   IconMonitor,
   IconPlug,
   IconDownload,
+  IconCalculator,
   IconSettings,
   IconAbout,
   IconChevronLeft,
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { to: '/clients', label: 'Clients', Icon: IconMonitor },
   { to: '/mcp-plugins', label: 'MCP & Plugins', Icon: IconPlug },
   { to: '/reports', label: 'Reports', Icon: IconDownload },
+  { to: '/calculator', label: 'Calculator', Icon: IconCalculator },
   { to: '/about', label: 'About', Icon: IconAbout },
 ];
 
@@ -71,7 +73,7 @@ export function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                 isActive
-                  ? 'bg-accent-soft text-accent-strong font-semibold border-r-2 border-accent'
+                  ? 'bg-accent/20 text-[#c9c2ff] font-semibold border-r-2 border-accent'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`
             }
@@ -87,7 +89,7 @@ export function Sidebar() {
           title={!expanded ? 'Settings' : undefined}
           className={({ isActive }) =>
             `flex items-center gap-3 px-2 py-2.5 text-sm rounded-md transition-colors ${
-              isActive ? 'text-accent-strong font-semibold' : 'text-slate-400 hover:text-white'
+              isActive ? 'text-[#c9c2ff] font-semibold' : 'text-slate-400 hover:text-white'
             }`
           }
         >
@@ -96,7 +98,7 @@ export function Sidebar() {
         </NavLink>
       </div>
       {expanded && (
-        <div className="px-4 py-3 text-[11px] text-slate-500 border-t border-slate-800">
+        <div className="px-4 py-3 text-[11px] text-slate-400 border-t border-slate-800">
           Local-first · SQLite
           <br />
           Token Telemetry v2 · schema v7

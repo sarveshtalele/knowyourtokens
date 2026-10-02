@@ -7,23 +7,18 @@ type Theme = 'light' | 'dark';
 function currentTheme(): Theme {
   const set = document.documentElement.dataset.theme;
   if (set === 'light' || set === 'dark') return set;
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return 'light'; // light by default, whatever the OS uses
 }
 
 function subscribe(onChange: () => void) {
-  const mq = window.matchMedia('(prefers-color-scheme: light)');
   const mo = new MutationObserver(onChange);
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  mq.addEventListener('change', onChange);
-  return () => {
-    mo.disconnect();
-    mq.removeEventListener('change', onChange);
-  };
+  return () => mo.disconnect();
 }
 
 /** Theme lives on <html data-theme> (set before paint by an inline script in index.html). */
 function useTheme() {
-  const theme = useSyncExternalStore<Theme>(subscribe, currentTheme, () => 'dark');
+  const theme = useSyncExternalStore<Theme>(subscribe, currentTheme, () => 'light');
   const toggle = () => {
     const next: Theme = currentTheme() === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
@@ -69,12 +64,12 @@ export function Nav() {
           <Logo /> Token Telemetry
         </a>
         <div className="nav-links">
+          <a href="#problem">Why</a>
           <a href="#demo">Demo</a>
-          <a href="#workflows">Workflows</a>
-          <a href="#for-you">For you</a>
-          <a href="#app">App</a>
+          <a href="#debug">Debug</a>
+          <a href="#calculator">Calculator</a>
           <a href="#integrations">Integrations</a>
-          <a href="#specs">Specs</a>
+          <a href="#app">App</a>
         </div>
         <div className="nav-spacer" />
         <button

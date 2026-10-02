@@ -22,7 +22,14 @@ export const Logo = (p: SVGProps<SVGSVGElement>) => (
       </linearGradient>
     </defs>
     <rect width="64" height="64" rx="14" fill="#14142a" />
-    <path d="M14 44 L24 30 L33 37 L50 18" fill="none" stroke="url(#lg)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M14 44 L24 30 L33 37 L50 18"
+      fill="none"
+      stroke="url(#lg)"
+      strokeWidth="6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
     <circle cx="50" cy="18" r="5" fill="#2dd4bf" />
   </svg>
 );

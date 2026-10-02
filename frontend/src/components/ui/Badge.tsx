@@ -2,11 +2,11 @@ type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'accent';
 
 const TONE_CLASSES: Record<Tone, string> = {
   default: 'bg-surface-muted text-ink-soft',
-  success: 'bg-success-soft text-success',
-  warning: 'bg-warning-soft text-warning',
-  danger: 'bg-danger-soft text-danger',
-  info: 'bg-info-soft text-info',
-  accent: 'bg-accent-soft text-accent-strong',
+  success: 'bg-success-soft text-success-text',
+  warning: 'bg-warning-soft text-warning-text',
+  danger: 'bg-danger-soft text-danger-text',
+  info: 'bg-info-soft text-info-text',
+  accent: 'bg-accent-soft text-accent-text',
 };
 
 export function Badge({ tone = 'default', children }: { tone?: Tone; children: React.ReactNode }) {

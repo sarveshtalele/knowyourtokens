@@ -58,6 +58,8 @@ prompts anywhere.
   files and tools around it.
 - **Full prompt inspection:** the complete context and response behind any request, with likely secrets
   redacted. Full-text storage can be turned off.
+- **Token calculator:** estimate a prompt before you send it, check it fits the context window, and
+  price your real usage at your own rates (no built-in prices).
 - **Exports:** streamed CSV, JSON or NDJSON with no row cap, safe against spreadsheet formula injection.
 - **Built to integrate:** typed REST API with a published [OpenAPI document](docs/openapi.json),
   [Python](sdk/python) and [TypeScript](sdk/js) SDKs, [OpenTelemetry metrics and signed

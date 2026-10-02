@@ -62,15 +62,28 @@ export function Dock() {
             >
               {os === 'windows' && <span className="bar-start" aria-hidden="true" />}
               {NEIGHBOURS.slice(0, os === 'mac' ? 6 : 4).map((c, i) => (
-                <span key={c} className="bar-app" style={{ background: c, opacity: 0.85 - i * 0.05 }} aria-hidden="true" />
+                <span
+                  key={c}
+                  className="bar-app"
+                  style={{ background: c, opacity: 0.85 - i * 0.05 }}
+                  aria-hidden="true"
+                />
               ))}
               <motion.img
                 src={icon}
                 alt="Token Telemetry app icon"
                 className="bar-ours"
                 initial={{ y: -160, scale: 1.6, opacity: 0 }}
-                animate={{ y: [-160, 0, -26, 0, -10, 0], scale: [1.6, 1, 1, 1, 1, 1], opacity: 1 }}
-                transition={{ duration: 1.6, times: [0, 0.45, 0.6, 0.75, 0.88, 1], delay: 0.3 }}
+                animate={{
+                  y: [-160, 0, -26, 0, -10, 0],
+                  scale: [1.6, 1, 1, 1, 1, 1],
+                  opacity: 1,
+                }}
+                transition={{
+                  duration: 1.6,
+                  times: [0, 0.45, 0.6, 0.75, 0.88, 1],
+                  delay: 0.3,
+                }}
                 whileHover={{ y: -10, scale: 1.18 }}
               />
               {os === 'mac' && <span className="bar-dot" aria-hidden="true" />}

@@ -17,17 +17,17 @@ export function RequestFull() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <Link to="/requests" className="text-sm text-accent-strong hover:underline">
+        <Link to="/requests" className="text-sm text-accent-text hover:underline">
           ← Back to requests
         </Link>
       </div>
 
       <div className="flex items-start justify-between gap-5 flex-wrap">
         <div>
-          <div className="text-accent text-[11px] font-extrabold uppercase tracking-wide">Full transcript</div>
-          <div className="text-[27px] font-extrabold tracking-tight mt-1 mb-1.5">
+          <div className="text-accent-text text-[11px] font-extrabold uppercase tracking-wide">Full transcript</div>
+          <h1 className="text-[27px] font-extrabold tracking-tight mt-1 mb-1.5">
             Request · {row.session_id.slice(0, 12)}
-          </div>
+          </h1>
           <div className="flex items-center gap-2 flex-wrap text-sm">
             <Badge tone="accent">{row.model || '—'}</Badge>
             <Badge>{row.client || '—'}</Badge>
@@ -182,7 +182,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={() => navigator.clipboard?.writeText(text)}
-      className="text-[11px] font-semibold text-accent-strong hover:underline"
+      className="text-[11px] font-semibold text-accent-text hover:underline"
     >
       Copy
     </button>

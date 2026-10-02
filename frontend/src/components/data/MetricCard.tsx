@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function MetricCard({ label, value, delta, trend = 'up', hint }: Props) {
-  const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-danger' : 'text-ink-soft';
+  const trendColor = trend === 'up' ? 'text-success-text' : trend === 'down' ? 'text-danger-text' : 'text-ink-soft';
   return (
     <div className="bg-surface border border-line rounded-lg p-4 shadow-[0_2px_10px_rgba(15,23,42,.045)] min-h-[110px]">
       <div className="flex items-center gap-1.5 text-ink-soft font-semibold text-xs">

@@ -1,11 +1,26 @@
 import { motion } from 'framer-motion';
-import { CopyInstall } from '../components/Hero';
+import { CopyInstall } from '../components/CopyInstall';
 import { Reveal, fadeUp } from '../components/motion';
 
 const STEPS = [
-  { n: '1', t: 'Install', c: 'npx tokentelemetry', d: 'Sets up a private Python env, wires the Claude Code hooks, starts everything. Needs Node 18+ and Python 3.10+.' },
-  { n: '2', t: 'Pin it', c: 'tokentelemetry shortcut', d: 'Adds an app icon for your Dock, taskbar or launcher. Or click “Install app” in the dashboard.' },
-  { n: '3', t: 'Use Claude Code', c: 'claude', d: 'Nothing changes in your workflow. The dashboard fills in live as you work, and history is backfilled.' },
+  {
+    n: '1',
+    t: 'Install',
+    c: 'npx tokentelemetry',
+    d: 'Sets up a private Python env, wires the Claude Code hooks, starts everything. Needs Node 18+ and Python 3.10+.',
+  },
+  {
+    n: '2',
+    t: 'Pin it',
+    c: 'tokentelemetry shortcut',
+    d: 'Adds an app icon for your Dock, taskbar or launcher. Or click “Install app” in the dashboard.',
+  },
+  {
+    n: '3',
+    t: 'Use Claude Code',
+    c: 'claude',
+    d: 'Nothing changes in your workflow. The dashboard fills in live as you work, and history is backfilled.',
+  },
 ];
 
 export function Install() {
@@ -36,12 +51,27 @@ export function Install() {
 }
 
 const SPECS: [string, string][] = [
-  ['Captures', 'Requests, tokens (input, output, cache read/write), sessions, projects, models, clients, tools, MCP servers, skills, plugins, subagents, hook events'],
-  ['Accuracy', 'Exact per-request usage from Claude Code transcripts, de-duplicated per API message. Attribution is estimated and always labelled'],
-  ['Storage', 'Local SQLite (WAL), versioned schema with automatic backed-up migrations, optional retention, 0600 permissions'],
-  ['Interfaces', 'Dashboard (installable app) · REST API with OpenAPI · Python & TypeScript SDKs · CSV/JSON/NDJSON export'],
+  [
+    'Captures',
+    'Requests, tokens (input, output, cache read/write), sessions, projects, models, clients, tools, MCP servers, skills, plugins, subagents, hook events',
+  ],
+  [
+    'Accuracy',
+    'Exact per-request usage from Claude Code transcripts, de-duplicated per API message. Attribution is estimated and always labelled',
+  ],
+  [
+    'Storage',
+    'Local SQLite (WAL), versioned schema with automatic backed-up migrations, optional retention, 0600 permissions',
+  ],
+  [
+    'Interfaces',
+    'Dashboard (installable app) · REST API with OpenAPI · Python & TypeScript SDKs · CSV/JSON/NDJSON export',
+  ],
   ['Integrations', 'OpenTelemetry metrics (OTLP/HTTP) · HMAC-signed webhooks · all opt-in'],
-  ['Security', '127.0.0.1 only · DNS-rebinding and CSRF protection · strict CSP · secret redaction · no outbound calls by default'],
+  [
+    'Security',
+    '127.0.0.1 only · DNS-rebinding and CSRF protection · strict CSP · secret redaction · no outbound calls by default',
+  ],
   ['Platforms', 'Windows, macOS, Linux · Node 18+ · Python 3.10+ · start at login · app shortcuts'],
   ['License', 'MIT: free for personal and commercial use'],
 ];

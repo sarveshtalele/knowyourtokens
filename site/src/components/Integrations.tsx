@@ -34,8 +34,7 @@ const TABS: { id: string; label: string; code: ReactNode; note: string }[] = [
       <>
         {k('from')} tokentelemetry_client {k('import')} TokenTelemetry
         {'\n\n'}tt = TokenTelemetry() {c('  # http://127.0.0.1:8000')}
-        {'\n\n'}summary = tt.summary(start={s('"2025-06-01"')})
-        {'\n'}
+        {'\n\n'}summary = tt.summary(start={s('"2025-06-01"')}){'\n'}
         {k('print')}(summary[{s('"total_tokens"')}], summary[{s('"top_model"')}])
         {'\n\n'}
         {k('for')} row {k('in')} tt.iter_usage(project={s('"my-repo"')}):{c('  # follows pagination')}
@@ -51,8 +50,7 @@ const TABS: { id: string; label: string; code: ReactNode; note: string }[] = [
     label: 'TypeScript SDK',
     code: (
       <>
-        {k('import')} {'{ TokenTelemetry }'} {k('from')} {s("'tokentelemetry-client'")};
-        {'\n\n'}
+        {k('import')} {'{ TokenTelemetry }'} {k('from')} {s("'tokentelemetry-client'")};{'\n\n'}
         {k('const')} tt = {k('new')} TokenTelemetry();
         {'\n\n'}
         {k('const')} {'{ total_tokens, top_model }'} = {k('await')} tt.summary({'{ start: '}
@@ -161,7 +159,11 @@ export function Integrations() {
                 onKeyDown={onKey}
               >
                 {t.id === active && (
-                  <motion.span layoutId="tab-pill" className="pill" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
+                  <motion.span
+                    layoutId="tab-pill"
+                    className="pill"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
                 )}
                 <span>{t.label}</span>
               </button>

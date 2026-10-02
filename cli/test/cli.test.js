@@ -136,7 +136,9 @@ test('app shortcut files are well-formed and quote hostile paths', () => {
   const sc = require('../src/shortcut');
   const entry = sc.linuxDesktopEntry('/opt/node $x/bin/node', '/home/a "b"/bin/tokentelemetry.js', '/icons/tt.png');
   assert.match(entry, /^\[Desktop Entry\]\nType=Application/);
-  assert.match(entry, /Exec="\/opt\/node \\\$x\/bin\/node" "\/home\/a \\"b\\"\/bin\/tokentelemetry.js" start/);
+  // Spec: \$ inside quotes, then the string escape doubles the backslash.
+  assert.ok(entry.includes('Exec="/opt/node \\\\$x/bin/node" "/home/a \\\\"b\\\\"/bin/tokentelemetry.js" start'));
+  assert.ok(sc.linuxDesktopEntry('/n', '/100%/t.js', 'i').includes('"/100%%/t.js"'));
   assert.match(entry, /Terminal=false/);
   assert.match(sc.macInfoPlist('9.9.9'), /<key>CFBundleIconFile<\/key><string>icon<\/string>/);
   assert.match(sc.macInfoPlist('9.9.9'), /<string>9\.9\.9<\/string>/);

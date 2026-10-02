@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .venv/
+.demo/
 .pytest_cache/
 
 # Node / frontend
@@ -54,3 +55,4 @@ sdk/python/build/
 
 # Copied from the repo root at pack time
 cli/LICENSE
+*.tsbuildinfo

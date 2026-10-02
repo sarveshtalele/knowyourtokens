@@ -12,7 +12,7 @@ export function ProjectCard({ p }: { p: ProjectSummary }) {
       className="block bg-surface border border-line rounded-lg p-4 hover:border-ink-soft hover:shadow-[0_2px_10px_rgba(15,23,42,.06)] transition-shadow"
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-md bg-accent-soft text-accent-strong grid place-items-center font-extrabold shrink-0">
+        <div className="w-9 h-9 rounded-md bg-accent-soft text-accent-text grid place-items-center font-extrabold shrink-0">
           {p.project.slice(0, 2).toUpperCase()}
         </div>
         <div className="min-w-0">

@@ -54,7 +54,7 @@ export function About() {
             href="https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/ARCHITECTURE.md"
             target="_blank"
             rel="noreferrer"
-            className="text-accent-strong hover:underline"
+            className="text-accent-text underline underline-offset-2"
           >
             docs/ARCHITECTURE.md
           </a>
@@ -83,7 +83,7 @@ export function About() {
           List views (Requests, Project → Requests) show short truncated previews for speed. Click a row, then “Open
           full prompt &amp; response” to open the complete, untruncated prompt and response for that request in its own
           page —{' '}
-          <Link to="/requests" className="text-accent-strong hover:underline">
+          <Link to="/requests" className="text-accent-text underline underline-offset-2">
             start from Requests
           </Link>
           .
@@ -103,7 +103,7 @@ export function About() {
         <p>
           One limitation worth naming directly: Claude Code doesn't expose the literal system prompt or tool definition
           text anywhere this collector can see — not in session transcripts, not in hook payloads. So the{' '}
-          <Link to="/requests" className="text-accent-strong hover:underline">
+          <Link to="/requests" className="text-accent-text underline underline-offset-2">
             full prompt view
           </Link>{' '}
           can show you every user message and tool result that went into a request, but never the system prompt itself.
@@ -124,7 +124,7 @@ export function About() {
           Everything runs on your machine: a Python collector + FastAPI backend on top of a local SQLite file, and this
           React UI talking to it over <span className="font-mono">/api/v1</span> — never a request outside{' '}
           <span className="font-mono">127.0.0.1</span>. See{' '}
-          <Link to="/settings" className="text-accent-strong hover:underline">
+          <Link to="/settings" className="text-accent-text underline underline-offset-2">
             Settings
           </Link>{' '}
           for the exact database path and collector status on this machine.
@@ -136,7 +136,7 @@ export function About() {
             href="https://github.com/sarveshtalele/tokentelemetry"
             target="_blank"
             rel="noreferrer"
-            className="text-accent-strong hover:underline"
+            className="text-accent-text underline underline-offset-2"
           >
             GitHub
           </a>
@@ -150,7 +150,7 @@ export function About() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="bg-surface border border-line rounded-lg p-5">
-      <h3 className="text-sm font-bold mb-2.5">{title}</h3>
+      <h2 className="text-sm font-bold mb-2.5">{title}</h2>
       <div className="text-sm text-ink-soft leading-relaxed">{children}</div>
     </div>
   );
@@ -159,7 +159,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
     <li className="flex gap-3">
-      <span className="shrink-0 w-6 h-6 rounded-full bg-accent-soft text-accent-strong text-xs font-extrabold grid place-items-center mt-0.5">
+      <span className="shrink-0 w-6 h-6 rounded-full bg-accent-soft text-accent-text text-xs font-extrabold grid place-items-center mt-0.5">
         {n}
       </span>
       <div>
@@ -208,7 +208,7 @@ function FeatureGrid() {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {FEATURES.map((f) => (
         <div key={f.title} className="flex gap-3 bg-surface-muted rounded-lg p-3.5">
-          <f.Icon className="text-accent shrink-0 mt-0.5" width={20} height={20} />
+          <f.Icon className="text-accent-text shrink-0 mt-0.5" width={20} height={20} />
           <div>
             <div className="text-ink font-semibold text-sm">{f.title}</div>
             <div className="text-ink-soft text-xs mt-0.5">{f.body}</div>

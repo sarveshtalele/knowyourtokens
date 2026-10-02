@@ -147,7 +147,7 @@ export function RequestDetail({ row }: { row: UsageRow }) {
         </div>
         <button
           onClick={() => window.open(`/requests/${row.id}`, '_blank', 'noopener')}
-          className="text-xs font-semibold text-accent-strong hover:underline whitespace-nowrap"
+          className="text-xs font-semibold text-accent-text hover:underline whitespace-nowrap"
         >
           Open full prompt &amp; response ↗
         </button>

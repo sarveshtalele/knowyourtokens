@@ -2,7 +2,7 @@
 // (Install / Add to Dock / Pin to taskbar) and lets the shell open
 // instantly. API calls and the live socket are never cached -- telemetry
 // data always comes straight from the local backend.
-const CACHE = 'tt-shell-v2';
+const CACHE = 'tt-shell-v3';
 const SHELL = ['/', '/manifest.webmanifest', '/favicon.svg', '/icon-192.png', '/icon-512.png', '/theme-init.js'];
 
 self.addEventListener('install', (event) => {
@@ -35,8 +35,11 @@ self.addEventListener('fetch', (event) => {
         (hit) =>
           hit ||
           fetch(event.request).then((res) => {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(event.request, copy));
+            // Never cache an error page under an asset URL.
+            if (res.ok && res.type === 'basic') {
+              const copy = res.clone();
+              caches.open(CACHE).then((c) => c.put(event.request, copy));
+            }
             return res;
           }),
       ),

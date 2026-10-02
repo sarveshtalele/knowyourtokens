@@ -93,7 +93,12 @@ export function Pipeline() {
                   {!reduce &&
                     [0, 1].map((k) => (
                       <circle key={k} r="4" fill={color}>
-                        <animateMotion dur={`${2.6 + (i % 3) * 0.4}s`} begin={`${k * 1.3 + i * 0.2}s`} repeatCount="indefinite" path={d} />
+                        <animateMotion
+                          dur={`${2.6 + (i % 3) * 0.4}s`}
+                          begin={`${k * 1.3 + i * 0.2}s`}
+                          repeatCount="indefinite"
+                          path={d}
+                        />
                       </circle>
                     ))}
                 </g>
@@ -136,9 +141,21 @@ export function Pipeline() {
         </motion.div>
         <Reveal className="steps">
           {[
-            ['01', 'Install', 'npx tokentelemetry sets up a Python env, wires the Claude Code hooks, and starts everything.'],
-            ['02', 'Use Claude Code', 'Nothing changes in your workflow. Hooks never block a session; failures go to a log.'],
-            ['03', 'Look, query, export', 'Open the dashboard, call the API, or stream metrics to the observability stack you already run.'],
+            [
+              '01',
+              'Install',
+              'npx tokentelemetry sets up a Python env, wires the Claude Code hooks, and starts everything.',
+            ],
+            [
+              '02',
+              'Use Claude Code',
+              'Nothing changes in your workflow. Hooks never block a session; failures go to a log.',
+            ],
+            [
+              '03',
+              'Look, query, export',
+              'Open the dashboard, call the API, or stream metrics to the observability stack you already run.',
+            ],
           ].map(([n, t, b]) => (
             <motion.div className="card" key={n} variants={fadeUp}>
               <div className="step-n mono">{n}</div>

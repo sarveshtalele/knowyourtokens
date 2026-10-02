@@ -10,7 +10,7 @@ export function ProjectFilter({
   onChange: (v: string) => void;
 }) {
   return (
-    <Select value={value} onChange={(e) => onChange(e.target.value)}>
+    <Select aria-label="Project" value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="">All projects</option>
       {projects.map((p) => (
         <option key={p} value={p}>

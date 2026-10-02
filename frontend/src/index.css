@@ -11,10 +11,15 @@
   --color-surface-code: 11 18 32;
   --color-line: 220 227 236;
   --color-accent-soft: 238 234 254;
+  --color-accent-text: 88 72 232;
   --color-success-soft: 230 247 241;
   --color-warning-soft: 255 244 223;
   --color-danger-soft: 253 236 239;
   --color-info-soft: 233 243 255;
+  --color-success-text: 4 120 87;
+  --color-warning-text: 146 84 0;
+  --color-danger-text: 180 35 53;
+  --color-info-text: 29 95 168;
   color-scheme: light;
 }
 
@@ -27,10 +32,15 @@
   --color-surface-code: 4 8 18;
   --color-line: 40 50 68;
   --color-accent-soft: 45 40 82;
+  --color-accent-text: 180 171 255;
   --color-success-soft: 16 46 38;
   --color-warning-soft: 56 40 12;
   --color-danger-soft: 58 24 30;
   --color-info-soft: 16 38 61;
+  --color-success-text: 52 211 153;
+  --color-warning-text: 251 191 36;
+  --color-danger-text: 248 113 113;
+  --color-info-text: 96 165 250;
   color-scheme: dark;
 }
 

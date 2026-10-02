@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { CopyInstall } from './Hero';
+import { CopyInstall } from './CopyInstall';
 import { IconCheck, IconGithub, IconPlus } from './Icons';
 import { Reveal, fadeUp } from './motion';
 
@@ -26,7 +26,10 @@ export function Privacy() {
               ['127.0.0.1 only.', 'The API and dashboard never listen on your network.'],
               ['DNS-rebinding & CSRF protection.', 'Host allowlist and Origin checks on every request and WebSocket.'],
               ['Least data.', 'Tool output is never stored from hooks; likely API keys and tokens are redacted.'],
-              ['You decide what is kept.', 'Turn off full-text storage, or set retention for rows and text separately.'],
+              [
+                'You decide what is kept.',
+                'Turn off full-text storage, or set retention for rows and text separately.',
+              ],
               ['Private file.', 'The SQLite database is created readable only by you (0600).'],
             ].map(([b, t]) => (
               <li key={b}>
@@ -67,7 +70,7 @@ export function Privacy() {
   );
 }
 
-const FAQ: [string, string][] = [
+export const FAQ: [string, string][] = [
   [
     'Is it really free and open source?',
     'Yes. MIT licensed: use it, fork it, embed it, ship it commercially. Contributions are welcome.',
@@ -113,9 +116,18 @@ export function Faq() {
             return (
               <motion.div className="faq-item" key={q} variants={fadeUp}>
                 <h3 style={{ margin: 0, fontSize: 'inherit' }}>
-                  <button type="button" aria-expanded={isOpen} aria-controls={`faq-${i}`} onClick={() => setOpen(isOpen ? null : i)}>
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-${i}`}
+                    onClick={() => setOpen(isOpen ? null : i)}
+                  >
                     {q}
-                    <motion.span animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'grid' }}>
+                    <motion.span
+                      animate={{ rotate: isOpen ? 45 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ display: 'grid' }}
+                    >
                       <IconPlus />
                     </motion.span>
                   </button>
@@ -188,30 +200,54 @@ export function Footer() {
           </p>
         </div>
         <nav aria-label="Documentation">
-          <h4>Docs</h4>
+          <h2>Docs</h2>
           <ul>
-            <li><a href={`${blob}/docs/INSTALLATION.md`}>Installation</a></li>
-            <li><a href={`${blob}/docs/USER_GUIDE.md`}>User guide</a></li>
-            <li><a href={`${blob}/docs/API.md`}>API reference</a></li>
-            <li><a href={`${blob}/docs/INTEGRATIONS.md`}>Integrations</a></li>
+            <li>
+              <a href={`${blob}/docs/INSTALLATION.md`}>Installation</a>
+            </li>
+            <li>
+              <a href={`${blob}/docs/USER_GUIDE.md`}>User guide</a>
+            </li>
+            <li>
+              <a href={`${blob}/docs/API.md`}>API reference</a>
+            </li>
+            <li>
+              <a href={`${blob}/docs/INTEGRATIONS.md`}>Integrations</a>
+            </li>
           </ul>
         </nav>
         <nav aria-label="Project">
-          <h4>Project</h4>
+          <h2>Project</h2>
           <ul>
-            <li><a href={REPO}>GitHub</a></li>
-            <li><a href={`${blob}/CHANGELOG.md`}>Changelog</a></li>
-            <li><a href={`${blob}/CONTRIBUTING.md`}>Contributing</a></li>
-            <li><a href={`${REPO}/issues`}>Issues</a></li>
+            <li>
+              <a href={REPO}>GitHub</a>
+            </li>
+            <li>
+              <a href={`${blob}/CHANGELOG.md`}>Changelog</a>
+            </li>
+            <li>
+              <a href={`${blob}/CONTRIBUTING.md`}>Contributing</a>
+            </li>
+            <li>
+              <a href={`${REPO}/issues`}>Issues</a>
+            </li>
           </ul>
         </nav>
         <nav aria-label="Community">
-          <h4>Community</h4>
+          <h2>Community</h2>
           <ul>
-            <li><a href={`${blob}/CODE_OF_CONDUCT.md`}>Code of conduct</a></li>
-            <li><a href={`${blob}/SECURITY.md`}>Security policy</a></li>
-            <li><a href={`${blob}/LICENSE`}>MIT license</a></li>
-            <li><a href="https://www.npmjs.com/package/tokentelemetry">npm</a></li>
+            <li>
+              <a href={`${blob}/CODE_OF_CONDUCT.md`}>Code of conduct</a>
+            </li>
+            <li>
+              <a href={`${blob}/SECURITY.md`}>Security policy</a>
+            </li>
+            <li>
+              <a href={`${blob}/LICENSE`}>MIT license</a>
+            </li>
+            <li>
+              <a href="https://www.npmjs.com/package/tokentelemetry">npm</a>
+            </li>
           </ul>
         </nav>
       </div>
