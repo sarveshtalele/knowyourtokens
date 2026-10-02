@@ -10,7 +10,7 @@ authors = [{ name = "Sarvesh Talele" }]
 [tool.ruff]
 target-version = "py310"
 line-length = 120
-extend-exclude = ["app.py", "tests/test_dashboard.py", "sdk/python/build", "docs/superpowers"]
+extend-exclude = ["sdk/python/build"]
 
 [tool.ruff.lint]
 # Pinned explicitly: ruff's default selection changes between releases.
