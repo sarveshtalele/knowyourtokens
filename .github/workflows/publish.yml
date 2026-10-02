@@ -1,13 +1,13 @@
 name: Release
 
-# Publish by pushing a version tag (git tag v2.0.0 && git push origin v2.0.0)
-# or by publishing a GitHub release. A tag push also creates the GitHub
-# release, with notes taken from CHANGELOG.md.
+# Runs when a v* tag is pushed -- including the tag GitHub creates when you
+# publish a release in the UI. (A separate `release:` trigger would start a
+# second, duplicate run for the same tag.) If the release doesn't exist yet,
+# the github-release job creates it with notes from CHANGELOG.md; if you
+# made it in the UI, your text is kept.
 on:
   push:
     tags: ["v*"]
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -116,7 +116,13 @@ jobs:
           v="${{ needs.verify.outputs.version }}"
           awk -v v="$v" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ && f {exit} f' CHANGELOG.md > notes.md
           test -s notes.md || echo "See CHANGELOG.md" > notes.md
-      - uses: softprops/action-gh-release@v2
-        with:
-          name: v${{ needs.verify.outputs.version }}
-          body_path: notes.md
+      - name: Create the release unless it already exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ needs.verify.outputs.version }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists -- leaving it as is"
+          else
+            gh release create "$tag" --title "$tag" --notes-file notes.md --verify-tag
+          fi
