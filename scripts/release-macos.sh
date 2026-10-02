@@ -103,7 +103,7 @@ pub() { # <package> <dir>
   ( cd "$2"
     if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; fi
     if [ "$DRY" = 1 ]; then npm publish --access public --dry-run; else npm publish --access public; fi )
-  ok "$1@$V published"
+  if [ "$DRY" = 1 ]; then ok "$1@$V packs cleanly (dry run, not published)"; else ok "$1@$V published"; fi
 }
 pub tokentelemetry-client sdk/js
 pub tokentelemetry cli   # prepack builds the dashboard and bundles it (takes a minute)

@@ -16,7 +16,11 @@ function log(msg) {
 
 function run(cmd, args, cwd) {
   log(`${cmd} ${args.join(' ')} (cwd: ${cwd})`);
-  const res = spawnSync(cmd, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+  // `npm publish --dry-run` exports npm_config_dry_run to lifecycle scripts, which would turn the
+  // nested install into a no-op and fail the build; the build itself must always run for real.
+  const env = { ...process.env };
+  delete env.npm_config_dry_run;
+  const res = spawnSync(cmd, args, { cwd, env, stdio: 'inherit', shell: process.platform === 'win32' });
   if (res.status !== 0) throw new Error(`Command failed: ${cmd} ${args.join(' ')}`);
 }
 
@@ -37,7 +41,8 @@ function buildFrontend() {
   const frontendDir = path.join(REPO_ROOT, 'frontend');
   const nodeModules = path.join(frontendDir, 'node_modules');
   if (!fs.existsSync(nodeModules)) {
-    run('npm', ['install'], frontendDir);
+    const lock = fs.existsSync(path.join(frontendDir, 'package-lock.json'));
+    run('npm', [lock ? 'ci' : 'install', '--no-audit', '--no-fund'], frontendDir);
   }
   run('npm', ['run', 'build'], frontendDir);
   const dist = path.join(frontendDir, 'dist');
