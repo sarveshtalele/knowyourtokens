@@ -7,15 +7,25 @@ const hooks = require('./hooks');
 // Directories this package owns inside installDir. They are replaced wholesale
 // on every install so files deleted upstream don't linger; user state
 // (.venv, logs, run.json, the database) lives outside them.
-const MANAGED = ['backend', 'telemetry', 'hooks', 'frontend-dist'];
+const MANAGED = ['backend', 'telemetry', 'hooks', 'frontend-dist', 'cli'];
 
 function log(msg) {
   console.log(msg);
 }
 
+function runningFromStableCopy() {
+  return path.resolve(paths.packageRoot()) === path.resolve(paths.installDir(), 'cli');
+}
+
 function copyVendorFiles() {
   const src = paths.vendorDir();
   const dest = paths.installDir();
+  if (runningFromStableCopy()) {
+    throw new Error(
+      'This is the launcher copy of the CLI, which carries no app files. Update or reinstall with ' +
+        '"npx tokentelemetry@latest install" (or "npm install -g tokentelemetry@latest && tokentelemetry install").'
+    );
+  }
   if (!fs.existsSync(src)) {
     throw new Error(
       `Bundled app files not found at ${src}. This package was not built correctly (missing "vendor/" -- ` +
@@ -26,6 +36,11 @@ function copyVendorFiles() {
   for (const dir of MANAGED) fs.rmSync(path.join(dest, dir), { recursive: true, force: true });
   for (const entry of fs.readdirSync(src)) {
     fs.cpSync(path.join(src, entry), path.join(dest, entry), { recursive: true, force: true });
+  }
+  // A stable copy of the CLI itself for launchers and autostart (npx's cache can be cleared).
+  for (const part of ['bin', 'src', 'assets', 'package.json']) {
+    const from = path.join(paths.packageRoot(), part);
+    if (fs.existsSync(from)) fs.cpSync(from, path.join(dest, 'cli', part), { recursive: true, force: true });
   }
   fs.writeFileSync(path.join(dest, 'VERSION'), paths.version() + '\n', 'utf8');
   log(`Copied app files to ${dest}`);
@@ -109,6 +124,7 @@ function install() {
   log('');
   log('Run "tokentelemetry start" to launch the backend, daemon, and dashboard.');
   log('Run "tokentelemetry autostart enable" to start it automatically at login.');
+  log('Run "tokentelemetry shortcut" to add an app icon you can pin to your Dock / taskbar.');
 }
 
 function dbPath() {
@@ -150,6 +166,12 @@ function uninstall({ purge = false, deleteDb = false } = {}) {
     require('./run').stop();
   } catch (err) {
     log(`Could not stop running services (continuing): ${err.message}`);
+  }
+  try {
+    const removed = require('./shortcut').remove();
+    if (removed.length) log(`Removed app shortcuts: ${removed.join(', ')}`);
+  } catch (err) {
+    log(`Could not remove app shortcuts (continuing): ${err.message}`);
   }
   try {
     const autostart = require('./autostart');

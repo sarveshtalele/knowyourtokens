@@ -52,6 +52,16 @@ function dashboardPort() {
   return intEnv('TOKENTELEMETRY_DASHBOARD_PORT', 5173);
 }
 
+/**
+ * The CLI entry point that launchers (shortcuts, autostart) should run.
+ * `install` copies the CLI into <installDir>/cli, which -- unlike npx's
+ * cache -- survives `npm cache clean`; fall back to this package otherwise.
+ */
+function stableBinPath() {
+  const stable = path.join(installDir(), 'cli', 'bin', 'tokentelemetry.js');
+  return require('fs').existsSync(stable) ? stable : path.join(packageRoot(), 'bin', 'tokentelemetry.js');
+}
+
 function version() {
   return require(path.join(packageRoot(), 'package.json')).version;
 }
@@ -69,4 +79,5 @@ module.exports = {
   backendPort,
   dashboardPort,
   version,
+  stableBinPath,
 };

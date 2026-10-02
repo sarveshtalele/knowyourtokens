@@ -8,6 +8,7 @@
   "files": [
     "bin",
     "src",
+    "assets",
     "vendor",
     "README.md",
     "LICENSE"

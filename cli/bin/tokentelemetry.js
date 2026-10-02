@@ -4,6 +4,7 @@ const { start, stop, status } = require('../src/run');
 const { doctor } = require('../src/doctor');
 const autostart = require('../src/autostart');
 const paths = require('../src/paths');
+const shortcut = require('../src/shortcut');
 
 const HELP = `tokentelemetry ${paths.version()} -- local-first token, tool, skill & MCP observability for Claude Code
 
@@ -17,6 +18,9 @@ Usage:
   tokentelemetry autostart enable   Start automatically at login (Task Scheduler / launchd / systemd)
   tokentelemetry autostart disable  Remove the autostart entry
   tokentelemetry autostart status   Show whether autostart is enabled
+  tokentelemetry shortcut           Add an app icon (Start Menu/Desktop, ~/Applications, app launcher)
+      --dock                        ...macOS: also add it to the Dock
+      --remove                      ...remove the app icon again
   tokentelemetry uninstall          Remove the Claude Code hooks (keeps app files and data)
       --purge                       ...also stop services, disable autostart, delete app files
       --delete-data                 ...also delete the telemetry database
@@ -71,6 +75,18 @@ async function main() {
           process.exitCode = 1;
       }
       break;
+    case 'shortcut': {
+      if (flags.has('--remove')) {
+        const removed = shortcut.remove();
+        console.log(removed.length ? `Removed:\n  ${removed.join('\n  ')}` : 'No app shortcuts found.');
+        break;
+      }
+      const { created, pin } = shortcut.create({ dock: flags.has('--dock') });
+      console.log(`Created the ${'Token Telemetry'} app icon:\n  ${created.join('\n  ')}`);
+      console.log(`\nTo pin it: ${pin}`);
+      console.log('Prefer a browser app window? Open the dashboard and click "Install app" in the top bar.');
+      break;
+    }
     case 'uninstall':
       uninstall({ purge: flags.has('--purge') || flags.has('--delete-data'), deleteDb: flags.has('--delete-data') });
       break;
