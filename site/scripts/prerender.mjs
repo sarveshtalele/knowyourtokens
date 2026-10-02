@@ -19,7 +19,10 @@ writeFileSync(
 
 const sitemap = join(root, 'dist', 'sitemap.xml');
 const today = new Date().toISOString().slice(0, 10);
-writeFileSync(sitemap, readFileSync(sitemap, 'utf8').replace(/<lastmod>[^<]*<\/lastmod>/, `<lastmod>${today}</lastmod>`));
+writeFileSync(
+  sitemap,
+  readFileSync(sitemap, 'utf8').replace(/<lastmod>[^<]*<\/lastmod>/, `<lastmod>${today}</lastmod>`),
+);
 
 rmSync(join(root, 'dist-ssr'), { recursive: true, force: true });
 console.log('prerendered dist/index.html');

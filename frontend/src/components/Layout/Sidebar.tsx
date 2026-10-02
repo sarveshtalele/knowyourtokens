@@ -10,6 +10,7 @@ import {
   IconMonitor,
   IconPlug,
   IconDownload,
+  IconCalculator,
   IconSettings,
   IconAbout,
   IconChevronLeft,
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { to: '/clients', label: 'Clients', Icon: IconMonitor },
   { to: '/mcp-plugins', label: 'MCP & Plugins', Icon: IconPlug },
   { to: '/reports', label: 'Reports', Icon: IconDownload },
+  { to: '/calculator', label: 'Calculator', Icon: IconCalculator },
   { to: '/about', label: 'About', Icon: IconAbout },
 ];
 

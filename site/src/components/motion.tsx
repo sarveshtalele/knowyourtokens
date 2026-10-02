@@ -12,7 +12,15 @@ export const stagger = (gap = 0.08, delay = 0): Variants => ({
 });
 
 /** Children fade/slide in as the block scrolls into view (once). */
-export function Reveal({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+export function Reveal({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
   return (
     <motion.div
       className={className}

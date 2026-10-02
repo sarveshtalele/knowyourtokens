@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { CopyInstall } from '../components/Hero';
+import { CopyInstall } from '../components/CopyInstall';
 import { DemoApp } from '../demo/DemoApp';
 
 /**
@@ -11,7 +11,10 @@ import { DemoApp } from '../demo/DemoApp';
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end end'],
+  });
   const headRef = useRef<HTMLDivElement>(null);
   const laptopRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ head: 0, laptop: 0 });
@@ -67,7 +70,11 @@ export function Hero() {
                 className={i === 1 ? 'grad-text' : undefined}
                 initial={{ opacity: 0, y: 40, filter: 'blur(12px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ delay: 0.15 + i * 0.18, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                transition={{
+                  delay: 0.15 + i * 0.18,
+                  duration: 0.9,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
               >
                 {line}
               </motion.span>
@@ -79,8 +86,8 @@ export function Hero() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            See exactly where your Claude Code tokens go, which prompt blew up your context and why. Every tool,
-            skill and MCP server too. Free, open source, and it never leaves your machine.
+            See exactly where your Claude Code tokens go, which prompt blew up your context and why. Every tool, skill
+            and MCP server too. Free, open source, and it never leaves your machine.
           </motion.p>
           <motion.div
             className="hero2-cta"

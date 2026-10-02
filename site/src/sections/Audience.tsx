@@ -5,12 +5,20 @@ const PEOPLE = [
   {
     who: 'Developers',
     line: 'Stop guessing why a session got slow and expensive.',
-    points: ['Spot the prompt that blew the context', 'See which files Claude keeps re-reading', 'Learn what makes prompts cheap'],
+    points: [
+      'Spot the prompt that blew the context',
+      'See which files Claude keeps re-reading',
+      'Learn what makes prompts cheap',
+    ],
   },
   {
     who: 'Team leads',
     line: 'Usage you can actually reason about.',
-    points: ['Per project, per model, per client', 'Exports for budgets and reviews', 'OTLP into the dashboards you run'],
+    points: [
+      'Per project, per model, per client',
+      'Exports for budgets and reviews',
+      'OTLP into the dashboards you run',
+    ],
   },
   {
     who: 'Platform & security',
@@ -20,7 +28,11 @@ const PEOPLE = [
   {
     who: 'Tool & MCP builders',
     line: 'Know how your tools behave in the wild.',
-    points: ['Call counts per MCP server and tool', 'Skills and plugins by trigger', 'Typed API and SDKs for your own reports'],
+    points: [
+      'Call counts per MCP server and tool',
+      'Skills and plugins by trigger',
+      'Typed API and SDKs for your own reports',
+    ],
   },
 ];
 
@@ -46,9 +58,9 @@ export function Audience() {
             <p className="kicker2">Debugging prompts</p>
             <h3>From “why is this so slow?” to the exact cause in three clicks.</h3>
             <p>
-              Claude Code shows you the answer. Token Telemetry shows you the question: the full context that was
-              sent, what each part cost, and which tool result made it explode. Fix the pattern once and every
-              future session gets cheaper and sharper.
+              Claude Code shows you the answer. Token Telemetry shows you the question: the full context that was sent,
+              what each part cost, and which tool result made it explode. Fix the pattern once and every future session
+              gets cheaper and sharper.
             </p>
           </div>
           <div className="before-after">

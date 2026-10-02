@@ -14,9 +14,10 @@ is built, see [Architecture](ARCHITECTURE.md); for installation, see
 5. [Tools, Skills, Sessions, Clients](#tools-skills-sessions-clients)
 6. [MCP & Plugins](#mcp--plugins)
 7. [Reports (export)](#export-reports)
-8. [Settings](#settings)
-9. [About](#about)
-10. [Dark / light mode](#dark--light-mode)
+8. [Token calculator](#token-calculator)
+9. [Settings](#settings)
+10. [About](#about)
+11. [Dark / light mode](#dark--light-mode)
 
 ## Exact vs. estimated data
 
@@ -134,6 +135,21 @@ than that in one file — the preview panel says so if you've hit the cap.
 Nothing here calls out to any external service — the export is generated
 from the local SQLite database and streamed straight to your browser's
 download.
+
+## Token calculator
+
+Route: `/calculator`. Three tools on one page, all computed in your browser:
+
+- **Estimate a prompt:** paste a prompt, file or tool output to get an approximate token count, plus
+  characters, words and lines. The content type (prose, code, JSON) is detected automatically and
+  can be overridden. Claude's tokenizer isn't available offline, so this is an **estimate (about
+  ±15%)**. Every count elsewhere in the dashboard comes from Claude Code and is exact.
+- **Will it fit?** Add your system/tool overhead, conversation history and expected output to see how
+  much of a 200K or 1M context window the request uses, and how close it is to auto-compaction.
+- **Cost at your rates:** Token Telemetry ships no prices, because billing depends on your plan.
+  Enter your own $ per million tokens for input, output, cache write and cache read (they are saved
+  in this browser only). The page prices the request above, and your **real usage** for the chosen
+  date range, using the exact token totals from your database.
 
 ## Settings
 

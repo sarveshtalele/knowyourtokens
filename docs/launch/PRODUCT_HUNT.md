@@ -14,7 +14,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 | Pricing | Free (MIT, open source) |
 | Topics | Developer Tools · Artificial Intelligence · Open Source · Analytics |
 | Thumbnail | [`thumbnail-240.png`](thumbnail-240.png) (240×240) |
-| Gallery | [`gallery/`](gallery) (1270×760, in order 01 → 06) |
+| Gallery | [`gallery/`](gallery) (1270×760, in order 01 → 07) |
 
 **Description (≤ 260 characters)**
 
@@ -30,6 +30,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 4. **Find the hotspots.** See which files and tools fill your context window.
 5. **Know your toolbox.** Call counts for every tool, MCP server, skill and plugin.
 6. **Take it anywhere.** REST + OpenAPI, Python/TS SDKs, OpenTelemetry, signed webhooks.
+7. **Token calculator.** Estimate a prompt, check it fits the window, price real usage at your rates.
 
 ## Maker's first comment
 
@@ -45,6 +46,8 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 >   counted once),
 > - gives you a dashboard by project, session, model, IDE, tool, skill and MCP server,
 > - lets you open any request and see the **full context** behind it, with likely secrets redacted,
+> - has a **token calculator**: estimate a prompt before you send it and price your real usage at your
+>   own rates,
 > - installs as an app with its own icon, so you can pin it to your Dock or taskbar.
 >
 > It's **100% local**: SQLite on your machine, bound to 127.0.0.1, no account, no telemetry of its own.

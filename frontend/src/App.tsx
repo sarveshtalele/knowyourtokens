@@ -15,6 +15,7 @@ const Sessions = lazy(() => import('./pages/Sessions').then((m) => ({ default: m
 const Clients = lazy(() => import('./pages/Clients').then((m) => ({ default: m.Clients })));
 const McpPlugins = lazy(() => import('./pages/McpPlugins').then((m) => ({ default: m.McpPlugins })));
 const Reports = lazy(() => import('./pages/Reports').then((m) => ({ default: m.Reports })));
+const Calculator = lazy(() => import('./pages/Calculator').then((m) => ({ default: m.Calculator })));
 const Settings = lazy(() => import('./pages/Settings').then((m) => ({ default: m.Settings })));
 const NotFound = lazy(() => import('./pages/NotFound').then((m) => ({ default: m.NotFound })));
 
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="/clients" element={<Clients />} />
             <Route path="/mcp-plugins" element={<McpPlugins />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/calculator" element={<Calculator />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Route>

@@ -4,12 +4,15 @@ import { Nav } from './components/Nav';
 import { Pipeline } from './components/Pipeline';
 import { Faq, FinalCta, Footer, Privacy } from './components/Rest';
 import { Audience } from './sections/Audience';
+import { Calculator } from './sections/Calculator';
+import { DebugFlow } from './sections/DebugFlow';
+import { Evaluate } from './sections/Evaluate';
+import { Problem } from './sections/Problem';
 import { Demo } from './sections/Demo';
 import { Dock } from './sections/Dock';
 import { Hero } from './sections/Hero';
 import { Highlights } from './sections/Highlights';
 import { Install, Specs } from './sections/Install';
-import { Story } from './sections/Story';
 
 export default function App() {
   return (
@@ -21,8 +24,11 @@ export default function App() {
       <Hero />
       <main id="main">
         <Highlights />
+        <Problem />
         <Demo />
-        <Story />
+        <DebugFlow />
+        <Evaluate />
+        <Calculator />
         <Audience />
         <Dock />
         <Install />

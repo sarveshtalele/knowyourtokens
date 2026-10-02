@@ -8,10 +8,13 @@
     "dev": "vite",
     "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "lint": "tsc --noEmit && oxlint --deny-warnings src"
+    "lint": "tsc --noEmit && oxlint --deny-warnings src",
+    "format": "prettier --write src scripts",
+    "format:check": "prettier --check src scripts"
   },
   "dependencies": {
     "framer-motion": "^14.0.0",
+    "lenis": "^1.3.26",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
@@ -20,6 +23,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.86.0",
+    "prettier": "^3.9.9",
     "typescript": "^7.0.2",
     "vite": "^8.2.2"
   }

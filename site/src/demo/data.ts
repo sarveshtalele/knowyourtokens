@@ -33,7 +33,15 @@ export type RequestRow = {
 
 export const REQUESTS: RequestRow[] = [
   { id: 4812, time: '14:32:08', project: 'checkout-service', model: 'claude-opus', tokens: '18.2K', cache: '94%' },
-  { id: 4811, time: '14:31:40', project: 'checkout-service', model: 'claude-opus', tokens: '312.4K', cache: '41%', hot: true },
+  {
+    id: 4811,
+    time: '14:31:40',
+    project: 'checkout-service',
+    model: 'claude-opus',
+    tokens: '312.4K',
+    cache: '41%',
+    hot: true,
+  },
   { id: 4810, time: '14:29:12', project: 'web-app', model: 'claude-sonnet', tokens: '22.9K', cache: '96%' },
   { id: 4809, time: '14:27:55', project: 'web-app', model: 'claude-sonnet', tokens: '19.7K', cache: '95%' },
   { id: 4808, time: '14:20:03', project: 'infra', model: 'claude-haiku', tokens: '6.4K', cache: '88%' },

@@ -21,17 +21,29 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 - `scripts/seed_demo.py` (`make demo`): a fictional 30-day dataset run through the real ingest
   pipeline, for demos and screenshots without exposing real prompts.
 - Product Hunt launch kit in [`docs/launch/`](docs/launch/PRODUCT_HUNT.md).
+- **Token calculator** (`/calculator` in the dashboard, and on the website): estimate a prompt's tokens
+  offline, see how much of the context window a request uses, and price the request and your real
+  usage at rates you enter (nothing is built in).
+- Website: "The problem" section with animated before/after infographics of six LLM pain points, a
+  four-step prompt-debugging walkthrough, an "Evaluate" infographic (prompt scorecard, cache hit
+  rate, per-project trends), the token calculator, and inertial smooth scrolling (off under reduced
+  motion).
 
 ### Changed
 - Accessibility: the dashboard and website pass an axe-core WCAG 2.1 AA audit in light and dark
   themes. Text colours meet 4.5:1 contrast, every page has one `h1` and ordered headings, filters
   have labels, and scrollable tables are keyboard-reachable.
 - Fresh README screenshots, taken with the demo dataset.
+- The website opens in the light theme by default (dark is one click away), uses light sections
+  throughout, and is shorter: the long scroll-pinned story is replaced by the new infographics and
+  the gaps between sections are smaller.
 
 ### Fixed
 - Launchers and autostart no longer point into npx's cache, which `npm cache clean` can delete. They
   now run a stable copy of the CLI under `~/.tokentelemetry/cli`.
 - The dashboard's service worker no longer caches error responses under asset URLs.
+- Website highlight numbers rendered at body-text size (a label style leaked into them).
+- Breadcrumbs showed "reports" in lower case.
 - Linux `.desktop` launchers escape backslashes and `%` in paths as the Desktop Entry spec requires;
   the macOS Dock entry XML-escapes the app path.
 
