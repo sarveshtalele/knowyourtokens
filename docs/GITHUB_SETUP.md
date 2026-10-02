@@ -85,6 +85,24 @@ The release workflow (`.github/workflows/publish.yml`) publishes two npm package
 
 > Never paste the token into an issue, a PR, a chat or a file. Only put it in the secret.
 
+### 4a-alt. Or: publish the JS SDK once from your own machine
+
+npm can't attach a trusted publisher to a package that doesn't exist yet, so the very first
+`tokentelemetry-client` release has to be published with your own login. Do this **after** the
+release PR is merged, so you publish exactly what's on `main`:
+
+```bash
+git checkout main && git pull
+cd sdk/js
+npm whoami                    # not logged in? run: npm login
+npm ci                        # installs TypeScript; the build runs automatically on publish
+npm publish --access public   # npm asks for your 2FA code (or add --otp=123456)
+npm view tokentelemetry-client version   # should print the version in sdk/js/package.json
+```
+
+Then do step 4b for `tokentelemetry-client`. Future releases publish it from CI with no token, and
+the Release workflow skips any version that is already on npm, so it goes green.
+
 ### 4b. Trusted publishing (tokenless, recommended long term)
 
 Do this for **each** package on npmjs.com. For `tokentelemetry-client`, do it after its first

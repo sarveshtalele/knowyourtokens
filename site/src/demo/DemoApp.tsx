@@ -272,7 +272,7 @@ function Sidebar({ page, onNav }: { page: Page; onNav: (p: Page) => void }) {
   return (
     <aside className="demo-side">
       <div className="demo-brand">
-        <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" width={26} height={26} />
+        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={26} height={26} />
         Token Telemetry
       </div>
       <nav aria-label="Demo navigation">

@@ -43,6 +43,10 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   now run a stable copy of the CLI under `~/.tokentelemetry/cli`.
 - The dashboard's service worker no longer caches error responses under asset URLs.
 - Website highlight numbers rendered at body-text size (a label style leaked into them).
+- Website hero: the laptop mockup overlapped the headline while animating, so the install command's
+  **Copy** button and "Take the tour" couldn't be clicked. The headline is now its own block and the
+  mockup sits below it, opening as you scroll.
+- Website web manifest: light background and PNG icons, so "Add to Home Screen" gets a proper icon.
 - Breadcrumbs showed "reports" in lower case.
 - Linux `.desktop` launchers escape backslashes and `%` in paths as the Desktop Entry spec requires;
   the macOS Dock entry XML-escapes the app path.
