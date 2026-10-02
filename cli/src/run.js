@@ -211,7 +211,7 @@ async function start() {
   const url = `http://127.0.0.1:${dashboardPort}`;
   console.log('');
   if (state.frontend && state.backend) {
-    console.log(`Opening ${url} in your browser...`);
+    console.log(paths.env('NO_OPEN') ? `Dashboard: ${url}` : `Opening ${url} in your browser...`);
     console.log(`Logs: ${logDir()}`);
     openBrowser(url);
   } else {
