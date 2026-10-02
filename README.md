@@ -2,265 +2,161 @@
 
 # Token Telemetry
 
-### *The local-first token, tool, skill & MCP observability console for Claude Code*
+### See where every Claude Code token goes.
+
+Local-first, open-source observability for Claude Code: exact token usage per request, project, session,
+tool, skill and MCP server, on your own machine. Includes a REST API, Python and TypeScript SDKs,
+OpenTelemetry export and webhooks.
 
 <p>
-  <img src="https://img.shields.io/npm/v/tokentelemetry.svg" alt="npm version">
-  <img src="https://img.shields.io/badge/Data-100%25%20Local--first-brightgreen" alt="Local-first">
-  <img src="https://img.shields.io/badge/Attribution-Exact%20%2B%20Estimated%2C%20Always%20Labeled-blue" alt="Attribution">
-  <img src="https://github.com/sarveshtalele/tokentelemetry/actions/workflows/ci.yml/badge.svg" alt="CI status">
-  <img src="https://img.shields.io/badge/License-All%20rights%20reserved-lightgrey.svg" alt="License: all rights reserved">
+  <a href="https://www.npmjs.com/package/tokentelemetry"><img src="https://img.shields.io/npm/v/tokentelemetry.svg" alt="npm version"></a>
+  <a href="https://github.com/sarveshtalele/tokentelemetry/actions/workflows/ci.yml"><img src="https://github.com/sarveshtalele/tokentelemetry/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+  <img src="https://img.shields.io/badge/data-100%25%20local-brightgreen" alt="100% local">
+  <a href="https://sarveshtalele.github.io/tokentelemetry/"><img src="https://img.shields.io/badge/site-tokentelemetry-8b7bff" alt="Website"></a>
 </p>
 
-Install with a single `npx tokentelemetry`. Works with **Claude Code**, **Cursor**,
-**VS Code**, **JetBrains**, and **Windsurf** — auto-classified, zero configuration.
+**[Website](https://sarveshtalele.github.io/tokentelemetry/)** ·
+**[Install](#install)** ·
+**[API](docs/API.md)** ·
+**[Integrations](docs/INTEGRATIONS.md)** ·
+**[Architecture](docs/ARCHITECTURE.md)** ·
+**[Contributing](CONTRIBUTING.md)**
 
 </div>
-
----
-
-## Table of Contents
-
-1. [Why](#why)
-2. [Features](#features)
-3. [Screenshots](#screenshots)
-4. [Install](#install)
-5. [Run it daily](#run-it-daily)
-6. [Update](#update)
-7. [Uninstall / delete](#uninstall--delete)
-8. [User Guide](#user-guide)
-9. [How it works](#how-it-works)
-10. [Documentation](#documentation)
-11. [Security](#security)
-12. [Configuration](#configuration)
-13. [Development](#development)
-14. [Contributing](#contributing)
-15. [License](#license)
-
-## Why
-
-Claude Code doesn't show you, across every project, how many tokens you're spending, which
-tools and skills drive that spend, or where the context is going. This fills that gap —
-entirely on your own machine, with no telemetry of its own sent anywhere.
-
-## Features
-
-- **Exact vs. estimated, always labeled** — token counts are exact (from the Claude API);
-  per-file/tool attribution is a clearly-badged heuristic, explained on the in-app About page.
-- **Full prompt/response inspection** — open the complete, untruncated text behind any request.
-- **Dark / light mode**, OS-aware, with a persistent toggle.
-- **All-time by default**, with a date-range filter — not capped at 30 days.
-- **Per-project breakdowns** of the top skill, MCP server, and hook in use.
-- **Report export** — CSV or JSON, filtered by project/date, straight from the dashboard.
-- **No cost/pricing columns** — intentionally excluded; billing depends on your plan and isn't
-  a reliable token-telemetry primitive.
-
-## Screenshots
-
-<table>
-<tr>
-<td width="50%">
-<img src="docs/screenshots/dashboard-dark.png" alt="Global dashboard, dark mode">
-<p align="center"><sub>Global dashboard</sub></p>
-</td>
-<td width="50%">
-<img src="docs/screenshots/project-detail-dark.png" alt="Project detail view with per-project skill and MCP usage">
-<p align="center"><sub>Project detail</sub></p>
-</td>
-</tr>
-</table>
-
-More pages in [`docs/screenshots/`](docs/screenshots).
-
-## Install
-
-Published on the npm registry as [`tokentelemetry`](https://www.npmjs.com/package/tokentelemetry).
-Works the same on **Windows, macOS, and Linux**; requires Node.js 18+ and Python 3.9+ (or
-[`uv`](https://docs.astral.sh/uv/), used automatically when present).
 
 ```bash
 npx tokentelemetry
 ```
 
-That one command sets up a Python virtual environment, wires the Claude Code hooks into
-`~/.claude/settings.json`, and starts the backend, daemon, and dashboard —
-`http://127.0.0.1:5173` opens automatically once it's actually up.
+One command sets up a Python environment, wires the Claude Code hooks into `~/.claude/settings.json`,
+and starts the backend, the collector daemon and the dashboard at **http://127.0.0.1:5173**. It works
+with the Claude Code CLI, VS Code, JetBrains, Cursor, Windsurf, the Agent SDK and remote sessions, on
+Windows, macOS and Linux.
 
-For daily use, install it globally instead so it doesn't re-resolve the package over the
-network on every run:
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/dashboard-dark.png" alt="Global dashboard"><p align="center"><sub>Global dashboard</sub></p></td>
+<td width="50%"><img src="docs/screenshots/project-detail-dark.png" alt="Project detail"><p align="center"><sub>Project detail</sub></p></td>
+</tr>
+</table>
+
+## Why
+
+Claude Code doesn't show you, across every project, how many tokens you're spending, what fills your
+context, or which tools, skills and MCP servers drive it. Token Telemetry does, without sending your
+prompts anywhere.
+
+## Features
+
+- **Exact token accounting:** input, output, cache-read and cache-write tokens per API request, read
+  from the usage Claude Code records. Each request is counted once, even when Claude Code splits its
+  message over several transcript lines.
+- **Every dimension:** projects, sessions, models, clients/IDEs, tools, skills, plugins, MCP servers,
+  hook events, all time by default, with local-time-zone date filters.
+- **Context hotspots (estimated, always labelled):** each request's exact total is spread across the
+  files and tools around it.
+- **Full prompt inspection:** the complete context and response behind any request, with likely secrets
+  redacted. Full-text storage can be turned off.
+- **Exports:** streamed CSV, JSON or NDJSON with no row cap, safe against spreadsheet formula injection.
+- **Built to integrate:** typed REST API with a published [OpenAPI document](docs/openapi.json),
+  [Python](sdk/python) and [TypeScript](sdk/js) SDKs, [OpenTelemetry metrics and signed
+  webhooks](docs/INTEGRATIONS.md).
+- **Local and hardened:** binds to 127.0.0.1, rejects DNS rebinding and cross-site requests, stores the
+  database `0600`, and supports optional retention. It sends no telemetry of its own.
+- **No cost columns, by design:** billing depends on your plan. Export the tokens and apply your own
+  rates.
+
+## Install
+
+Requires **Node.js 18+** and **Python 3.10+** (or [`uv`](https://docs.astral.sh/uv/), which is used
+automatically when present).
 
 ```bash
+npx tokentelemetry                 # install + start (re-resolves the latest version each time)
+# or, for daily use:
 npm install -g tokentelemetry
-tokentelemetry            # install (first run) + start, same as npx above
+tokentelemetry                     # install (first run) + start
 ```
 
-Per-OS notes and troubleshooting: **[Installation Guide](docs/INSTALLATION.md)**.
+Per-OS notes, ports and troubleshooting: **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
 
-<details>
-<summary>Installing from source instead (for contributing, or before a release is published)</summary>
+## Everyday commands
 
 ```bash
-git clone https://github.com/sarveshtalele/tokentelemetry.git
-cd tokentelemetry
-node cli/setup.js
+tokentelemetry start               # backend + daemon + dashboard
+tokentelemetry stop
+tokentelemetry status              # processes + health checks
+tokentelemetry doctor              # diagnose the install, with a fix for anything wrong
+tokentelemetry autostart enable    # start at login (Task Scheduler / launchd / systemd)
 ```
 
-Builds and installs the `tokentelemetry` command globally from this checkout (`npm pack` +
-`npm install -g`, in `cli/`) instead of pulling the published package, then does the same
-setup + interactive menu. See [Development](#development).
+**Update:** `npm install -g tokentelemetry@latest && tokentelemetry install` (`npx` is always latest).
+Upgrading from 1.x migrates the database automatically and backs it up first. See the
+[changelog](CHANGELOG.md).
 
-</details>
-
-## Run it daily
+**Uninstall:**
 
 ```bash
-tokentelemetry start    # backend + daemon + dashboard → http://127.0.0.1:5173
-tokentelemetry status   # what's running, health checks
-tokentelemetry stop     # shut everything down
+tokentelemetry uninstall                          # remove the hooks, keep everything else
+tokentelemetry uninstall --purge                  # + stop services, disable autostart, delete app files
+tokentelemetry uninstall --purge --delete-data    # + delete the telemetry database
+npm uninstall -g tokentelemetry
 ```
 
-Or skip remembering entirely:
+## Use the data elsewhere
 
 ```bash
-tokentelemetry autostart enable   # runs it automatically at login
-tokentelemetry autostart disable  # turns that back off
+curl "http://127.0.0.1:8000/api/v1/usage/summary?start=2025-06-01&end=2025-06-30"
 ```
 
-<details>
-<summary>What <code>autostart enable</code> sets up, per OS</summary>
-
-| OS | Mechanism | Undo |
-|---|---|---|
-| Windows | Task Scheduler task, "At log on" | `tokentelemetry autostart disable` |
-| macOS | launchd agent (`~/Library/LaunchAgents/com.tokentelemetry.app.plist`) | `tokentelemetry autostart disable` |
-| Linux | systemd `--user` service | `tokentelemetry autostart disable` |
-
-All three use absolute paths, not `PATH` lookups (OS schedulers often can't see a login
-shell's `PATH`). Linux needs a running `systemd --user` instance — most desktops have one;
-headless/minimal setups may not (see the Installation Guide).
-
-</details>
-
-Data capture doesn't depend on any of this being on — see [How it works](#how-it-works).
-
-## Update
+```python
+from tokentelemetry_client import TokenTelemetry          # pip install ./sdk/python
+for p in TokenTelemetry().projects():
+    print(p["project"], p["total_tokens"])
+```
 
 ```bash
-npm install -g tokentelemetry@latest   # if installed globally
-tokentelemetry install                 # re-applies the Python env + hooks (safe to re-run)
+export TOKENTELEMETRY_OTLP_ENDPOINT=http://localhost:4318    # Grafana, Datadog, Honeycomb, ...
+export TOKENTELEMETRY_WEBHOOK_URL=https://example.com/hook   # HMAC-signed batches
 ```
 
-Running via `npx tokentelemetry` instead always resolves the latest published version on its
-own — nothing to update manually.
-
-Installed from source? `git pull && node cli/setup.js` rebuilds and reinstalls from the
-checkout.
-
-## Uninstall / delete
-
-```bash
-tokentelemetry uninstall            # remove Claude Code hooks only, keep your data
-tokentelemetry uninstall --purge    # remove hooks AND delete ~/.tokentelemetry (all data)
-npm uninstall -g tokentelemetry     # remove the global command itself, if installed that way
-```
-
-## User Guide
-
-| Page | Route | What it's for |
-|---|---|---|
-| Dashboard | `/` | Totals across every project, all time by default |
-| Projects | `/projects` | Per-project inventory, with top skill/MCP server/hook |
-| Requests | `/requests` | Every request; open one for the full prompt and response |
-| Tools / Skills / Sessions / Clients | — | Dedicated breakdowns for each dimension |
-| Reports | `/reports` | Export usage or project data as CSV/JSON |
-| Settings | `/settings` | Collector status, database info, manual reconcile |
-| About | `/about` | What's tracked, and exact vs. estimated explained |
-
-**Exact vs. estimated, in one line:** exact numbers come straight from the Claude API;
-estimated ones (per-file/tool) are a heuristic — the API only reports usage per request, so an
-exact total gets divided across nearby tool calls and file paths. Full guide:
-[`docs/USER_GUIDE.md`](docs/USER_GUIDE.md).
+Details: [API reference](docs/API.md) · [Integrations](docs/INTEGRATIONS.md).
 
 ## How it works
 
 ```
-Claude Code ──hooks──► SQLite ◄──reconcile── ~/.claude/projects/**/*.jsonl
-                          │
-                          ▼
-              backend/ FastAPI (/api/v1, /ws/live)
-                          │
-                          ▼
-              frontend/ React dashboard
+Claude Code ──hooks──────────────► SQLite ◄──incremental reconcile── ~/.claude/projects/**/*.jsonl
+                                     │
+                    FastAPI on 127.0.0.1 (/api/v1, /ws/live, /openapi.json)
+                     │            │                 │
+                 dashboard     SDKs / curl     OTLP · webhooks (opt-in)
 ```
 
-Two independent paths write to the same local database: **hooks** fire live the instant
-something happens (dashboard running or not); **reconcile** parses Claude Code's own session
-transcripts on a timer for exact token usage and full text, catching up on anything missed if
-the daemon was off for a while. Full diagrams: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Hooks capture events the instant they happen. The daemon reads only the bytes appended to session
+transcripts for exact usage and full text, and catches up after downtime. Full diagrams, the schema,
+and design decisions are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Documentation
 
 | Document | Covers |
 |---|---|
-| [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Per-OS install notes, updating, uninstalling, troubleshooting |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System diagrams, data flow, database schema |
-| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Every page, every metric, report export |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | Full cybersecurity review |
-| [`DESIGN.md`](DESIGN.md) | Design tokens and UI rationale |
-
-## Security
-
-Local-first: the backend binds to `127.0.0.1` only, and nothing it collects ever leaves your
-machine. Full review — threat model, findings, fixes — in
-[`docs/SECURITY.md`](docs/SECURITY.md). Found a vulnerability? See
-[`SECURITY.md`](SECURITY.md) for how to report it privately.
-
-## Configuration
-
-All optional.
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `CLAUDE_TELEMETRY_DB` | `~/.claude/telemetry/telemetry.db` | SQLite database path |
-| `CLAUDE_CONFIG_DIR` | `~/.claude` | Claude Code config directory |
-| `TOKENTELEMETRY_HOME` | `~/.tokentelemetry` | Where the CLI installs the app |
-| `CLAUDE_TELEMETRY_INTERVAL` | `5` | Daemon poll interval, in seconds |
-| `CLAUDE_TELEMETRY_FORCE_RECONCILE` | unset | `1`/`true` forces a full re-parse next reconcile |
-
-## Development
-
-```bash
-cd backend && python run.py                # API on :8000
-cd frontend && npm install && npm run dev   # React UI on :5173
-```
-
-```bash
-uv venv .venv && uv pip install -p .venv -r backend/requirements-dev.txt
-.venv/bin/python -m pytest tests/test_backend_api.py tests/test_reconcile.py
-```
-
-Project layout:
-
-```
-.
-├── backend/     FastAPI service — REST (/api/v1) + WebSocket (/ws/live)
-├── frontend/    React + Vite + TypeScript + Tailwind + Recharts
-├── telemetry/   Canonical collector/reconcile/schema — backend/ imports it directly
-├── hooks/       claude-telemetry-hook.py — what Claude Code invokes
-├── cli/         Installer (`tokentelemetry` command) — see cli/README.md
-├── tests/       Backend API + reconcile pytest suite
-├── docs/        Installation, architecture, user guide, security review
-└── .github/     CI, Dependabot, issue/PR templates
-```
+| [INSTALLATION](docs/INSTALLATION.md) | Per-OS install, settings, upgrading, troubleshooting |
+| [USER_GUIDE](docs/USER_GUIDE.md) | Every page and metric, exact vs. estimated, exports |
+| [API](docs/API.md) | REST conventions and endpoints ([OpenAPI](docs/openapi.json)) |
+| [INTEGRATIONS](docs/INTEGRATIONS.md) | SDKs, OpenTelemetry, webhooks, writing an exporter |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, data flow, schema v7, migrations |
+| [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Threat model and findings |
+| [DESIGN](DESIGN.md) | Dashboard design tokens |
+| [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) | Where it's going, what changed |
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md). Short version: run the tests and `npm run build`,
-keep diffs focused, and there's exactly one schema/collector/reconcile implementation
-(`telemetry/`) — don't add a second copy. CI, Dependabot, and issue templates run
-automatically; see [`.github/`](.github) for the configs.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) (`make setup && make check`), the
+[Code of Conduct](CODE_OF_CONDUCT.md), and [SUPPORT.md](SUPPORT.md) for questions. Report
+vulnerabilities privately: [SECURITY.md](SECURITY.md).
 
 ## License
 
-No license is currently granted. All rights reserved — this source is visible for reference,
-but you don't have permission to copy, modify, or redistribute it without asking first.
+[MIT](LICENSE) © Sarvesh Talele and contributors. Token Telemetry is an independent project and is not
+affiliated with or endorsed by Anthropic.

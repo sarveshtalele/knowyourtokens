@@ -1,6 +1,6 @@
 # tokentelemetry
 
-Install and run the [Claude Telemetry Enterprise](https://github.com/sarveshtalele/tokentelemetry)
+Install and run [Token Telemetry](https://github.com/sarveshtalele/tokentelemetry)
 console — a local-first FastAPI backend + React dashboard for Claude Code
 token/tool/skill/hook telemetry — as a global tool on Windows, macOS, and
 Linux, with Claude Code hooks wired up automatically.
@@ -33,7 +33,9 @@ tokentelemetry status             # show install location, running processes, he
 tokentelemetry stop               # stop everything started by "start"
 tokentelemetry autostart enable   # start automatically at login (Task Scheduler / launchd / systemd)
 tokentelemetry autostart disable  # remove the autostart entry
-tokentelemetry uninstall          # remove the Claude Code hooks (add --purge to also delete app files)
+tokentelemetry doctor             # diagnose the install and print fixes
+tokentelemetry uninstall          # remove the Claude Code hooks (--purge: app files too; --delete-data: database too)
+tokentelemetry --version
 ```
 
 Then open **http://127.0.0.1:5173**.
@@ -75,7 +77,7 @@ node cli/setup.js install   # re-run the full build+install, e.g. after `git pul
    standard `venv`/`pip`), and installs the FastAPI backend's dependencies.
 3. Merges the telemetry hook into your Claude Code settings
    (`~/.claude/settings.json`, or `$CLAUDE_CONFIG_DIR/settings.json`) for the
-   `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, and
+   `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `SubagentStop`, `PreCompact`, and
    `Stop` events — safe to re-run, entries are de-duplicated.
 
 ## What "start" does
@@ -97,5 +99,5 @@ disable` removes it, and `tokentelemetry status` shows whether it's on.
 ## Requirements
 
 - Node.js 18+ (to run `npx`)
-- Python 3.9+ on `PATH` (or [`uv`](https://docs.astral.sh/uv/), which is
+- Python 3.10+ on `PATH` (or [`uv`](https://docs.astral.sh/uv/), which is
   preferred automatically when present)

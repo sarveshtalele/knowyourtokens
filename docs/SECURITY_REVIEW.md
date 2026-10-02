@@ -1,4 +1,4 @@
-# Security Review
+# Security review
 
 A complete, point-in-time cybersecurity review of this codebase: the
 threat model, what was checked, what was found, and what was fixed. This
@@ -14,16 +14,17 @@ at the repo root.
 This is a **local-first, single-user** tool. Understanding what that does
 and doesn't mean is the basis for everything below:
 
-- The FastAPI backend binds to `127.0.0.1` only (see
-  `cli/src/run.js` — every spawned process is started with
-  `--host 127.0.0.1`, never `0.0.0.0`). It is not designed to be reachable
+- The FastAPI backend binds to `127.0.0.1` only (`cli/src/run.js` and
+  `backend/run.py` both pass `127.0.0.1`, never `0.0.0.0`). It is not designed to be reachable
   from another machine, and doing so is a deployment choice outside this
   project's threat model.
 - The data collected (prompts, responses, tool calls, file paths) is
   exactly as sensitive as the Claude Code sessions it comes from. It never
   leaves the machine — there is no telemetry-of-the-telemetry, no
-  third-party analytics, no outbound network call anywhere in
-  `backend/`, `telemetry/`, or `frontend/`.
+  third-party analytics, and no outbound network call unless the user
+  configures an exporter (`TOKENTELEMETRY_OTLP_ENDPOINT` or
+  `TOKENTELEMETRY_WEBHOOK_URL`). Since v2.0 the dashboard no longer loads
+  Google Fonts either.
 - The realistic attacker is **not** a remote adversary; it's either (a) a
   malicious web page open in the same browser as the dashboard (browser
   same-origin attacks: CSRF, XSS, an attacker-controlled export link), or
@@ -76,8 +77,16 @@ committed) covering:
 | 8 | React frontend: any `dangerouslySetInnerHTML`, `eval`, or `new Function` usage that could turn transcript-derived text (tool names, file paths, prompts) into executed script | Reviewed | **No issue found** — none present anywhere in `frontend/src`; all dynamic text renders through JSX, which HTML-escapes by default | — |
 | 9 | Command execution: any `shell=True`, `os.system`, or unsanitized `subprocess`/`child_process` call built from transcript- or request-derived strings | Reviewed | **No issue found** — every `subprocess`/`spawn` call in `backend/`, `telemetry/`, and `cli/` passes a fixed argv array (never a shell string built by concatenation); the one `shell: true` usage (`cli/setup.js`, Windows-only `commandExists`/`run` helpers) only ever runs fixed, hardcoded commands (`npm --version`, `npm pack`, `npm install -g <tmpdir tarball path>`) — none of the arguments come from transcript data or request input | `cli/setup.js` |
 | 10 | Secrets in source or git history (API keys, tokens, credentials) | Reviewed | **No issue found** — grepped tracked files and full history for AWS/GitHub/npm/OpenAI-style key formats and PEM headers; none present. (An npm publish token used once during development was never written to a file or committed.) | — |
-| 11 | Python dependency CVEs (`fastapi`, `uvicorn`, `pydantic`, `websockets`, `streamlit`, `pandas`) | Reviewed | **No known vulnerabilities** — `pip-audit` against both requirement files | `requirements.txt`, `backend/requirements.txt` |
+| 11 | Python dependency CVEs (`fastapi`, `uvicorn`, `pydantic`, `websockets`) | Reviewed | **No known vulnerabilities**: `pip-audit` now runs in CI on every push | `backend/requirements.txt` |
 | 12 | `npm audit` on `frontend/` and `cli/` after the fixes above | Reviewed | **0 vulnerabilities** on `frontend/`; `cli/`'s own dependency surface is minimal (no lockfile — it deliberately has none of its own runtime deps beyond Node's stdlib) | — |
+| 13 | **DNS rebinding**: no `Host` validation, so a malicious site could rebind its own hostname to 127.0.0.1 and read every stored prompt through the API or the dashboard's `/api` proxy | High | **Fixed (v2.0)**: Host allowlist in `backend/app/security.py` and `cli/src/static-server.js` | both |
+| 14 | **Cross-site POST** to `/api/v1/settings/reconcile` (CSRF; also blocked the event loop) | Low | **Fixed (v2.0)**: Origin check on non-GET requests and WebSocket upgrades; reconcile runs in a worker thread, one at a time | `backend/app/security.py`, `settings.py` |
+| 15 | Hook payloads stored whole, including `tool_response` (full file contents, command output) | Medium (privacy) | **Fixed (v2.0)**: bulky fields dropped, payload capped, likely secrets redacted before storage | `telemetry/common.py:slim_payload` |
+| 16 | Database created with the default umask (often world-readable) | Low | **Fixed (v2.0)**: new DB `0600`, directory `0700`, migration backups `0600` | `telemetry/db.py` |
+| 17 | `~/.claude/settings.json` rewritten non-atomically, no backup; malformed JSON crashed install half-way | Low (integrity) | **Fixed (v2.0)**: validated first, one-time backup, atomic rename | `cli/src/hooks.js`, `cli/src/fsutil.js` |
+| 18 | `stop` trusted PIDs from `run.json`; PID reuse could terminate an unrelated process | Low | **Fixed (v2.0)**: command line must still match the service | `cli/src/process.js` |
+| 19 | Dashboard served without CSP / `nosniff` / framing protection | Low | **Fixed (v2.0)**: strict CSP (no inline scripts), `X-Frame-Options: DENY`, `nosniff`, `no-referrer` | `cli/src/static-server.js` |
+| 20 | Dev server (`backend/run.py`) bound `0.0.0.0` | Low | **Fixed (v2.0)**: binds `127.0.0.1` | `backend/run.py` |
 
 ## Residual risk and recommendations
 
@@ -104,12 +113,8 @@ Things that are **accepted risk**, not gaps, given the threat model above:
   actual control is binding to `127.0.0.1`.
 - No rate limiting. There's no remote attacker to rate-limit against on a
   loopback-only service.
-- No CSRF token on the reconcile-trigger POST endpoint
-  (`/api/v1/settings/reconcile`). A CSRF attack would need a malicious
-  page to get the victim's browser to POST to `127.0.0.1:8000` — possible
-  in principle from a browser that also has the dashboard open, but the
-  worst outcome is triggering an early reconcile pass (a normal, harmless,
-  idempotent operation the user can already trigger themselves from
-  Settings). Not worth the complexity of a CSRF token for a local single-
-  user tool at this stage; revisit if the backend ever grows a
-  state-changing endpoint with real consequences.
+- No CSRF *token*. Origin checking (finding 14) covers browsers; a
+  non-browser client on the same machine already has full local access.
+- Exporters send data to user-configured URLs. That is the point of them,
+  and they are off by default; webhook payloads exclude prompt text unless
+  `TOKENTELEMETRY_WEBHOOK_INCLUDE_TEXT=1` and can be HMAC-verified.

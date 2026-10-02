@@ -31,6 +31,7 @@ known-first-party = ["telemetry", "app", "tokentelemetry_client"]
 
 [tool.ruff.format]
 quote-style = "double"
+exclude = ["*.md"]
 
 [tool.coverage.run]
 source = ["telemetry", "backend/app"]
