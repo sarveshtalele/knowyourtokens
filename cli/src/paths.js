@@ -9,8 +9,25 @@ function vendorDir() {
   return path.join(packageRoot(), 'vendor');
 }
 
+/**
+ * KNOWYOURTOKENS_<NAME>, falling back to TOKENTELEMETRY_<NAME> (the project's
+ * previous name) so existing setups keep working.
+ */
+function env(name) {
+  return process.env[`KNOWYOURTOKENS_${name}`] || process.env[`TOKENTELEMETRY_${name}`] || '';
+}
+
+/**
+ * ~/.knowyourtokens, or ~/.tokentelemetry when only an install from before the
+ * rename exists (it is reused as is: hooks, launchers and data keep working).
+ */
 function installDir() {
-  return process.env.TOKENTELEMETRY_HOME || path.join(os.homedir(), '.tokentelemetry');
+  const explicit = env('HOME');
+  if (explicit) return explicit;
+  const current = path.join(os.homedir(), '.knowyourtokens');
+  const legacy = path.join(os.homedir(), '.tokentelemetry');
+  const fs = require('fs');
+  return !fs.existsSync(current) && fs.existsSync(legacy) ? legacy : current;
 }
 
 function venvDir() {
@@ -54,16 +71,16 @@ function logDir() {
 }
 
 function intEnv(name, fallback) {
-  const n = Number.parseInt(process.env[name] || '', 10);
+  const n = Number.parseInt(env(name), 10);
   return Number.isInteger(n) && n > 0 && n < 65536 ? n : fallback;
 }
 
 function backendPort() {
-  return intEnv('TOKENTELEMETRY_BACKEND_PORT', 8000);
+  return intEnv('BACKEND_PORT', 8000);
 }
 
 function dashboardPort() {
-  return intEnv('TOKENTELEMETRY_DASHBOARD_PORT', 5173);
+  return intEnv('DASHBOARD_PORT', 5173);
 }
 
 /**
@@ -72,8 +89,8 @@ function dashboardPort() {
  * cache -- survives `npm cache clean`; fall back to this package otherwise.
  */
 function stableBinPath() {
-  const stable = path.join(installDir(), 'cli', 'bin', 'tokentelemetry.js');
-  return require('fs').existsSync(stable) ? stable : path.join(packageRoot(), 'bin', 'tokentelemetry.js');
+  const stable = path.join(installDir(), 'cli', 'bin', 'knowyourtokens.js');
+  return require('fs').existsSync(stable) ? stable : path.join(packageRoot(), 'bin', 'knowyourtokens.js');
 }
 
 function version() {
@@ -81,6 +98,7 @@ function version() {
 }
 
 module.exports = {
+  env,
   packageRoot,
   vendorDir,
   installDir,

@@ -29,11 +29,11 @@ ENV_KEYS = [
     "CLAUDE_TELEMETRY_DB",
     "CLAUDE_CONFIG_DIR",
     "CLAUDE_TELEMETRY_INTERVAL",
-    "TOKENTELEMETRY_RETENTION_DAYS",
-    "TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS",
-    "TOKENTELEMETRY_STORE_FULL_TEXT",
-    "TOKENTELEMETRY_OTLP_ENDPOINT",
-    "TOKENTELEMETRY_WEBHOOK_URL",
+    "KNOWYOURTOKENS_RETENTION_DAYS",
+    "KNOWYOURTOKENS_FULL_TEXT_RETENTION_DAYS",
+    "KNOWYOURTOKENS_STORE_FULL_TEXT",
+    "KNOWYOURTOKENS_OTLP_ENDPOINT",
+    "KNOWYOURTOKENS_WEBHOOK_URL",
 ]
 
 
@@ -67,7 +67,7 @@ def get_settings(conn=Depends(get_db)):
             "db_size": db_size,
             "table_counts": {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in TABLES},
             "last_reconcile": last[0] if last else None,
-            "env": {k: os.environ.get(k, "") for k in ENV_KEYS},
+            "env": {k: config.env(k, "") or "" for k in ENV_KEYS},
             "exporters": exporter_status(conn),
         }
     }

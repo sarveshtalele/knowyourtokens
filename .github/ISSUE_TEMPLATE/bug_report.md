@@ -19,12 +19,12 @@ What should have happened instead.
 
 **Environment**
 - OS: [Windows / macOS / Linux]
-- Install method: [`node cli/setup.js` / `tokentelemetry` global command / manual dev setup]
-- `tokentelemetry --version`:
-- `tokentelemetry doctor` output:
+- Install method: [`node cli/setup.js` / `knowyourtokens` global command / manual dev setup]
+- `knowyourtokens --version`:
+- `knowyourtokens doctor` output:
 
 **Logs**
-Relevant lines from `~/.tokentelemetry/logs/backend.log` / `daemon.log` / `frontend.log`,
+Relevant lines from `~/.knowyourtokens/logs/backend.log` / `daemon.log` / `frontend.log`,
 `~/.claude/telemetry/hook-errors.log`, or
 the browser console, if applicable. Please don't paste actual prompt/response content —
 just the error.

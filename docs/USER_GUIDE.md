@@ -5,7 +5,7 @@ the numbers mean, and how to get data out of the tool. For how the system
 is built, see [Architecture](ARCHITECTURE.md); for installation, see
 [Installation Guide](INSTALLATION.md) or the main [README](../README.md#install).
 
-Every page covers all the agents Token Telemetry reads: Claude Code, Codex CLI, Gemini CLI,
+Every page covers all the agents Know Your Tokens reads: Claude Code, Codex CLI, Gemini CLI,
 OpenCode, and anything you push through the [ingest API](INTEGRATIONS.md#track-any-agent). Use the
 **client** filter to look at one agent at a time.
 
@@ -146,7 +146,7 @@ filter is right.
 
 **Format:** **Download CSV** or **Download JSON** — both stream directly
 from the backend (`GET /api/v1/reports/export`) with the filter applied,
-named `tokentelemetry-<type>-<timestamp>.<format>`. Exports are capped at
+named `knowyourtokens-<type>-<timestamp>.<format>`. Exports are capped at
 5,000 rows per request; narrow the project or date range if you need more
 than that in one file — the preview panel says so if you've hit the cap.
 
@@ -165,7 +165,7 @@ Route: `/calculator`. Three tools on one page, all computed in your browser:
   from the agents' own usage records and is exact.
 - **Will it fit?** Add your system/tool overhead, conversation history and expected output to see how
   much of a 200K or 1M context window the request uses, and how close it is to auto-compaction.
-- **Cost at your rates:** Token Telemetry ships no prices, because billing depends on your plan.
+- **Cost at your rates:** Know Your Tokens ships no prices, because billing depends on your plan.
   Enter your own $ per million tokens for input, output, cache write and cache read (they are saved
   in this browser only). The page prices the request above, and your **real usage** for the chosen
   date range, using the exact token totals from your database.

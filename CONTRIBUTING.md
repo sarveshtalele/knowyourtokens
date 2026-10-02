@@ -1,4 +1,4 @@
-# Contributing to Token Telemetry
+# Contributing to Know Your Tokens
 
 Thanks for helping! Issues, docs fixes, and PRs are all welcome. Please read the
 [Code of Conduct](CODE_OF_CONDUCT.md) first. By contributing you agree your contribution is licensed
@@ -10,7 +10,7 @@ Needs Python 3.10+, Node 18+ (22 recommended), and `make` (Windows: run the comm
 `Makefile` directly, or use the devcontainer).
 
 ```bash
-git clone https://github.com/sarveshtalele/tokentelemetry && cd tokentelemetry
+git clone https://github.com/sarveshtalele/knowyourtokens && cd knowyourtokens
 make setup          # .venv + all Python/Node deps
 make dev-backend    # API on :8000 (auto-reload)
 make dev-frontend   # dashboard on :5173 (proxies /api and /ws)
@@ -72,7 +72,7 @@ Every bug fix needs a regression test. CI also runs Python 3.10–3.13, macOS an
    `incremental`) that matches how the agent writes its files.
 2. Map the agent's usage to input / output / cache read / cache write without double counting
    (watch for cumulative totals and input that already includes cached tokens).
-3. Register it in `all_sources()` and give it a `name` for `TOKENTELEMETRY_SOURCES`.
+3. Register it in `all_sources()` and give it a `name` for `KNOWYOURTOKENS_SOURCES`.
 4. Add tests to `tests/test_sources.py`, and update `docs/INSTALLATION.md`, `docs/ARCHITECTURE.md` and
    the README.
 
@@ -85,7 +85,7 @@ Every bug fix needs a regression test. CI also runs Python 3.10–3.13, macOS an
 3. Fill in the PR template. CI must be green.
 
 Good first issues are labelled
-[`good first issue`](https://github.com/sarveshtalele/tokentelemetry/labels/good%20first%20issue).
+[`good first issue`](https://github.com/sarveshtalele/knowyourtokens/labels/good%20first%20issue).
 
 ## Releasing (maintainers)
 
@@ -106,5 +106,5 @@ Keep the CHANGELOG's Unreleased section up to date in each PR; that becomes the 
 
 ## Reporting bugs / security issues
 
-Bugs: use the issue template and include `tokentelemetry doctor` output. Don't paste prompt or response
+Bugs: use the issue template and include `knowyourtokens doctor` output. Don't paste prompt or response
 content. **Security issues: never in public.** See [SECURITY.md](SECURITY.md).

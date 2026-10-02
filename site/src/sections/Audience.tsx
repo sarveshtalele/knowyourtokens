@@ -58,7 +58,7 @@ export function Audience() {
             <p className="kicker2">Debugging prompts</p>
             <h3>From “why is this so slow?” to the exact cause in three clicks.</h3>
             <p>
-              Your agent shows you the answer. Token Telemetry shows you the question: the full context that was sent,
+              Your agent shows you the answer. Know Your Tokens shows you the question: the full context that was sent,
               what each part cost, and which tool result made it explode. Fix the pattern once and every future session
               gets cheaper and sharper.
             </p>

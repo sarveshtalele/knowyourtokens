@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or usage help
-    url: https://github.com/sarveshtalele/tokentelemetry/discussions
+    url: https://github.com/sarveshtalele/knowyourtokens/discussions
     about: Ask in Discussions -- and check the user guide (docs/USER_GUIDE.md) first.
   - name: Security vulnerability
-    url: https://github.com/sarveshtalele/tokentelemetry/security/advisories/new
+    url: https://github.com/sarveshtalele/knowyourtokens/security/advisories/new
     about: Please report security issues privately instead of opening a public issue.

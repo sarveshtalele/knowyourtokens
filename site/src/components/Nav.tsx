@@ -61,7 +61,7 @@ export function Nav() {
       />
       <div className="wrap nav-inner">
         <a className="brand" href="#top">
-          <Logo /> Token Telemetry
+          <Logo /> Know Your Tokens
         </a>
         <div className="nav-links">
           <a href="#agents">Agents</a>
@@ -84,7 +84,7 @@ export function Nav() {
         <a className="btn btn-sm btn-pill" href="#install">
           Install
         </a>
-        <a className="btn btn-sm" href="https://github.com/sarveshtalele/tokentelemetry">
+        <a className="btn btn-sm" href="https://github.com/sarveshtalele/knowyourtokens">
           <IconGithub /> <span className="label">GitHub</span>
         </a>
       </div>

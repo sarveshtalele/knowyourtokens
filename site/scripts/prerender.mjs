@@ -24,5 +24,25 @@ writeFileSync(
   readFileSync(sitemap, 'utf8').replace(/<lastmod>[^<]*<\/lastmod>/, `<lastmod>${today}</lastmod>`),
 );
 
+// Canonical/OG/sitemap URLs are written for the default Pages address. The Pages workflow sets
+// SITE_URL from the repository name, so a renamed repo or a custom domain stays consistent.
+const DEFAULT_URL = 'https://sarveshtalele.github.io/knowyourtokens/';
+const siteUrl = process.env.SITE_URL;
+if (siteUrl && siteUrl !== DEFAULT_URL) {
+  for (const f of ['index.html', '404.html', 'sitemap.xml', 'robots.txt']) {
+    const p = join(root, 'dist', f);
+    writeFileSync(p, readFileSync(p, 'utf8').replaceAll(DEFAULT_URL, siteUrl));
+  }
+  console.log(`site URL: ${siteUrl}`);
+}
+// Static files Vite copies verbatim carry the default base path too.
+const base = process.env.SITE_BASE;
+if (base && base !== '/knowyourtokens/') {
+  for (const f of ['404.html', 'site.webmanifest']) {
+    const p = join(root, 'dist', f);
+    writeFileSync(p, readFileSync(p, 'utf8').replaceAll('/knowyourtokens/', base));
+  }
+}
+
 rmSync(join(root, 'dist-ssr'), { recursive: true, force: true });
 console.log('prerendered dist/index.html');

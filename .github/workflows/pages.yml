@@ -30,7 +30,11 @@ jobs:
           cache-dependency-path: site/package-lock.json
       - run: npm ci
       - run: npm run lint
+      # Base path and canonical URL follow the repository name, so renaming the repo just works.
       - run: npm run build
+        env:
+          SITE_BASE: /${{ github.event.repository.name }}/
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from tokentelemetry_client import ApiError, TokenTelemetry, verify_signature  # noqa: E402
+from knowyourtokens_client import ApiError, KnowYourTokens, verify_signature  # noqa: E402
 
 
 @pytest.fixture
@@ -45,7 +45,7 @@ def api(env):
     thread.start()
     while not server.started:
         time.sleep(0.05)
-    yield TokenTelemetry(f"http://127.0.0.1:{port}", tz_offset=0)
+    yield KnowYourTokens(f"http://127.0.0.1:{port}", tz_offset=0)
     server.should_exit = True
     thread.join(5)
 

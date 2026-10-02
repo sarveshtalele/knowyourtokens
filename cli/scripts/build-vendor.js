@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Bundles backend/, telemetry/, hooks/, requirements files, and a built
 // frontend/dist into cli/vendor/ so the published npm package is self
-// contained (npx tokentelemetry install needs no separate git clone).
+// contained (npx knowyourtokens install needs no separate git clone).
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -58,7 +58,7 @@ function main() {
   copyFiltered(path.join(REPO_ROOT, 'backend'), path.join(VENDOR, 'backend'));
   copyFiltered(path.join(REPO_ROOT, 'telemetry'), path.join(VENDOR, 'telemetry'));
   copyFiltered(path.join(REPO_ROOT, 'hooks'), path.join(VENDOR, 'hooks'));
-  // backend/requirements.txt (the only Python deps "tokentelemetry start" needs)
+  // backend/requirements.txt (the only Python deps "knowyourtokens start" needs)
   // is already inside vendor/backend/ from the copy above.
   fs.copyFileSync(path.join(REPO_ROOT, 'LICENSE'), path.join(CLI_ROOT, 'LICENSE'));
 

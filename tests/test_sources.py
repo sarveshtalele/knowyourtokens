@@ -242,6 +242,16 @@ def test_opencode_counts_step_finish_parts_incrementally(env):
 
 def test_sources_can_be_limited(env, monkeypatch):
     codex_rollout(env, [META, TURN, _tc(100, 80, 0, 20)])
-    monkeypatch.setenv("TOKENTELEMETRY_SOURCES", "claude-code")
+    monkeypatch.setenv("KNOWYOURTOKENS_SOURCES", "claude-code")
     reconcile()
     assert _usage(env)[0] == []
+
+
+def test_legacy_env_names_still_work(monkeypatch):
+    from telemetry import config
+
+    monkeypatch.delenv("KNOWYOURTOKENS_RETENTION_DAYS", raising=False)
+    monkeypatch.setenv("TOKENTELEMETRY_RETENTION_DAYS", "30")
+    assert config.retention_days() == 30
+    monkeypatch.setenv("KNOWYOURTOKENS_RETENTION_DAYS", "7")
+    assert config.retention_days() == 7

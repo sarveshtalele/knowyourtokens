@@ -7,6 +7,16 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+### Changed
+- **Renamed to Know Your Tokens** (formerly Token Telemetry). New npm packages: `knowyourtokens` (CLI,
+  with a short `kyt` alias) and `knowyourtokens-client` (JS SDK); the Python SDK is
+  `knowyourtokens-client` (`import knowyourtokens_client`). The old `tokentelemetry` packages are
+  deprecated and point here. Nothing to migrate: an existing `~/.tokentelemetry` install, its hooks,
+  launchers and data are reused, `TOKENTELEMETRY_*` environment variables still work (the new names are
+  `KNOWYOURTOKENS_*`), webhooks send both `X-KnowYourTokens-Signature` and the old signature header,
+  and `autostart enable` / `shortcut` replace entries made under the old name.
+- OpenTelemetry metric names are now `knowyourtokens.*`.
+
 ### Added
 - Integration map infographic (`docs/assets/integration-map.svg`, animated) in the README and on the
   website's Integrations section, plus a PNG for sharing in `docs/launch/`.
@@ -141,7 +151,7 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 - First npm release.
 
-[Unreleased]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.2.0...HEAD
 [2.2.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/sarveshtalele/tokentelemetry/releases/tag/v2.0.0

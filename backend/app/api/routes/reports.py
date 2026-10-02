@@ -110,7 +110,7 @@ def export_report(
 ):
     columns = PROJECT_COLUMNS if kind == "projects" else REQUEST_COLUMNS
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    headers = {"Content-Disposition": f'attachment; filename="tokentelemetry-{kind}-{stamp}.{format}"'}
+    headers = {"Content-Disposition": f'attachment; filename="knowyourtokens-{kind}-{stamp}.{format}"'}
     rows = _iter_rows(kind, f, limit)
 
     if format == "json":

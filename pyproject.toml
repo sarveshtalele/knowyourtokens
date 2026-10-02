@@ -1,5 +1,5 @@
 [project]
-name = "tokentelemetry"
+name = "knowyourtokens"
 dynamic = ["version"]
 description = "Local-first token observability for AI coding agents (Claude Code, Codex CLI, Gemini CLI, OpenCode, any agent via API)"
 readme = "README.md"
@@ -27,7 +27,7 @@ ignore = [
 "sdk/python/**" = ["UP006", "UP007", "UP035", "UP045"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["telemetry", "app", "tokentelemetry_client"]
+known-first-party = ["telemetry", "app", "knowyourtokens_client"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -6,13 +6,13 @@ const STEPS = [
   {
     n: '1',
     t: 'Install',
-    c: 'npx tokentelemetry',
+    c: 'npx knowyourtokens',
     d: 'Sets up a private Python env, finds your agents, starts everything. Needs Node 18+ and Python 3.10+.',
   },
   {
     n: '2',
     t: 'Pin it',
-    c: 'tokentelemetry shortcut',
+    c: 'knowyourtokens shortcut',
     d: 'Adds an app icon for your Dock, taskbar or launcher. Or click “Install app” in the dashboard.',
   },
   {

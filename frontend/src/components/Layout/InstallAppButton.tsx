@@ -8,12 +8,12 @@ const STEPS: Record<string, string[]> = {
   ],
   ios: ['Tap the Share button', 'Choose “Add to Home Screen”'],
   firefox: [
-    'Firefox can’t install web apps yet. Run `tokentelemetry shortcut` in a terminal instead:',
+    'Firefox can’t install web apps yet. Run `knowyourtokens shortcut` in a terminal instead:',
     'it creates a Desktop / Start Menu / Applications launcher you can pin.',
   ],
   other: [
-    'Open the browser menu (⋮) and choose “Install Token Telemetry” (or Apps → Install).',
-    'Or run `tokentelemetry shortcut` in a terminal for a desktop launcher.',
+    'Open the browser menu (⋮) and choose “Install Know Your Tokens” (or Apps → Install).',
+    'Or run `knowyourtokens shortcut` in a terminal for a desktop launcher.',
   ],
 };
 
@@ -81,7 +81,7 @@ export function InstallAppButton() {
           aria-label="How to install"
           className="absolute right-0 left-auto top-full m-0 mt-2 w-80 rounded-lg border border-line bg-surface text-ink p-4 shadow-xl text-sm z-20"
         >
-          <p className="font-semibold text-ink mb-2">Use Token Telemetry like an app</p>
+          <p className="font-semibold text-ink mb-2">Use Know Your Tokens like an app</p>
           <ol className="list-decimal pl-5 space-y-1 text-ink-soft">
             {STEPS[state.platform].map((s) => (
               <li key={s}>{s}</li>

@@ -63,23 +63,23 @@ def test_otlp_payload_shape():
         ]
     )
     metrics = body["resourceMetrics"][0]["scopeMetrics"][0]["metrics"]
-    tokens = {m["name"]: m for m in metrics}["tokentelemetry.tokens"]["sum"]["dataPoints"]
+    tokens = {m["name"]: m for m in metrics}["knowyourtokens.tokens"]["sum"]["dataPoints"]
     assert sorted(int(p["asInt"]) for p in tokens) == [5, 10]
 
 
 def test_webhook_backfill_signs_and_advances_cursor(env, monkeypatch):
     sink = _Sink()
     try:
-        monkeypatch.setenv("TOKENTELEMETRY_WEBHOOK_URL", sink.url + "/hook")
-        monkeypatch.setenv("TOKENTELEMETRY_WEBHOOK_SECRET", "s3cret")
-        monkeypatch.setenv("TOKENTELEMETRY_EXPORT_BACKFILL", "1")
+        monkeypatch.setenv("KNOWYOURTOKENS_WEBHOOK_URL", sink.url + "/hook")
+        monkeypatch.setenv("KNOWYOURTOKENS_WEBHOOK_SECRET", "s3cret")
+        monkeypatch.setenv("KNOWYOURTOKENS_EXPORT_BACKFILL", "1")
         _seed(env)
         exp = WebhookExporter()
         exp.tick()
         exp.tick()  # nothing new: no second request
         assert len(sink.requests) == 1
         _, headers, body = sink.requests[0]
-        assert headers["x-tokentelemetry-signature"] == sign("s3cret", body)
+        assert headers["x-knowyourtokens-signature"] == sign("s3cret", body)
         data = json.loads(body)["data"]
         assert data[0]["total_tokens"] == 15 and "prompt_full" not in data[0]
     finally:
@@ -89,8 +89,8 @@ def test_webhook_backfill_signs_and_advances_cursor(env, monkeypatch):
 def test_failed_export_does_not_advance_cursor(env, monkeypatch):
     sink = _Sink(status=500)
     try:
-        monkeypatch.setenv("TOKENTELEMETRY_OTLP_ENDPOINT", sink.url)
-        monkeypatch.setenv("TOKENTELEMETRY_EXPORT_BACKFILL", "1")
+        monkeypatch.setenv("KNOWYOURTOKENS_OTLP_ENDPOINT", sink.url)
+        monkeypatch.setenv("KNOWYOURTOKENS_EXPORT_BACKFILL", "1")
         _seed(env)
         exp = OtlpExporter()
         exp.tick()

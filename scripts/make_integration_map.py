@@ -159,7 +159,7 @@ def build() -> str:
     # Core stack
     layers = [
         ("Collector", "hooks · incremental readers · ingest"),
-        ("SQLite", "~/.tokentelemetry, on your disk"),
+        ("SQLite", "~/.knowyourtokens, on your disk"),
         ("FastAPI", "127.0.0.1 only · /api/v1"),
     ]
     core = [
@@ -170,11 +170,11 @@ def build() -> str:
         f'<rect x="{CORE_X + CORE_W / 2 - 34}" y="{CORE_Y + 34}" width="68" height="68" rx="18" fill="#111118"/>',
         f'<path d="M{CORE_X + CORE_W / 2 - 18} {CORE_Y + 76} l11 -15 l10 7 l15 -20" fill="none" '
         'stroke="url(#brand)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>',
-        text(CORE_X + CORE_W / 2, CORE_Y + 140, "Token Telemetry", 26, INK, 800, "middle", 'letter-spacing="-.5"'),
+        text(CORE_X + CORE_W / 2, CORE_Y + 140, "Know Your Tokens", 26, INK, 800, "middle", 'letter-spacing="-.5"'),
         text(
             CORE_X + CORE_W / 2,
             CORE_Y + 166,
-            "npx tokentelemetry",
+            "npx knowyourtokens",
             14,
             VIOLET,
             600,
@@ -219,7 +219,7 @@ def build() -> str:
     foot = text(
         W / 2,
         H - 28,
-        "github.com/sarveshtalele/tokentelemetry · MIT · not affiliated with any agent vendor",
+        "github.com/sarveshtalele/knowyourtokens · MIT · not affiliated with any agent vendor",
         13,
         MUTED,
         450,
@@ -252,9 +252,9 @@ text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img"
      aria-labelledby="t d">
-<title id="t">Token Telemetry integration map</title>
+<title id="t">Know Your Tokens integration map</title>
 <desc id="d">Claude Code, Codex CLI, Gemini CLI and OpenCode are read automatically; Antigravity, Cursor,
-Copilot CLI and your own agents push usage through the ingest API. Token Telemetry collects it into a
+Copilot CLI and your own agents push usage through the ingest API. Know Your Tokens collects it into a
 local SQLite database behind a local API. Out come the dashboard, a live feed, the token calculator, a
 REST API with OpenAPI, Python and TypeScript SDKs, CSV/JSON/NDJSON exports, and opt-in OpenTelemetry and
 webhook exports to tools like Grafana, Datadog, Honeycomb, Slack and n8n.</desc>

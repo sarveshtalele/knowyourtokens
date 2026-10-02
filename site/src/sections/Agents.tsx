@@ -74,7 +74,7 @@ export function Agents() {
           transition={{ duration: 0.8, ease }}
         >
           <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="hub-title hub-desc" className="hub-svg">
-            <title id="hub-title">Agents flowing into Token Telemetry</title>
+            <title id="hub-title">Agents flowing into Know Your Tokens</title>
             <desc id="hub-desc">
               Claude Code, Codex CLI, Gemini CLI and OpenCode are read automatically; Antigravity, Cursor and your own
               agents push usage through the ingest API. Out come exact tokens, a prompt debugger, context hotspots, tool
@@ -173,7 +173,7 @@ export function Agents() {
                 strokeLinejoin="round"
               />
               <text x={HUB.x} y={HUB.y + 38} textAnchor="middle" className="hub-core-label">
-                Token Telemetry
+                Know Your Tokens
               </text>
             </motion.g>
           </svg>

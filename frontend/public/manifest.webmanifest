@@ -1,6 +1,6 @@
 {
-  "name": "Token Telemetry",
-  "short_name": "Telemetry",
+  "name": "Know Your Tokens",
+  "short_name": "Your Tokens",
   "description": "Local-first token, tool, skill and MCP observability for Claude Code",
   "id": "/",
   "start_url": "/",

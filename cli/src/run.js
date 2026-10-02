@@ -62,12 +62,12 @@ function tailLog(name, maxChars = 600) {
 
 function ensureInstalled() {
   if (!fs.existsSync(paths.venvPython())) {
-    throw new Error('Not installed yet. Run "tokentelemetry install" first.');
+    throw new Error('Not installed yet. Run "knowyourtokens install" first.');
   }
 }
 
 function openBrowser(url) {
-  if (process.env.TOKENTELEMETRY_NO_OPEN) return;
+  if (paths.env('NO_OPEN')) return;
   const [cmd, args] =
     process.platform === 'win32'
       ? ['cmd', ['/c', 'start', '""', url]]
@@ -136,7 +136,7 @@ async function spawnAndWait(key, cmd, args, opts, ready) {
   console.log(`${svc.label} failed to start. Last output from ${logPath(svc.log)}:`);
   console.log(tail);
   if (/EADDRINUSE|address already in use/i.test(tail)) {
-    console.log('(The port is already in use -- another tokentelemetry, or set TOKENTELEMETRY_*_PORT.)');
+    console.log('(The port is already in use -- another knowyourtokens, or set KNOWYOURTOKENS_*_PORT.)');
   }
   if (proc.isAlive(child.pid)) proc.terminate(child.pid);
   return null;
@@ -148,8 +148,8 @@ async function start() {
   const backendPort = paths.backendPort();
   const dashboardPort = paths.dashboardPort();
   const sharedEnv = {
-    TOKENTELEMETRY_BACKEND_PORT: String(backendPort),
-    TOKENTELEMETRY_DASHBOARD_PORT: String(dashboardPort),
+    KNOWYOURTOKENS_BACKEND_PORT: String(backendPort),
+    KNOWYOURTOKENS_DASHBOARD_PORT: String(dashboardPort),
     PYTHONUNBUFFERED: '1',
   };
 
@@ -166,7 +166,7 @@ async function start() {
 
   await ensure('backend', async () => {
     if (!(await portFree(backendPort))) {
-      console.log(`Port ${backendPort} is busy -- set TOKENTELEMETRY_BACKEND_PORT to use another one.`);
+      console.log(`Port ${backendPort} is busy -- set KNOWYOURTOKENS_BACKEND_PORT to use another one.`);
       return null;
     }
     const pid = await spawnAndWait(
@@ -194,7 +194,7 @@ async function start() {
 
   await ensure('frontend', async () => {
     if (!(await portFree(dashboardPort))) {
-      console.log(`Port ${dashboardPort} is busy -- set TOKENTELEMETRY_DASHBOARD_PORT to use another one.`);
+      console.log(`Port ${dashboardPort} is busy -- set KNOWYOURTOKENS_DASHBOARD_PORT to use another one.`);
       return null;
     }
     const pid = await spawnAndWait(
@@ -234,7 +234,7 @@ function stop() {
         console.log(`Could not stop ${key} (pid ${pid}): ${err.message}`);
       }
     } else if (pid) {
-      console.log(`Skipped ${key}: pid ${pid} is no longer a tokentelemetry process.`);
+      console.log(`Skipped ${key}: pid ${pid} is no longer a knowyourtokens process.`);
     }
     delete state[key];
   }
@@ -260,7 +260,7 @@ async function status() {
   console.log(`Backend health check:  ${backendUp ? 'OK' : 'unreachable'} (http://127.0.0.1:${backendPort}/health)`);
   console.log(`Dashboard reachable:   ${frontendUp ? 'OK' : 'unreachable'} (http://127.0.0.1:${dashboardPort}/)`);
   if (!backendUp || !frontendUp) {
-    console.log(`  Not running? "tokentelemetry start". Running but unreachable? Check ${logDir()}`);
+    console.log(`  Not running? "knowyourtokens start". Running but unreachable? Check ${logDir()}`);
   }
   console.log('');
   try {

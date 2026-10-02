@@ -1,4 +1,4 @@
-// Registers/removes an OS-level "start tokentelemetry at login" entry:
+// Registers/removes an OS-level "start knowyourtokens at login" entry:
 //   Windows -> Task Scheduler task (PowerShell)
 //   macOS   -> launchd LaunchAgent
 //   Linux   -> systemd --user service
@@ -16,10 +16,13 @@ const os = require('os');
 const { spawnSync } = require('child_process');
 const paths = require('./paths');
 
-const TASK_NAME = 'Token Telemetry';
-const LEGACY_TASK_NAME = 'Claude Token Telemetry';
-const LAUNCHD_LABEL = 'com.tokentelemetry.app';
-const SYSTEMD_UNIT = 'tokentelemetry.service';
+const TASK_NAME = 'Know Your Tokens';
+const LAUNCHD_LABEL = 'com.knowyourtokens.app';
+const SYSTEMD_UNIT = 'knowyourtokens.service';
+// Entries registered under the project's previous names; removed on enable and disable.
+const LEGACY_TASK_NAMES = ['Token Telemetry', 'Claude Token Telemetry'];
+const LEGACY_LAUNCHD_LABELS = ['com.tokentelemetry.app'];
+const LEGACY_SYSTEMD_UNITS = ['tokentelemetry.service'];
 
 function binScriptPath() {
   return paths.stableBinPath();
@@ -37,6 +40,7 @@ function psQuote(s) {
 }
 
 function windowsEnable() {
+  windowsDisable(LEGACY_TASK_NAMES);
   const ps = [
     `$Action = New-ScheduledTaskAction -Execute ${psQuote(process.execPath)} -Argument ${psQuote(`"${binScriptPath()}" start`)}`,
     '$Trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME',
@@ -50,8 +54,8 @@ function windowsEnable() {
   }
 }
 
-function windowsDisable() {
-  for (const name of [TASK_NAME, LEGACY_TASK_NAME]) {
+function windowsDisable(names = [TASK_NAME, ...LEGACY_TASK_NAMES]) {
+  for (const name of names) {
     run('powershell.exe', [
       '-NoProfile',
       '-NonInteractive',
@@ -73,8 +77,8 @@ function windowsStatus() {
 
 // ---------- macOS (launchd) ----------
 
-function launchdPlistPath() {
-  return path.join(os.homedir(), 'Library', 'LaunchAgents', `${LAUNCHD_LABEL}.plist`);
+function launchdPlistPath(label = LAUNCHD_LABEL) {
+  return path.join(os.homedir(), 'Library', 'LaunchAgents', `${label}.plist`);
 }
 
 function xmlEscape(s) {
@@ -82,6 +86,7 @@ function xmlEscape(s) {
 }
 
 function macEnable() {
+  macDisable(LEGACY_LAUNCHD_LABELS);
   fs.mkdirSync(paths.logDir(), { recursive: true });
   const logFile = xmlEscape(path.join(paths.logDir(), 'autostart.log'));
   const plist = `<?xml version="1.0" encoding="UTF-8"?>
@@ -96,7 +101,7 @@ function macEnable() {
     <string>start</string>
   </array>
   <key>EnvironmentVariables</key>
-  <dict><key>TOKENTELEMETRY_NO_OPEN</key><string>1</string></dict>
+  <dict><key>KNOWYOURTOKENS_NO_OPEN</key><string>1</string></dict>
   <key>RunAtLoad</key><true/>
   <key>AbandonProcessGroup</key><true/>
   <key>StandardOutPath</key><string>${logFile}</string>
@@ -114,11 +119,13 @@ function macEnable() {
   }
 }
 
-function macDisable() {
-  const plistPath = launchdPlistPath();
-  if (fs.existsSync(plistPath)) {
-    run('launchctl', ['unload', plistPath]);
-    fs.rmSync(plistPath, { force: true });
+function macDisable(labels = [LAUNCHD_LABEL, ...LEGACY_LAUNCHD_LABELS]) {
+  for (const label of labels) {
+    const plistPath = launchdPlistPath(label);
+    if (fs.existsSync(plistPath)) {
+      run('launchctl', ['unload', plistPath]);
+      fs.rmSync(plistPath, { force: true });
+    }
   }
 }
 
@@ -128,9 +135,9 @@ function macStatus() {
 
 // ---------- Linux (systemd --user) ----------
 
-function systemdUnitPath() {
+function systemdUnitPath(unit = SYSTEMD_UNIT) {
   const base = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
-  return path.join(base, 'systemd', 'user', SYSTEMD_UNIT);
+  return path.join(base, 'systemd', 'user', unit);
 }
 
 /** systemd quoting: double quotes, with \ and " escaped; % doubled (specifier char). */
@@ -142,14 +149,14 @@ function linuxUnit() {
   const node = sdQuote(process.execPath);
   const script = sdQuote(binScriptPath());
   return `[Unit]
-Description=Token Telemetry (backend + daemon + dashboard)
+Description=Know Your Tokens (backend + daemon + dashboard)
 After=default.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 KillMode=process
-Environment=TOKENTELEMETRY_NO_OPEN=1
+Environment=KNOWYOURTOKENS_NO_OPEN=1
 ExecStart=${node} ${script} start
 ExecStop=${node} ${script} stop
 
@@ -159,6 +166,7 @@ WantedBy=default.target
 }
 
 function linuxEnable() {
+  linuxDisable(LEGACY_SYSTEMD_UNITS);
   const unitPath = systemdUnitPath();
   fs.mkdirSync(path.dirname(unitPath), { recursive: true });
   fs.writeFileSync(unitPath, linuxUnit(), 'utf8');
@@ -172,10 +180,13 @@ function linuxEnable() {
   }
 }
 
-function linuxDisable() {
-  run('systemctl', ['--user', 'disable', SYSTEMD_UNIT]);
-  const unitPath = systemdUnitPath();
-  if (fs.existsSync(unitPath)) fs.rmSync(unitPath, { force: true });
+function linuxDisable(units = [SYSTEMD_UNIT, ...LEGACY_SYSTEMD_UNITS]) {
+  for (const unit of units) {
+    const unitPath = systemdUnitPath(unit);
+    if (!fs.existsSync(unitPath)) continue;
+    run('systemctl', ['--user', 'disable', unit]);
+    fs.rmSync(unitPath, { force: true });
+  }
   run('systemctl', ['--user', 'daemon-reload']);
 }
 

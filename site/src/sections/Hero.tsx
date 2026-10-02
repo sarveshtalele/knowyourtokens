@@ -28,7 +28,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          Token Telemetry 2.1
+          Know Your Tokens 2.1
         </motion.p>
         <h1 className="display">
           {['Every token.', 'Accounted for.'].map((line, i) => (

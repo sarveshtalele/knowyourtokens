@@ -71,7 +71,7 @@ export function Pipeline() {
           transition={{ duration: 0.7 }}
         >
           <svg viewBox="0 0 1180 340" role="img" aria-labelledby="pipe-title pipe-desc">
-            <title id="pipe-title">Token Telemetry data flow</title>
+            <title id="pipe-title">Know Your Tokens data flow</title>
             <desc id="pipe-desc">
               Your coding agents' session logs, and usage pushed to the ingest API, flow into a local SQLite database,
               which serves a REST API used by the dashboard and SDKs, and optionally exports to OpenTelemetry and
@@ -145,7 +145,7 @@ export function Pipeline() {
             [
               '01',
               'Install',
-              'npx tokentelemetry sets up a Python env, finds Claude Code, Codex, Gemini CLI and OpenCode, and starts everything.',
+              'npx knowyourtokens sets up a Python env, finds Claude Code, Codex, Gemini CLI and OpenCode, and starts everything.',
             ],
             [
               '02',

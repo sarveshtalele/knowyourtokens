@@ -1,18 +1,18 @@
-# tokentelemetry-client (Python)
+# knowyourtokens-client (Python)
 
-Zero-dependency Python client for the [Token Telemetry](https://github.com/sarveshtalele/tokentelemetry)
+Zero-dependency Python client for the [Know Your Tokens](https://github.com/sarveshtalele/knowyourtokens)
 local API: query usage from every tracked agent (Claude Code, Codex CLI, Gemini CLI, OpenCode, ...),
-and push usage from agents Token Telemetry can't read on its own. Requires a running Token Telemetry
-backend (`npx tokentelemetry`).
+and push usage from agents Know Your Tokens can't read on its own. Requires a running Know Your Tokens
+backend (`npx knowyourtokens`).
 
 ```bash
-pip install "git+https://github.com/sarveshtalele/tokentelemetry#subdirectory=sdk/python"
+pip install "git+https://github.com/sarveshtalele/knowyourtokens#subdirectory=sdk/python"
 ```
 
 ```python
-from tokentelemetry_client import TokenTelemetry
+from knowyourtokens_client import KnowYourTokens
 
-tt = TokenTelemetry()  # http://127.0.0.1:8000 by default
+tt = KnowYourTokens()  # http://127.0.0.1:8000 by default
 
 print(tt.summary(start="2025-06-01", end="2025-06-30"))
 for project in tt.projects():
@@ -43,15 +43,15 @@ tt.ingest("my-agent", [{
 ```
 
 Records show up in the dashboard with `my-agent` as the client. See
-[Track any agent](https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/INTEGRATIONS.md#track-any-agent).
+[Track any agent](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/INTEGRATIONS.md#track-any-agent).
 
-Verify webhooks sent with `TOKENTELEMETRY_WEBHOOK_SECRET`:
+Verify webhooks sent with `KNOWYOURTOKENS_WEBHOOK_SECRET`:
 
 ```python
-from tokentelemetry_client import verify_signature
+from knowyourtokens_client import verify_signature
 
-ok = verify_signature(secret, raw_body_bytes, request.headers["X-TokenTelemetry-Signature"])
+ok = verify_signature(secret, raw_body_bytes, request.headers["X-KnowYourTokens-Signature"])
 ```
 
-Full API reference: [`docs/API.md`](https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/API.md).
+Full API reference: [`docs/API.md`](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/API.md).
 License: MIT. Independent project; not affiliated with Anthropic, OpenAI, Google or any agent vendor.

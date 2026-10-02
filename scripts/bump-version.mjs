@@ -10,7 +10,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const REPO = 'https://github.com/sarveshtalele/tokentelemetry';
+const REPO = 'https://github.com/sarveshtalele/knowyourtokens';
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 const write = (p, s) => writeFileSync(join(ROOT, p), s);
 
@@ -43,7 +43,7 @@ function sub(p, re, to) {
   write(p, s.replace(re, to));
 }
 
-for (const p of ['telemetry/__init__.py', 'sdk/python/src/tokentelemetry_client/__init__.py']) {
+for (const p of ['telemetry/__init__.py', 'sdk/python/src/knowyourtokens_client/__init__.py']) {
   sub(p, /^__version__ = "[^"]+"/m, `__version__ = "${next}"`);
 }
 sub('sdk/python/pyproject.toml', /^version = "[^"]+"/m, `version = "${next}"`);
@@ -61,7 +61,7 @@ for (const dir of ['cli', 'sdk/js', 'frontend', 'site']) {
 }
 
 // The OpenAPI document carries the app version in info.version (CI checks it is in sync).
-sub('docs/openapi.json', /("title": "Token Telemetry API",\s*"version": )"[^"]+"/, `$1"${next}"`);
+sub('docs/openapi.json', /("title": "Know Your Tokens API",\s*"version": )"[^"]+"/, `$1"${next}"`);
 
 // CHANGELOG: Unreleased notes become the new version's section.
 const date = new Date().toISOString().slice(0, 10);

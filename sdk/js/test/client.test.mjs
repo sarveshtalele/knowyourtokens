@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { createHmac } from 'node:crypto';
-import { ApiError, TokenTelemetry, verifySignature } from '../dist/index.js';
+import { ApiError, KnowYourTokens, verifySignature } from '../dist/index.js';
 
 function fakeFetch(routes) {
   const calls = [];
@@ -17,7 +17,7 @@ function fakeFetch(routes) {
 
 test('adds tz_offset and filters, unwraps data', async () => {
   const { impl, calls } = fakeFetch({ 'GET /api/v1/usage/summary': () => ({ data: { total_tokens: 7 } }) });
-  const tt = new TokenTelemetry({ fetch: impl, tzOffset: -330 });
+  const tt = new KnowYourTokens({ fetch: impl, tzOffset: -330 });
   assert.strictEqual((await tt.summary({ project: 'p', start: '2025-01-01' })).total_tokens, 7);
   const q = calls[0].url.searchParams;
   assert.strictEqual(q.get('tz_offset'), '-330');
@@ -34,14 +34,14 @@ test('iterUsage follows pagination', async () => {
     },
   });
   const seen = [];
-  for await (const r of new TokenTelemetry({ fetch: impl }).iterUsage({}, 2)) seen.push(r.id);
+  for await (const r of new KnowYourTokens({ fetch: impl }).iterUsage({}, 2)) seen.push(r.id);
   assert.deepStrictEqual(seen, [1, 2, 3]);
 });
 
 test('errors are typed', async () => {
   const { impl } = fakeFetch({});
   await assert.rejects(
-    new TokenTelemetry({ fetch: impl }).request(9),
+    new KnowYourTokens({ fetch: impl }).request(9),
     (e) => e instanceof ApiError && e.status === 404,
   );
 });
@@ -56,7 +56,7 @@ test('verifySignature matches the server HMAC', async () => {
 
 test('ingest posts JSON to /api/v1/ingest', async () => {
   const { impl, calls } = fakeFetch({ 'POST /api/v1/ingest': () => ({ data: { accepted: 1, new: 1 } }) });
-  const tt = new TokenTelemetry({ fetch: impl });
+  const tt = new KnowYourTokens({ fetch: impl });
   const res = await tt.ingest('Antigravity', [{ request_id: 'r1', input_tokens: 10, output_tokens: 2 }]);
   assert.deepStrictEqual(res, { accepted: 1, new: 1 });
   assert.strictEqual(calls[0].init.headers['Content-Type'], 'application/json');

@@ -24,7 +24,7 @@ def _local_tz_offset() -> int:
     return int(-(time.localtime().tm_gmtoff or 0) / 60)
 
 
-class TokenTelemetry:
+class KnowYourTokens:
     """Thin, dependency-free client. Every method returns the ``data`` part
     of the API envelope (plain dicts/lists, see docs/API.md for fields).
 

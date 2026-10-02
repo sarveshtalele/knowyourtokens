@@ -1,4 +1,4 @@
-"""Token Telemetry API package.
+"""Know Your Tokens API package.
 
 telemetry/ (the canonical schema/collector/reconcile package) sits next to
 backend/ -- in the repo and under the CLI's install root. Putting its parent

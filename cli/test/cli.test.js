@@ -40,7 +40,7 @@ test('installHooks preserves user hooks, replaces stale ones, and backs up', () 
       },
     })
   );
-  withEnv({ CLAUDE_CONFIG_DIR: dir, TOKENTELEMETRY_HOME: path.join(dir, 'home') }, () => {
+  withEnv({ CLAUDE_CONFIG_DIR: dir, KNOWYOURTOKENS_HOME: path.join(dir, 'home') }, () => {
     const hooks = require('../src/hooks');
     hooks.installHooks();
     hooks.installHooks(); // idempotent
@@ -51,7 +51,7 @@ test('installHooks preserves user hooks, replaces stale ones, and backs up', () 
     assert.ok(stopCommands.includes('echo mine'));
     assert.ok(!stopCommands.some((c) => c.includes('/old/')));
     assert.deepStrictEqual(hooks.installedHookEvents().sort(), [...hooks.HOOK_EVENTS].sort());
-    assert.ok(fs.existsSync(`${settings}.bak-tokentelemetry`));
+    assert.ok(fs.existsSync(`${settings}.bak-knowyourtokens`));
 
     assert.strictEqual(hooks.uninstallHooks(), hooks.HOOK_EVENTS.length);
     const after = JSON.parse(fs.readFileSync(settings, 'utf8'));
@@ -126,7 +126,7 @@ test('static server: host allowlist, traversal, headers, SPA fallback', async ()
 
 test('ports are configurable and validated', () => {
   const paths = require('../src/paths');
-  withEnv({ TOKENTELEMETRY_BACKEND_PORT: '9100', TOKENTELEMETRY_DASHBOARD_PORT: 'nope' }, () => {
+  withEnv({ KNOWYOURTOKENS_BACKEND_PORT: '9100', KNOWYOURTOKENS_DASHBOARD_PORT: 'nope' }, () => {
     assert.strictEqual(paths.backendPort(), 9100);
     assert.strictEqual(paths.dashboardPort(), 5173);
   });
@@ -134,17 +134,17 @@ test('ports are configurable and validated', () => {
 
 test('app shortcut files are well-formed and quote hostile paths', () => {
   const sc = require('../src/shortcut');
-  const entry = sc.linuxDesktopEntry('/opt/node $x/bin/node', '/home/a "b"/bin/tokentelemetry.js', '/icons/tt.png');
+  const entry = sc.linuxDesktopEntry('/opt/node $x/bin/node', '/home/a "b"/bin/knowyourtokens.js', '/icons/tt.png');
   assert.match(entry, /^\[Desktop Entry\]\nType=Application/);
   // Spec: \$ inside quotes, then the string escape doubles the backslash.
-  assert.ok(entry.includes('Exec="/opt/node \\\\$x/bin/node" "/home/a \\\\"b\\\\"/bin/tokentelemetry.js" start'));
+  assert.ok(entry.includes('Exec="/opt/node \\\\$x/bin/node" "/home/a \\\\"b\\\\"/bin/knowyourtokens.js" start'));
   assert.ok(sc.linuxDesktopEntry('/n', '/100%/t.js', 'i').includes('"/100%%/t.js"'));
   assert.match(entry, /Terminal=false/);
   assert.match(sc.macInfoPlist('9.9.9'), /<key>CFBundleIconFile<\/key><string>icon<\/string>/);
   assert.match(sc.macInfoPlist('9.9.9'), /<string>9\.9\.9<\/string>/);
-  const script = sc.macLauncherScript("/usr/bin/node", "/Users/o'neil/cli/bin/tokentelemetry.js", '/tmp/l.log');
+  const script = sc.macLauncherScript("/usr/bin/node", "/Users/o'neil/cli/bin/knowyourtokens.js", '/tmp/l.log');
   assert.match(script, /^#!\/bin\/sh/);
-  assert.match(script, /'\/Users\/o'\\''neil\/cli\/bin\/tokentelemetry.js' start/);
+  assert.match(script, /'\/Users\/o'\\''neil\/cli\/bin\/knowyourtokens.js' start/);
   const ps = sc.windowsShortcutScript('C:\\node.exe', "C:\\Users\\o'neil\\tt.js", 'C:\\i.ico');
   assert.match(ps, /'"C:\\Users\\o''neil\\tt.js" start'/);
   assert.match(ps, /\$s\.WindowStyle = 7/);
@@ -162,15 +162,43 @@ test('icon assets ship with the package', () => {
 
 test('linux shortcut creates a launcher and removes it again', { skip: process.platform !== 'linux' }, () => {
   const home = tmpdir();
-  withEnv({ XDG_DATA_HOME: path.join(home, 'share'), HOME: home, TOKENTELEMETRY_HOME: path.join(home, 'tt') }, () => {
+  withEnv({ XDG_DATA_HOME: path.join(home, 'share'), HOME: home, KNOWYOURTOKENS_HOME: path.join(home, 'tt') }, () => {
     delete require.cache[require.resolve('../src/shortcut')];
     const sc = require('../src/shortcut');
     const { created } = sc.create();
-    const entry = path.join(home, 'share', 'applications', 'tokentelemetry.desktop');
+    const entry = path.join(home, 'share', 'applications', 'knowyourtokens.desktop');
     assert.ok(created.includes(entry));
-    assert.match(fs.readFileSync(entry, 'utf8'), /Icon=.*tokentelemetry\.png/);
-    assert.ok(fs.existsSync(path.join(home, 'share', 'icons', 'hicolor', '512x512', 'apps', 'tokentelemetry.png')));
+    assert.match(fs.readFileSync(entry, 'utf8'), /Icon=.*knowyourtokens\.png/);
+    assert.ok(fs.existsSync(path.join(home, 'share', 'icons', 'hicolor', '512x512', 'apps', 'knowyourtokens.png')));
     assert.ok(sc.remove().includes(entry));
     assert.ok(!fs.existsSync(entry));
+  });
+});
+
+test('settings and installs from before the rename keep working', () => {
+  const home = tmpdir();
+  withEnv({ HOME: home, USERPROFILE: home, KNOWYOURTOKENS_HOME: '', TOKENTELEMETRY_BACKEND_PORT: '9100' }, () => {
+    delete require.cache[require.resolve('../src/paths')];
+    const paths = require('../src/paths');
+    assert.strictEqual(paths.backendPort(), 9100, 'legacy TOKENTELEMETRY_* env is honoured');
+    assert.strictEqual(paths.installDir(), path.join(home, '.knowyourtokens'), 'fresh machine uses the new dir');
+    fs.mkdirSync(path.join(home, '.tokentelemetry'));
+    assert.strictEqual(paths.installDir(), path.join(home, '.tokentelemetry'), 'an old install is reused');
+    fs.mkdirSync(path.join(home, '.knowyourtokens'));
+    assert.strictEqual(paths.installDir(), path.join(home, '.knowyourtokens'), 'the new dir wins once it exists');
+  });
+});
+
+test('linux shortcut also removes a launcher left by the old name', { skip: process.platform !== 'linux' }, () => {
+  const home = tmpdir();
+  withEnv({ XDG_DATA_HOME: path.join(home, 'share'), HOME: home, KNOWYOURTOKENS_HOME: path.join(home, 'kyt') }, () => {
+    const old = path.join(home, 'share', 'applications', 'tokentelemetry.desktop');
+    fs.mkdirSync(path.dirname(old), { recursive: true });
+    fs.writeFileSync(old, '[Desktop Entry]\n');
+    delete require.cache[require.resolve('../src/shortcut')];
+    const sc = require('../src/shortcut');
+    sc.create();
+    assert.ok(!fs.existsSync(old));
+    sc.remove();
   });
 });

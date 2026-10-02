@@ -281,7 +281,7 @@ export function Calculator() {
 
       <Card title="Cost at your rates" aside={<DateRangeFilter value={days} onChange={setDays} />}>
         <p className="text-sm text-ink-soft">
-          Token Telemetry has no built-in prices, because billing depends on your plan. Enter your rates in US$ per
+          Know Your Tokens has no built-in prices, because billing depends on your plan. Enter your rates in US$ per
           million tokens (from your provider&apos;s pricing page). They stay in this browser.
         </p>
         <div className="grid gap-3 grid-cols-2 md:grid-cols-4">

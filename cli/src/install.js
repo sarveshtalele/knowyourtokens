@@ -23,7 +23,7 @@ function copyVendorFiles() {
   if (runningFromStableCopy()) {
     throw new Error(
       'This is the launcher copy of the CLI, which carries no app files. Update or reinstall with ' +
-        '"npx tokentelemetry@latest install" (or "npm install -g tokentelemetry@latest && tokentelemetry install").'
+        '"npx knowyourtokens@latest install" (or "npm install -g knowyourtokens@latest && knowyourtokens install").'
     );
   }
   if (!fs.existsSync(src)) {
@@ -116,15 +116,15 @@ function install() {
   copyVendorFiles();
   setupPythonEnv();
   const settings = hooks.installHooks();
-  log(`Installed Claude Code telemetry hooks in ${settings} (backup: settings.json.bak-tokentelemetry)`);
+  log(`Installed Claude Code telemetry hooks in ${settings} (backup: settings.json.bak-knowyourtokens)`);
   log('');
   log(`Install complete (v${paths.version()}).`);
   log(`  App directory: ${paths.installDir()}`);
   log(`  Python env:    ${paths.venvDir()}`);
   log('');
-  log('Run "tokentelemetry start" to launch the backend, daemon, and dashboard.');
-  log('Run "tokentelemetry autostart enable" to start it automatically at login.');
-  log('Run "tokentelemetry shortcut" to add an app icon you can pin to your Dock / taskbar.');
+  log('Run "knowyourtokens start" to launch the backend, daemon, and dashboard.');
+  log('Run "knowyourtokens autostart enable" to start it automatically at login.');
+  log('Run "knowyourtokens shortcut" to add an app icon you can pin to your Dock / taskbar.');
 }
 
 function dbPath() {
@@ -156,7 +156,7 @@ function uninstall({ purge = false, deleteDb = false } = {}) {
   if (!purge) {
     if (dirExists) {
       log(`Left app files and the telemetry database in place at ${paths.installDir()}.`);
-      log('Re-run with "tokentelemetry uninstall --purge" to remove them too.');
+      log('Re-run with "knowyourtokens uninstall --purge" to remove them too.');
     }
     return;
   }

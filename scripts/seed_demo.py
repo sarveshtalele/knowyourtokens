@@ -389,7 +389,7 @@ def main(argv=None):
     changed, scanned = reconcile(db_path=db)
     print(f"Seeded {changed}/{scanned} demo session files (Claude Code, Codex, Gemini CLI, OpenCode) into {db}")
     print(
-        f"Run: CLAUDE_TELEMETRY_DB={db} TOKENTELEMETRY_SOURCES=none python -m uvicorn app.main:app --app-dir backend --port 8000"
+        f"Run: CLAUDE_TELEMETRY_DB={db} KNOWYOURTOKENS_SOURCES=none python -m uvicorn app.main:app --app-dir backend --port 8000"
     )
 
 

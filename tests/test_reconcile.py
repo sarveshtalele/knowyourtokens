@@ -217,7 +217,7 @@ def test_timestamps_are_normalized_to_utc(env):
 
 
 def test_full_text_can_be_disabled(env, monkeypatch):
-    monkeypatch.setenv("TOKENTELEMETRY_STORE_FULL_TEXT", "0")
+    monkeypatch.setenv("KNOWYOURTOKENS_STORE_FULL_TEXT", "0")
     write_transcript(env, [user("secret plan"), assistant([{"type": "text", "text": "ok"}], msg_id="m1", usage=U)])
     reconcile()
     row = _rows("SELECT prompt_full, response_full, prompt_preview FROM usage")[0]

@@ -1,6 +1,6 @@
 name: Release
 
-# Publishes the CLI (`tokentelemetry`) and the JS SDK (`tokentelemetry-client`) to npm and creates
+# Publishes the CLI (`knowyourtokens`) and the JS SDK (`knowyourtokens-client`) to npm and creates
 # the GitHub release. Three ways to start it; all end the same way:
 #
 #   1. Actions -> Release -> Run workflow, pick patch / minor / major. It bumps every version, moves
@@ -73,7 +73,7 @@ jobs:
           publish=true
           # A push to main that touched cli/package.json without a new version: nothing to release.
           if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_TYPE" = "branch" ] \
-             && npm view "tokentelemetry@$version" version >/dev/null 2>&1 \
+             && npm view "knowyourtokens@$version" version >/dev/null 2>&1 \
              && git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
             echo "v$version is already released; nothing to do."
             publish=false
@@ -136,10 +136,13 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           v="${{ needs.prepare.outputs.version }}"
-          if npm view "tokentelemetry@$v" version >/dev/null 2>&1; then
-            echo "tokentelemetry@$v is already published"; exit 0
+          if npm view "knowyourtokens@$v" version >/dev/null 2>&1; then
+            echo "knowyourtokens@$v is already published"; exit 0
           fi
-          npm publish --provenance --access public
+          npm publish --provenance --access public || {
+            echo "::error::npm publish failed. EOTP / one-time password: the NPM_TOKEN secret must be a granular token with 'Bypass two-factor authentication' ticked, or set up Trusted Publishing. E404/E403 on PUT: the token needs read+write on this package (choose 'All packages' for a first publish)."
+            exit 1
+          }
 
   npm-sdk:
     name: Publish JS SDK to npm
@@ -163,11 +166,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           v="${{ needs.prepare.outputs.version }}"
-          if npm view "tokentelemetry-client@$v" version >/dev/null 2>&1; then
-            echo "tokentelemetry-client@$v is already published"; exit 0
+          if npm view "knowyourtokens-client@$v" version >/dev/null 2>&1; then
+            echo "knowyourtokens-client@$v is already published"; exit 0
           fi
           npm ci
-          npm publish --provenance --access public
+          npm publish --provenance --access public || {
+            echo "::error::npm publish failed. EOTP / one-time password: the NPM_TOKEN secret must be a granular token with 'Bypass two-factor authentication' ticked, or set up Trusted Publishing. E404/E403 on PUT: the token needs read+write on this package (choose 'All packages' for a first publish)."
+            exit 1
+          }
 
   github-release:
     name: Create GitHub release
@@ -196,3 +202,26 @@ jobs:
           else
             gh release create "$tag" --title "$tag" --notes-file notes.md --target "${{ needs.prepare.outputs.sha }}"
           fi
+
+  deprecate-old-names:
+    name: Point the old package names here
+    needs: [prepare, npm-cli, npm-sdk]
+    runs-on: ubuntu-latest
+    # Best effort: needs an NPM_TOKEN that can write to the old packages too.
+    continue-on-error: true
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - name: Deprecate tokentelemetry and tokentelemetry-client (once)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for pair in tokentelemetry:knowyourtokens tokentelemetry-client:knowyourtokens-client; do
+            old="${pair%%:*}" new="${pair##*:}"
+            if [ -n "$(npm view "$old" deprecated 2>/dev/null)" ]; then
+              echo "$old is already deprecated"; continue
+            fi
+            npm deprecate "$old" "Renamed to $new (same project, nothing to migrate): npx $new"
+          done

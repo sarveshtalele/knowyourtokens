@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // First run (or after pulling new commits): detects the system, builds +
-// installs the `tokentelemetry` command globally, runs the app install
+// installs the `knowyourtokens` command globally, runs the app install
 // (Python env + Claude Code hooks), then hands control to an interactive
 // Start/Stop/Status/Uninstall menu.
 //
@@ -11,11 +11,11 @@
 //   node cli/setup.js status             Show what's running
 //   node cli/setup.js autostart enable   Start automatically at login
 //   node cli/setup.js autostart disable  Remove the autostart entry
-//   node cli/setup.js delete             Full teardown: remove hooks + ~/.tokentelemetry (--delete-data: + database)
+//   node cli/setup.js delete             Full teardown: remove hooks + ~/.knowyourtokens (--delete-data: + database)
 //   node cli/setup.js uninstall          Remove hooks only, keep app files/database
 //   node cli/setup.js install            Re-run the full build+install (e.g. after `git pull`)
 //
-// (Once installed, the equivalent "tokentelemetry start/stop/status/..."
+// (Once installed, the equivalent "knowyourtokens start/stop/status/..."
 // global command is just as fast — these subcommands exist for people who'd
 // rather not depend on it being on PATH.)
 'use strict';
@@ -70,14 +70,14 @@ function detectSystem() {
 }
 
 function buildAndInstallGlobalCommand() {
-  section('Building and installing the tokentelemetry command');
-  const tmpTarball = path.join(os.tmpdir(), 'tokentelemetry-setup.tgz');
+  section('Building and installing the knowyourtokens command');
+  const tmpTarball = path.join(os.tmpdir(), 'knowyourtokens-setup.tgz');
   run('npm', ['pack', '--pack-destination', os.tmpdir()], { cwd: CLI_DIR });
   const pkg = require(path.join(CLI_DIR, 'package.json'));
   const producedTarball = path.join(os.tmpdir(), `${pkg.name}-${pkg.version}.tgz`);
   fs.copyFileSync(producedTarball, tmpTarball);
   run('npm', ['install', '-g', tmpTarball]);
-  log('Installed the global "tokentelemetry" command.');
+  log('Installed the global "knowyourtokens" command.');
 }
 
 function runLocalInstall() {
@@ -150,7 +150,7 @@ async function interactiveLoop() {
     if (choice === '7') break;
     printMenu();
   }
-  console.log('Done. Run "node cli/setup.js" again anytime, or use the "tokentelemetry" command directly.');
+  console.log('Done. Run "node cli/setup.js" again anytime, or use the "knowyourtokens" command directly.');
 }
 
 async function fullSetup() {

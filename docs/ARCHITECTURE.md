@@ -1,6 +1,6 @@
 # Architecture
 
-How Token Telemetry is put together: the components, how data gets from an AI coding agent's session
+How Know Your Tokens is put together: the components, how data gets from an AI coding agent's session
 (Claude Code, Codex CLI, Gemini CLI, OpenCode, or anything that pushes to the ingest API) into the
 database, the schema, and why the main design decisions were made. For a tour of the dashboard,
 see the [User Guide](USER_GUIDE.md). For the HTTP contract, see the [API reference](API.md).
@@ -123,7 +123,7 @@ example Codex's current session/model or its last cumulative token total.
 | Gemini CLI (`gemini-cli`) | `~/.gemini/tmp/<project>/chats/*.jsonl` and legacy `*.json` (`GEMINI_CLI_HOME`) | Last line per message id wins; `$rewindTo` drops the rewound messages. Cached tokens move from input to cache read, `thoughts` are added to output and `tool` to input. Project path from `~/.gemini/projects.json` |
 | OpenCode (`opencode`) | `$XDG_DATA_HOME/opencode/opencode.db` (`OPENCODE_DB`), opened read-only; legacy `storage/` JSON only when there is no database | One request per `step-finish` part (keyed by part id); reasoning tokens are added to output |
 
-Sources whose files don't exist are skipped. `TOKENTELEMETRY_SOURCES` (for example
+Sources whose files don't exist are skipped. `KNOWYOURTOKENS_SOURCES` (for example
 `claude-code,codex`) limits which are read. One bad file is logged and skipped; it never stops the
 other files or sources.
 
@@ -274,9 +274,9 @@ Off by default. The daemon applies it hourly:
 
 | Variable | Effect |
 |---|---|
-| `TOKENTELEMETRY_RETENTION_DAYS` | Delete usage/tool/skill/event rows older than N days, then orphaned sessions |
-| `TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS` | Blank `prompt_full`/`response_full` older than N days (token counts kept) |
-| `TOKENTELEMETRY_STORE_FULL_TEXT=0` | Never store full text (previews only) |
+| `KNOWYOURTOKENS_RETENTION_DAYS` | Delete usage/tool/skill/event rows older than N days, then orphaned sessions |
+| `KNOWYOURTOKENS_FULL_TEXT_RETENTION_DAYS` | Blank `prompt_full`/`response_full` older than N days (token counts kept) |
+| `KNOWYOURTOKENS_STORE_FULL_TEXT=0` | Never store full text (previews only) |
 
 ## API server
 
@@ -285,7 +285,7 @@ Off by default. The daemon applies it hourly:
 - `main.py`: app factory, error envelope (`{"error": {"code", "message"}}`), `/health` with a DB check.
 - `security.py`: **Host allowlist** (blocks DNS rebinding) and **Origin check** on state-changing
   requests (blocks CSRF), plus `nosniff`, `no-referrer`, `DENY` framing, and `no-store` on API
-  responses. `TOKENTELEMETRY_ALLOWED_HOSTS` extends the allowlist if you deliberately put a proxy in
+  responses. `KNOWYOURTOKENS_ALLOWED_HOSTS` extends the allowlist if you deliberately put a proxy in
   front.
 - `deps.py`: per-request **read-only** connections (`mode=ro`, always closed), shared filters
   (`project`, `client`, `model`, `session_id`, `start`, `end`, `tz_offset`), and pagination.
@@ -316,7 +316,7 @@ Off by default. The daemon applies it hourly:
 [`cli/`](../cli) is a Node 18+ package with zero runtime dependencies.
 
 - `install`: validates Claude Code's `~/.claude/settings.json` first, copies the bundled app (`vendor/`) into
-  `~/.tokentelemetry` (replacing managed directories wholesale), creates a venv (uv if available), and
+  `~/.knowyourtokens` (replacing managed directories wholesale), creates a venv (uv if available), and
   writes the hooks **atomically** with a one-time backup. Our hooks are recognized by script name, so
   moved installs are cleaned up.
 - `start`: launches backend, daemon and static server detached. It waits for `/health` instead of
@@ -347,8 +347,8 @@ telemetry/   schema, migrations, hook collector, reconcile, ingest, daemon, rete
 hooks/       the script Claude Code's hooks invoke
 frontend/    dashboard (React)
 cli/         npm package: installer + process manager + static server
-sdk/python   tokentelemetry-client (PyPI-ready)
-sdk/js       tokentelemetry-client (npm-ready)
+sdk/python   knowyourtokens-client (PyPI-ready)
+sdk/js       knowyourtokens-client (npm-ready)
 site/        landing page (GitHub Pages)
 docs/        guides, API reference, OpenAPI document
 scripts/     maintenance scripts (OpenAPI export)

@@ -6,17 +6,17 @@ type OS = 'mac' | 'windows' | 'linux';
 const COPY: Record<OS, { label: string; cmd: string; pin: string }> = {
   mac: {
     label: 'macOS',
-    cmd: 'tokentelemetry shortcut --dock',
-    pin: 'Creates “Token Telemetry.app” in ~/Applications and adds it to your Dock.',
+    cmd: 'knowyourtokens shortcut --dock',
+    pin: 'Creates “Know Your Tokens.app” in ~/Applications and adds it to your Dock.',
   },
   windows: {
     label: 'Windows',
-    cmd: 'tokentelemetry shortcut',
+    cmd: 'knowyourtokens shortcut',
     pin: 'Adds it to the Start Menu and Desktop. Right-click → Pin to taskbar.',
   },
   linux: {
     label: 'Linux',
-    cmd: 'tokentelemetry shortcut',
+    cmd: 'knowyourtokens shortcut',
     pin: 'Adds an app-launcher entry and a Desktop icon. Right-click → Add to Favorites.',
   },
 };
@@ -71,7 +71,7 @@ export function Dock() {
               ))}
               <motion.img
                 src={icon}
-                alt="Token Telemetry app icon"
+                alt="Know Your Tokens app icon"
                 className="bar-ours"
                 initial={{ y: -160, scale: 1.6, opacity: 0 }}
                 animate={{

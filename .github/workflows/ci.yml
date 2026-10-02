@@ -75,7 +75,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.9"
-      - run: pip install ./sdk/python && python -c "import tokentelemetry_client as t; print(t.__version__)"
+      - run: pip install ./sdk/python && python -c "import knowyourtokens_client as t; print(t.__version__)"
 
   frontend:
     name: Dashboard (lint, format, typecheck, test, build)
@@ -165,9 +165,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     env:
-      TOKENTELEMETRY_NO_OPEN: "1"
-      TOKENTELEMETRY_BACKEND_PORT: "18000"
-      TOKENTELEMETRY_DASHBOARD_PORT: "15173"
+      KNOWYOURTOKENS_NO_OPEN: "1"
+      KNOWYOURTOKENS_BACKEND_PORT: "18000"
+      KNOWYOURTOKENS_DASHBOARD_PORT: "15173"
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -180,20 +180,20 @@ jobs:
         shell: bash
         run: |
           cd cli && npm pack --pack-destination "$RUNNER_TEMP"
-          npm install -g "$RUNNER_TEMP"/tokentelemetry-*.tgz
+          npm install -g "$RUNNER_TEMP"/knowyourtokens-*.tgz
       - name: Install into an isolated home and start
         shell: bash
         run: |
-          export TOKENTELEMETRY_HOME="$RUNNER_TEMP/tt-home" CLAUDE_CONFIG_DIR="$RUNNER_TEMP/claude"
-          tokentelemetry --version
-          tokentelemetry install
-          tokentelemetry start
-          tokentelemetry doctor
+          export KNOWYOURTOKENS_HOME="$RUNNER_TEMP/tt-home" CLAUDE_CONFIG_DIR="$RUNNER_TEMP/claude"
+          knowyourtokens --version
+          knowyourtokens install
+          knowyourtokens start
+          knowyourtokens doctor
           curl -fsS "http://127.0.0.1:15173/health"
           curl -fsS "http://127.0.0.1:15173/api/v1/usage/summary"
           test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://127.0.0.1:15173/api/v1/usage)" = "403"
-          tokentelemetry stop
-          tokentelemetry uninstall --purge --delete-data
+          knowyourtokens stop
+          knowyourtokens uninstall --purge --delete-data
       - name: Logs on failure
         if: failure()
         shell: bash

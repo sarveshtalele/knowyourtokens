@@ -1,9 +1,9 @@
 {
-  "name": "Token Telemetry",
-  "short_name": "Token Telemetry",
+  "name": "Know Your Tokens",
+  "short_name": "Know Your Tokens",
   "description": "Local-first token, tool, skill and MCP observability for Claude Code",
-  "start_url": "/tokentelemetry/",
-  "scope": "/tokentelemetry/",
+  "start_url": "/knowyourtokens/",
+  "scope": "/knowyourtokens/",
   "display": "standalone",
   "background_color": "#fbfbfd",
   "theme_color": "#fbfbfd",

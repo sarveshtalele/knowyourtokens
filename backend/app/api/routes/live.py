@@ -16,7 +16,7 @@ from telemetry.db import connect
 from ...security import _hostname, allowed_hosts, origin_allowed
 
 router = APIRouter()
-log = logging.getLogger("tokentelemetry.live")
+log = logging.getLogger("knowyourtokens.live")
 POLL_SECONDS = 2.0
 
 
