@@ -25,7 +25,7 @@ inappropriate in a professional setting.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported privately to
 the maintainer through the repository's
-[private security advisory form](https://github.com/sarveshtalele/tokentelemetry/security/advisories/new)
+[private security advisory form](https://github.com/sarveshtalele/knowyourtokens/security/advisories/new)
 (select "Code of Conduct" in the title) or by contacting the maintainer listed in
 [`MAINTAINERS.md`](MAINTAINERS.md). All complaints will be reviewed and investigated promptly and
 fairly, and the privacy of the reporter will be respected.

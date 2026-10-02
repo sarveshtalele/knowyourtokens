@@ -4,7 +4,7 @@ import { CopyInstall } from './CopyInstall';
 import { IconCheck, IconGithub, IconPlus } from './Icons';
 import { Reveal, fadeUp } from './motion';
 
-const REPO = 'https://github.com/sarveshtalele/tokentelemetry';
+const REPO = 'https://github.com/sarveshtalele/knowyourtokens';
 
 export function Privacy() {
   return (
@@ -18,7 +18,7 @@ export function Privacy() {
             Your prompts are yours.
           </motion.h2>
           <motion.p style={{ color: 'var(--ink-soft)', fontSize: 18, margin: 0 }} variants={fadeUp}>
-            Token Telemetry runs entirely on your computer. It sends nothing about itself to anyone. The only way data
+            Know Your Tokens runs entirely on your computer. It sends nothing about itself to anyone. The only way data
             leaves is through an exporter you configure.
           </motion.p>
           <motion.ul className="checks" variants={fadeUp}>
@@ -52,16 +52,16 @@ export function Privacy() {
             <code>
               <span className="c"># Keep 90 days of rows, 14 days of full text</span>
               {'\n'}
-              <span className="k">export</span> TOKENTELEMETRY_RETENTION_DAYS=<span className="s">90</span>
+              <span className="k">export</span> KNOWYOURTOKENS_RETENTION_DAYS=<span className="s">90</span>
               {'\n'}
-              <span className="k">export</span> TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS=<span className="s">14</span>
+              <span className="k">export</span> KNOWYOURTOKENS_FULL_TEXT_RETENTION_DAYS=<span className="s">14</span>
               {'\n\n'}
               <span className="c"># Never store prompt/response text at all</span>
               {'\n'}
-              <span className="k">export</span> TOKENTELEMETRY_STORE_FULL_TEXT=<span className="s">0</span>
+              <span className="k">export</span> KNOWYOURTOKENS_STORE_FULL_TEXT=<span className="s">0</span>
               {'\n\n'}
               <span className="c"># Everything, gone</span>
-              {'\n'}tokentelemetry uninstall --purge --delete-data
+              {'\n'}knowyourtokens uninstall --purge --delete-data
             </code>
           </pre>
         </motion.div>
@@ -193,7 +193,7 @@ export function Footer() {
     <footer>
       <div className="wrap foot">
         <div>
-          <strong style={{ color: 'var(--ink)' }}>Token Telemetry</strong>
+          <strong style={{ color: 'var(--ink)' }}>Know Your Tokens</strong>
           <p style={{ margin: '8px 0 0', maxWidth: 360 }}>
             Local-first token observability for every AI coding agent. MIT licensed. Not affiliated with Anthropic,
             OpenAI, Google or any agent vendor.
@@ -246,7 +246,7 @@ export function Footer() {
               <a href={`${blob}/LICENSE`}>MIT license</a>
             </li>
             <li>
-              <a href="https://www.npmjs.com/package/tokentelemetry">npm</a>
+              <a href="https://www.npmjs.com/package/knowyourtokens">npm</a>
             </li>
           </ul>
         </nav>

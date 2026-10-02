@@ -33,7 +33,7 @@ export function ConnectionBanner() {
     >
       <span>
         <b>Not connected to the telemetry backend.</b> New data won't load automatically until the connection is back —
-        the numbers on screen may be out of date. Check <code className="font-mono">tokentelemetry status</code> if this
+        the numbers on screen may be out of date. Check <code className="font-mono">knowyourtokens status</code> if this
         doesn't clear on its own.
       </span>
       <button

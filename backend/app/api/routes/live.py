@@ -10,13 +10,14 @@ import logging
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from telemetry import config
 from telemetry.common import utc_now_iso
 from telemetry.db import connect
 
 from ...security import _hostname, allowed_hosts, origin_allowed
 
 router = APIRouter()
-log = logging.getLogger("tokentelemetry.live")
+log = logging.getLogger("knowyourtokens.live")
 POLL_SECONDS = 2.0
 
 
@@ -26,9 +27,17 @@ class Broadcaster:
         self.latest = None
         self._task = None
 
-    def _snapshot(self, conn):
-        row = conn.execute("SELECT COALESCE(SUM(total_tokens),0), COUNT(*), MAX(event_time) FROM usage").fetchone()
-        events = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+    def _snapshot(self, db_path):
+        # Runs in a worker thread with its own connection: a cancelled poller (shutdown) can't close
+        # a connection this thread is still reading from, which crashes sqlite3 on some Pythons.
+        if not db_path.exists():  # deleted under us (tests, uninstall): never recreate it here
+            return self.latest
+        conn = connect(db_path, readonly=True)
+        try:
+            row = conn.execute("SELECT COALESCE(SUM(total_tokens),0), COUNT(*), MAX(event_time) FROM usage").fetchone()
+            events = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+        finally:
+            conn.close()
         return {
             "type": "metrics",
             "timestamp": row[2] or utc_now_iso(),
@@ -36,7 +45,8 @@ class Broadcaster:
         }
 
     async def run(self):
-        conn = connect(readonly=True)
+        db_path = config.db_path()
+        conn = connect(db_path, readonly=True)
         last_version = None
         try:
             while True:
@@ -44,7 +54,7 @@ class Broadcaster:
                     version = conn.execute("PRAGMA data_version").fetchone()[0]
                     if version != last_version or self.latest is None:
                         last_version = version
-                        snap = await asyncio.to_thread(self._snapshot, conn)
+                        snap = await asyncio.to_thread(self._snapshot, db_path)
                         if snap != self.latest:
                             self.latest = snap
                             await self.broadcast(snap)

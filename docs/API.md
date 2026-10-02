@@ -1,8 +1,8 @@
 # REST API reference
 
-The backend serves a read-mostly JSON API over usage from every agent Token Telemetry tracks
+The backend serves a read-mostly JSON API over usage from every agent Know Your Tokens tracks
 (Claude Code, Codex CLI, Gemini CLI, OpenCode, and anything pushed through [Ingest](#ingest)) on **`http://127.0.0.1:8000`**
-(`TOKENTELEMETRY_BACKEND_PORT`).
+(`KNOWYOURTOKENS_BACKEND_PORT`).
 The dashboard's static server also proxies it at `http://127.0.0.1:5173/api/...`.
 
 - **Machine-readable contract:** [`docs/openapi.json`](openapi.json) (also served live at `/openapi.json`;
@@ -77,7 +77,7 @@ allowed.
 
 ### Ingest
 
-`POST /api/v1/ingest` records model requests from an agent whose local logs Token Telemetry can't
+`POST /api/v1/ingest` records model requests from an agent whose local logs Know Your Tokens can't
 read: Antigravity, Cursor, GitHub Copilot CLI, an in-house agent, a CI job. Records go through the same
 pipeline as the built-in sources, so they show up on every page (as client `agent`) with tool counts,
 projects and attributions.
@@ -149,16 +149,16 @@ curl -o usage.ndjson "http://127.0.0.1:8000/api/v1/reports/export?project=my-rep
 ```
 
 ```python
-from tokentelemetry_client import TokenTelemetry
-tt = TokenTelemetry()
+from knowyourtokens_client import KnowYourTokens
+tt = KnowYourTokens()
 for p in tt.projects():
     print(p["project"], p["total_tokens"])
 tt.ingest("my-agent", [{"request_id": "r1", "model": "gpt-5", "input_tokens": 1200, "output_tokens": 340}])
 ```
 
 ```ts
-import { TokenTelemetry } from 'tokentelemetry-client';
-const tt = new TokenTelemetry();
+import { KnowYourTokens } from 'knowyourtokens-client';
+const tt = new KnowYourTokens();
 console.log(await tt.summary({ start: '2025-06-01' }));
 await tt.ingest('my-agent', [{ request_id: 'r1', model: 'gpt-5', input_tokens: 1200, output_tokens: 340 }]);
 ```

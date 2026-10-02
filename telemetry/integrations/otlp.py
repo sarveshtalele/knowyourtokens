@@ -2,8 +2,8 @@
 
 Emits two delta-temporality counters per batch, aggregated by attributes:
 
-* ``tokentelemetry.tokens``   {project, model, client, token.type}
-* ``tokentelemetry.requests`` {project, model, client}
+* ``knowyourtokens.tokens``   {project, model, client, token.type}
+* ``knowyourtokens.requests`` {project, model, client}
 
 Point any OTLP-compatible backend at it (OpenTelemetry Collector, Grafana
 Alloy/Cloud, Honeycomb, Datadog Agent, New Relic, ...).
@@ -55,13 +55,13 @@ def build_payload(rows, version=__version__):
     return {
         "resourceMetrics": [
             {
-                "resource": {"attributes": _attrs({"service.name": "tokentelemetry"})},
+                "resource": {"attributes": _attrs({"service.name": "knowyourtokens"})},
                 "scopeMetrics": [
                     {
-                        "scope": {"name": "tokentelemetry", "version": version},
+                        "scope": {"name": "knowyourtokens", "version": version},
                         "metrics": [
                             {
-                                "name": "tokentelemetry.tokens",
+                                "name": "knowyourtokens.tokens",
                                 "unit": "{token}",
                                 "description": "Exact Claude API tokens, by type",
                                 "sum": {
@@ -74,7 +74,7 @@ def build_payload(rows, version=__version__):
                                 },
                             },
                             {
-                                "name": "tokentelemetry.requests",
+                                "name": "knowyourtokens.requests",
                                 "unit": "{request}",
                                 "description": "Claude API requests",
                                 "sum": {

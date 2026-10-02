@@ -7,10 +7,19 @@ processes pick up environment changes without re-importing.
 import os
 from pathlib import Path
 
+PREFIX = "KNOWYOURTOKENS_"
+LEGACY_PREFIX = "TOKENTELEMETRY_"  # the project's previous name; still honoured
 
-def _env(name, default=None):
+
+def env(name, default=None):
+    """Read an environment variable, falling back to the pre-rename TOKENTELEMETRY_* spelling."""
     value = os.environ.get(name)
+    if value in (None, "") and name.startswith(PREFIX):
+        value = os.environ.get(LEGACY_PREFIX + name[len(PREFIX) :])
     return value if value not in (None, "") else default
+
+
+_env = env
 
 
 def _env_int(name, default):
@@ -41,8 +50,8 @@ def projects_dir() -> Path:
 
 def sources():
     """Agents to ingest: None (all detected) or a set of source names from
-    TOKENTELEMETRY_SOURCES, e.g. "claude-code,codex"."""
-    raw = _env("TOKENTELEMETRY_SOURCES")
+    KNOWYOURTOKENS_SOURCES, e.g. "claude-code,codex"."""
+    raw = _env("KNOWYOURTOKENS_SOURCES")
     if not raw:
         return None
     return {s.strip().lower() for s in raw.split(",") if s.strip()}
@@ -58,26 +67,26 @@ def force_reconcile() -> bool:
 
 def retention_days() -> int:
     """Delete telemetry older than this many days. 0 (default) keeps everything."""
-    return max(0, _env_int("TOKENTELEMETRY_RETENTION_DAYS", 0))
+    return max(0, _env_int("KNOWYOURTOKENS_RETENTION_DAYS", 0))
 
 
 def full_text_retention_days() -> int:
     """Blank out full prompt/response text older than this many days (rows and
     token counts are kept). 0 (default) keeps full text forever."""
-    return max(0, _env_int("TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS", 0))
+    return max(0, _env_int("KNOWYOURTOKENS_FULL_TEXT_RETENTION_DAYS", 0))
 
 
 def store_full_text() -> bool:
-    """Set TOKENTELEMETRY_STORE_FULL_TEXT=0 to never persist full prompt/response text."""
-    return _env_bool("TOKENTELEMETRY_STORE_FULL_TEXT", True)
+    """Set KNOWYOURTOKENS_STORE_FULL_TEXT=0 to never persist full prompt/response text."""
+    return _env_bool("KNOWYOURTOKENS_STORE_FULL_TEXT", True)
 
 
 def backend_port() -> int:
-    return _env_int("TOKENTELEMETRY_BACKEND_PORT", 8000)
+    return _env_int("KNOWYOURTOKENS_BACKEND_PORT", 8000)
 
 
 def dashboard_port() -> int:
-    return _env_int("TOKENTELEMETRY_DASHBOARD_PORT", 5173)
+    return _env_int("KNOWYOURTOKENS_DASHBOARD_PORT", 5173)
 
 
 def hook_log_path() -> Path:
@@ -89,12 +98,12 @@ def hook_log_path() -> Path:
 
 def otlp_endpoint():
     """Base OTLP/HTTP endpoint, e.g. http://localhost:4318. Metrics go to <endpoint>/v1/metrics."""
-    return _env("TOKENTELEMETRY_OTLP_ENDPOINT")
+    return _env("KNOWYOURTOKENS_OTLP_ENDPOINT")
 
 
 def otlp_headers():
     """'key=value,key2=value2' -- e.g. an API key header for a hosted collector."""
-    raw = _env("TOKENTELEMETRY_OTLP_HEADERS", "")
+    raw = _env("KNOWYOURTOKENS_OTLP_HEADERS", "")
     headers = {}
     for part in raw.split(","):
         if "=" in part:
@@ -104,17 +113,17 @@ def otlp_headers():
 
 
 def webhook_url():
-    return _env("TOKENTELEMETRY_WEBHOOK_URL")
+    return _env("KNOWYOURTOKENS_WEBHOOK_URL")
 
 
 def webhook_secret():
-    return _env("TOKENTELEMETRY_WEBHOOK_SECRET")
+    return _env("KNOWYOURTOKENS_WEBHOOK_SECRET")
 
 
 def webhook_include_text():
-    return _env_bool("TOKENTELEMETRY_WEBHOOK_INCLUDE_TEXT")
+    return _env_bool("KNOWYOURTOKENS_WEBHOOK_INCLUDE_TEXT")
 
 
 def export_backfill():
     """When an exporter is first enabled, also send existing history (default: only new data)."""
-    return _env_bool("TOKENTELEMETRY_EXPORT_BACKFILL")
+    return _env_bool("KNOWYOURTOKENS_EXPORT_BACKFILL")

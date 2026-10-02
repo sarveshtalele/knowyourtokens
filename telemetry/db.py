@@ -288,8 +288,8 @@ def migrate(conn, db_file: Path = None):
     current = conn.execute("PRAGMA user_version").fetchone()[0]
     if current > SCHEMA_VERSION:
         raise RuntimeError(
-            f"Database schema v{current} is newer than this version of Token Telemetry supports "
-            f"(v{SCHEMA_VERSION}). Upgrade with: npm install -g tokentelemetry@latest"
+            f"Database schema v{current} is newer than this version of Know Your Tokens supports "
+            f"(v{SCHEMA_VERSION}). Upgrade with: npm install -g knowyourtokens@latest"
         )
     if current == SCHEMA_VERSION:
         return

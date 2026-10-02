@@ -15,7 +15,7 @@ from .api.routes.live import router as live_router
 from .schemas import Health
 from .security import LocalOnlyMiddleware
 
-log = logging.getLogger("tokentelemetry.api")
+log = logging.getLogger("knowyourtokens.api")
 
 
 @asynccontextmanager
@@ -27,11 +27,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Token Telemetry API",
+    title="Know Your Tokens API",
     version=__version__,
-    summary="Local-first token, tool, skill and MCP observability for Claude Code.",
+    summary="Local-first token, tool, skill and MCP observability for every AI coding agent.",
     description=(
-        "Read-only REST API over the local Token Telemetry database. Binds to 127.0.0.1; "
+        "Read-only REST API over the local Know Your Tokens database. Binds to 127.0.0.1; "
         "see docs/API.md for conventions (envelopes, filters, pagination, time zones)."
     ),
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},

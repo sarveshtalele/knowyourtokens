@@ -6,36 +6,39 @@ const autostart = require('../src/autostart');
 const paths = require('../src/paths');
 const shortcut = require('../src/shortcut');
 
-const HELP = `tokentelemetry ${paths.version()} -- local-first token observability for AI coding agents
+const HELP = `knowyourtokens ${paths.version()} -- local-first token observability for AI coding agents
 (Claude Code, Codex CLI, Gemini CLI, OpenCode, and any agent via the ingest API)
 
 Usage:
-  tokentelemetry                    Install (if needed) and start everything
-  tokentelemetry install            Copy app files, set up the Python env, wire Claude Code hooks
-  tokentelemetry start              Start the backend, telemetry daemon, and dashboard
-  tokentelemetry stop               Stop everything started by "start"
-  tokentelemetry status             Show what's running and health checks
-  tokentelemetry doctor             Diagnose the install and suggest fixes
-  tokentelemetry autostart enable   Start automatically at login (Task Scheduler / launchd / systemd)
-  tokentelemetry autostart disable  Remove the autostart entry
-  tokentelemetry autostart status   Show whether autostart is enabled
-  tokentelemetry shortcut           Add an app icon (Start Menu/Desktop, ~/Applications, app launcher)
+  knowyourtokens                    Install (if needed) and start everything
+  knowyourtokens install            Copy app files, set up the Python env, wire Claude Code hooks
+  knowyourtokens start              Start the backend, telemetry daemon, and dashboard
+  knowyourtokens stop               Stop everything started by "start"
+  knowyourtokens status             Show what's running and health checks
+  knowyourtokens doctor             Diagnose the install and suggest fixes
+  knowyourtokens autostart enable   Start automatically at login (Task Scheduler / launchd / systemd)
+  knowyourtokens autostart disable  Remove the autostart entry
+  knowyourtokens autostart status   Show whether autostart is enabled
+  knowyourtokens shortcut           Add an app icon (Start Menu/Desktop, ~/Applications, app launcher)
       --dock                        ...macOS: also add it to the Dock
       --remove                      ...remove the app icon again
-  tokentelemetry uninstall          Remove the Claude Code hooks (keeps app files and data)
+  knowyourtokens uninstall          Remove the Claude Code hooks (keeps app files and data)
       --purge                       ...also stop services, disable autostart, delete app files
       --delete-data                 ...also delete the telemetry database
-  tokentelemetry --version          Print the version
+  knowyourtokens --version          Print the version
+
+  kyt is a short alias: kyt start, kyt doctor, ...
 
 Environment:
-  TOKENTELEMETRY_HOME            Install directory (default: ~/.tokentelemetry)
-  TOKENTELEMETRY_BACKEND_PORT    API port (default: 8000)
-  TOKENTELEMETRY_DASHBOARD_PORT  Dashboard port (default: 5173)
+  KNOWYOURTOKENS_HOME            Install directory (default: ~/.knowyourtokens)
+  KNOWYOURTOKENS_BACKEND_PORT    API port (default: 8000)
+  KNOWYOURTOKENS_DASHBOARD_PORT  Dashboard port (default: 5173)
   CLAUDE_CONFIG_DIR              Claude Code config directory (default: ~/.claude)
   CLAUDE_TELEMETRY_DB            Database path (default: ~/.claude/telemetry/telemetry.db)
-  TOKENTELEMETRY_NO_OPEN         Set to skip opening the browser on start
+  KNOWYOURTOKENS_NO_OPEN         Set to skip opening the browser on start
+  (TOKENTELEMETRY_* names from before the rename still work.)
 
-Docs: https://sarveshtalele.github.io/tokentelemetry/
+Docs: https://sarveshtalele.github.io/knowyourtokens/
 `;
 
 async function main() {
@@ -72,7 +75,7 @@ async function main() {
           console.log(autostart.isEnabled() ? 'Autostart is enabled.' : 'Autostart is not enabled.');
           break;
         default:
-          console.error('Usage: tokentelemetry autostart <enable|disable|status>');
+          console.error('Usage: knowyourtokens autostart <enable|disable|status>');
           process.exitCode = 1;
       }
       break;
@@ -83,7 +86,7 @@ async function main() {
         break;
       }
       const { created, pin } = shortcut.create({ dock: flags.has('--dock') });
-      console.log(`Created the ${'Token Telemetry'} app icon:\n  ${created.join('\n  ')}`);
+      console.log(`Created the ${'Know Your Tokens'} app icon:\n  ${created.join('\n  ')}`);
       console.log(`\nTo pin it: ${pin}`);
       console.log('Prefer a browser app window? Open the dashboard and click "Install app" in the top bar.');
       break;

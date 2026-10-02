@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Token Telemetry card</title>
+<title>Know Your Tokens card</title>
 <style>
+  /* Inter and JetBrains Mono (SIL OFL 1.1) shipped next to this file so renders don't depend on installed fonts */
+  @font-face { font-family: 'Inter'; src: url('fonts/InterVariable.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'JetBrains Mono'; src: url('fonts/JetBrainsMonoVariable.woff2') format('woff2'); font-weight: 100 800; }
   /* One layout, four exports: ?w=1280&h=640 (GitHub social preview),
      1200x630 (site og:image), 1200x627 (LinkedIn), 1080x1350 (LinkedIn portrait). */
   :root {
@@ -46,7 +49,7 @@
   .chip { font-size: var(--chip); font-weight: 650; padding: .45em .9em; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 6px 18px -10px rgba(20, 20, 40, .25); display: inline-flex; align-items: center; gap: .5em; }
   .chip i { width: .62em; height: .62em; border-radius: 50%; display: inline-block; }
   .chip.more { color: var(--soft); background: transparent; box-shadow: none; border-style: dashed; }
-  .cmd { display: inline-flex; align-items: center; gap: 14px; font: 600 var(--cmd) ui-monospace, 'SF Mono', Menlo, monospace; background: #111118; color: #f5f5f7; padding: .62em 1em; border-radius: 14px; }
+  .cmd { display: inline-flex; align-items: center; gap: 14px; font: 600 var(--cmd) 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; background: #111118; color: #f5f5f7; padding: .62em 1em; border-radius: 14px; }
   .cmd b { color: #34d3be; }
   .meta { margin-left: 16px; font-size: calc(var(--cmd) * .72); color: var(--faint); font-weight: 600; }
 
@@ -87,7 +90,7 @@
   <div class="copy">
     <div class="brand">
       <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b7bff"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="#111118"/><path d="M14 44 L24 30 L33 37 L50 18" fill="none" stroke="url(#lg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="18" r="5" fill="#2dd4bf"/></svg>
-      Token Telemetry
+      Know Your Tokens
     </div>
     <h1 id="h1">Every AI agent.<br/><span class="g">Every token.</span></h1>
     <p class="sub" id="sub">One local dashboard to debug prompts, context and cost across all your coding agents.</p>
@@ -98,7 +101,7 @@
       <span class="chip"><i style="background:#111118"></i>OpenCode</span>
       <span class="chip more">+ Antigravity, Cursor, any agent via API</span>
     </div>
-    <div><span class="cmd"><b>$</b>npx tokentelemetry</span><span class="meta">Free · MIT · 100% local</span></div>
+    <div><span class="cmd"><b>$</b>npx knowyourtokens</span><span class="meta">Free · MIT · 100% local</span></div>
   </div>
   <div class="panel" id="panel">
     <div class="ph"><b>Tokens by agent</b><span>last 30 days</span></div>

@@ -24,7 +24,7 @@ def main():
         stop["flag"] = True
 
     signal.signal(signal.SIGTERM, _stop)
-    log.info("Token Telemetry daemon: polling %s every %ss", config.projects_dir(), interval)
+    log.info("Know Your Tokens daemon: polling %s every %ss", config.projects_dir(), interval)
     exporters = _load_exporters()
     last_prune = 0.0
     while not stop["flag"]:

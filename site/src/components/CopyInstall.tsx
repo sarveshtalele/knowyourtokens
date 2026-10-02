@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function CopyInstall({ command = 'npx tokentelemetry' }: { command?: string }) {
+export function CopyInstall({ command = 'npx knowyourtokens' }: { command?: string }) {
   const [copied, setCopied] = useState(false);
   async function copy() {
     try {

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Know Your Tokens video scenes</title>
+<style>
+  @font-face { font-family: 'Inter'; src: url('../fonts/InterVariable.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'JB'; src: url('../fonts/JetBrainsMonoVariable.woff2') format('woff2'); font-weight: 100 800; }
+  :root {
+    --ink: #1d1d1f; --soft: #515154; --faint: #86868b; --line: #e5e5ea; --bg: #fbfbfd; --violet: #7c6cff;
+    --grad: linear-gradient(100deg, #7c6cff 0%, #ec4899 55%, #2dd4bf 100%);
+    --ease: cubic-bezier(.16, 1, .3, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink);
+    font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .scene { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; }
+  .scene.on { display: flex; }
+  .bg::before { content: ''; position: absolute; inset: 0;
+    background: radial-gradient(900px 600px at 80% 0%, rgba(124,108,255,.16), transparent 70%),
+                radial-gradient(800px 600px at 0% 100%, rgba(45,212,191,.12), transparent 70%); }
+  .grid::after { content: ''; position: absolute; inset: 0; opacity: .5;
+    background-image: radial-gradient(#e6e6ee 1.4px, transparent 1.4px); background-size: 28px 28px; z-index: -1; }
+  .up { opacity: 0; transform: translateY(26px); animation: up .9s var(--ease) forwards; }
+  .pop { opacity: 0; transform: scale(.82); animation: pop 1s var(--ease) forwards; }
+  @keyframes up { to { opacity: 1; transform: none; } }
+  @keyframes pop { to { opacity: 1; transform: none; } }
+  .g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .kicker { font-size: 26px; font-weight: 700; letter-spacing: .22em; color: var(--violet); text-transform: uppercase; }
+  h1 { font-size: 132px; line-height: 1; letter-spacing: -.05em; font-weight: 800; margin: 18px 0; text-align: center; }
+  h2 { font-size: 92px; line-height: 1.02; letter-spacing: -.045em; font-weight: 800; margin: 14px 0; text-align: center; }
+  p.lede { font-size: 38px; color: var(--soft); margin: 10px 0 0; text-align: center; max-width: 1300px; line-height: 1.35; }
+  .chips { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 44px; }
+  .chip { font-size: 30px; font-weight: 650; padding: 14px 28px; border-radius: 999px; background: #fff; border: 1px solid var(--line);
+    box-shadow: 0 10px 30px -18px rgba(20,20,40,.35); display: inline-flex; align-items: center; gap: 14px; }
+  .chip i { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
+
+  /* hook */
+  #hook .num { font-size: 260px; font-weight: 800; letter-spacing: -.06em; font-variant-numeric: tabular-nums; color: var(--violet); line-height: 1; }
+  #hook .bar { width: 0; height: 12px; border-radius: 6px; background: var(--grad); margin: 26px auto 0; animation: bar 2.6s var(--ease) .3s forwards; }
+  @keyframes bar { to { width: 1100px; } }
+  /* problem */
+  #problem .agents { display: grid; grid-template-columns: repeat(2, 620px); gap: 26px; margin-top: 40px; }
+  #problem .card { background: #fff; border: 1px solid var(--line); border-radius: 26px; padding: 30px 36px; display: flex; align-items: center;
+    justify-content: space-between; box-shadow: 0 20px 50px -34px rgba(20,20,40,.4); }
+  #problem .card b { font-size: 40px; display: flex; align-items: center; gap: 18px; }
+  #problem .card b i { width: 20px; height: 20px; border-radius: 50%; }
+  #problem .card span { font: 600 26px JB, monospace; color: var(--faint); }
+  #problem .verdict { font-size: 64px; font-weight: 800; letter-spacing: -.03em; margin-top: 54px; }
+  /* reveal */
+  #reveal img { width: 230px; height: 230px; border-radius: 54px; box-shadow: 0 40px 90px -40px rgba(60,40,160,.65); }
+  /* pillars */
+  #pillars .row { display: flex; gap: 30px; margin-top: 56px; }
+  #pillars .p { width: 520px; background: #fff; border: 1px solid var(--line); border-radius: 30px; padding: 44px 40px;
+    box-shadow: 0 24px 60px -40px rgba(20,20,40,.45); }
+  #pillars .p .ic { width: 70px; height: 70px; border-radius: 20px; display: grid; place-items: center; font-size: 36px; color: #fff; margin-bottom: 26px; }
+  #pillars .p b { display: block; font-size: 40px; letter-spacing: -.02em; margin-bottom: 12px; }
+  #pillars .p span { font-size: 27px; color: var(--soft); line-height: 1.4; }
+  /* terminal */
+  .term { width: 1380px; background: #0f0f16; border-radius: 26px; box-shadow: 0 50px 120px -50px rgba(20,20,60,.7); overflow: hidden; margin-top: 40px; }
+  .term .tb { height: 58px; background: #1b1b26; display: flex; align-items: center; gap: 12px; padding: 0 24px; }
+  .term .tb i { width: 16px; height: 16px; border-radius: 50%; background: #ff5f57; } .term .tb i:nth-child(2) { background: #febc2e; } .term .tb i:nth-child(3) { background: #28c840; }
+  .term .tb span { margin-left: 18px; color: #8a8aa0; font: 500 22px JB, monospace; }
+  .term pre { margin: 0; padding: 34px 40px 44px; font: 500 29px/1.6 JB, monospace; color: #e8e8f0; min-height: 600px; white-space: pre-wrap; }
+  .term .pr { color: #2dd4bf; } .term .ok { color: #34d399; } .term .dim { color: #8a8aa0; } .term .ac { color: #a99bff; }
+  .caret { display: inline-block; width: 15px; height: 32px; background: #a99bff; vertical-align: -5px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .note { margin-top: 30px; font-size: 28px; color: var(--soft); }
+  /* chapter */
+  #chapter .n { font: 800 34px JB, monospace; color: var(--violet); }
+  /* ingest */
+  .code { width: 1500px; background: #0f0f16; border-radius: 26px; padding: 40px 48px; margin-top: 40px; font: 500 28px/1.6 JB, monospace; color: #e8e8f0;
+    white-space: pre; box-shadow: 0 50px 120px -50px rgba(20,20,60,.7); }
+  .code .c { color: #8a8aa0; } .code .s { color: #7ee2b8; } .code .k { color: #a99bff; }
+  /* map */
+  #map img { width: 1640px; border-radius: 30px; box-shadow: 0 40px 100px -50px rgba(20,20,60,.5); margin-top: 26px; }
+  /* outro */
+  #outro .cmd { margin-top: 46px; background: #111118; color: #f5f5f7; font: 600 52px JB, monospace; padding: 26px 46px; border-radius: 22px;
+    box-shadow: 0 40px 90px -40px rgba(20,20,60,.7); }
+  #outro .cmd b { color: #2dd4bf; margin-right: 22px; }
+  #outro .links { margin-top: 44px; display: flex; gap: 40px; font-size: 32px; color: var(--soft); font-weight: 600; }
+  #outro .links span b { color: var(--ink); }
+</style>
+</head>
+<body class="bg grid">
+
+<section class="scene" id="hook">
+  <div class="kicker up" style="animation-delay:.1s">Your AI agent just used</div>
+  <div class="num up" id="hookNum" style="animation-delay:.2s">0</div>
+  <div class="bar"></div>
+  <h2 class="up" style="animation-delay:3.1s;margin-top:44px">tokens. <span class="g">On what?</span></h2>
+</section>
+
+<section class="scene" id="problem">
+  <div class="kicker up">You code with more than one agent</div>
+  <div class="agents">
+    <div class="card up" style="animation-delay:.3s"><b><i style="background:#d97757"></i>Claude Code</b><span>~/.claude</span></div>
+    <div class="card up" style="animation-delay:.6s"><b><i style="background:#10a37f"></i>Codex CLI</b><span>~/.codex</span></div>
+    <div class="card up" style="animation-delay:.9s"><b><i style="background:#4285f4"></i>Gemini CLI</b><span>~/.gemini</span></div>
+    <div class="card up" style="animation-delay:1.2s"><b><i style="background:#6e56f8"></i>OpenCode</b><span>its own db</span></div>
+  </div>
+  <div class="verdict up" style="animation-delay:2.4s">Four log formats. <span class="g">Zero visibility.</span></div>
+</section>
+
+<section class="scene" id="reveal">
+  <img class="pop" src="../../../../site/public/icon-512.png" alt="" style="animation-delay:.1s" />
+  <h1 class="up" style="animation-delay:.6s">Know Your <span class="g">Tokens</span></h1>
+  <p class="lede up" style="animation-delay:1.1s">One local dashboard for every AI coding agent.<br/>See where every token goes, and why.</p>
+  <div class="chips up" style="animation-delay:1.7s">
+    <span class="chip"><i style="background:#d97757"></i>Claude Code</span>
+    <span class="chip"><i style="background:#10a37f"></i>Codex CLI</span>
+    <span class="chip"><i style="background:#4285f4"></i>Gemini CLI</span>
+    <span class="chip"><i style="background:#6e56f8"></i>OpenCode</span>
+    <span class="chip"><i style="background:#a855f7"></i>Antigravity &amp; any agent via API</span>
+  </div>
+</section>
+
+<section class="scene" id="pillars">
+  <div class="kicker up">Why developers use it</div>
+  <h2 class="up" style="animation-delay:.2s">Stop guessing. <span class="g">Start knowing.</span></h2>
+  <div class="row">
+    <div class="p up" style="animation-delay:.7s"><div class="ic" style="background:#7c6cff">#</div><b>Exact tokens</b><span>Input, output and cache for every request, read from the agents' own logs.</span></div>
+    <div class="p up" style="animation-delay:1.1s"><div class="ic" style="background:#ec4899">?</div><b>Debug any prompt</b><span>See which file, tool result or system prompt filled your context window.</span></div>
+    <div class="p up" style="animation-delay:1.5s"><div class="ic" style="background:#0ea5a4">✓</div><b>100% local</b><span>Free and MIT licensed. No account, no cloud, nothing leaves your machine.</span></div>
+  </div>
+</section>
+
+<section class="scene" id="chapter">
+  <div class="n up" id="chN">01</div>
+  <h1 class="up" id="chT" style="animation-delay:.15s">Install</h1>
+  <p class="lede up" id="chS" style="animation-delay:.35s"></p>
+</section>
+
+<section class="scene" id="install">
+  <div class="kicker up">Step 1 · Install and start</div>
+  <div class="term up" style="animation-delay:.2s">
+    <div class="tb"><i></i><i></i><i></i><span>~ — zsh</span></div>
+    <pre id="term"></pre>
+  </div>
+  <div class="note up" style="animation-delay:.6s">Needs Node 18+ and Python 3.10+ · macOS, Windows, Linux</div>
+</section>
+
+<section class="scene" id="ingest">
+  <div class="kicker up">Any other agent</div>
+  <h2 class="up" style="animation-delay:.15s">One JSON record <span class="g">per request</span></h2>
+  <div class="code up" style="animation-delay:.5s"><span class="c"># Antigravity, Cursor, Copilot CLI, CI jobs, your own agent</span>
+curl -X POST http://127.0.0.1:8000/api/v1/ingest \
+  -H <span class="s">'Content-Type: application/json'</span> -d <span class="s">'{
+  "agent": "Antigravity",
+  "records": [{ "request_id": "r-1", "cwd": "/work/app",
+                "model": "gemini-3-pro", "input_tokens": 1200,
+                "output_tokens": 300, "cache_read_tokens": 5000 }]
+}'</span>
+<span class="c"># -> {"accepted": 1, "new": 1}   retries are safe: request_id dedupes</span></div>
+</section>
+
+<section class="scene" id="map">
+  <div class="kicker up">How it fits together</div>
+  <img class="up" style="animation-delay:.3s" src="../../../assets/integration-map.svg" alt="" />
+</section>
+
+<section class="scene" id="outro">
+  <img class="pop" src="../../../../site/public/icon-512.png" alt="" style="width:150px;height:150px;border-radius:36px;animation-delay:.1s" />
+  <h1 class="up" style="animation-delay:.4s;font-size:110px">Know Your <span class="g">Tokens</span></h1>
+  <div class="cmd up" style="animation-delay:.9s"><b>$</b>npx knowyourtokens</div>
+  <div class="links up" style="animation-delay:1.4s">
+    <span><b>Site</b> sarveshtalele.github.io/knowyourtokens</span>
+    <span><b>GitHub</b> sarveshtalele/knowyourtokens</span>
+  </div>
+  <p class="lede up" style="animation-delay:1.9s;font-size:32px">Free · MIT · 100% local · Star it if it saves you tokens ★</p>
+</section>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  const id = q.get('s') || 'hook';
+  document.getElementById(id).classList.add('on');
+
+  if (id === 'hook') {
+    const el = document.getElementById('hookNum'), target = 287141, t0 = performance.now() + 300, dur = 2600;
+    (function tick(now) {
+      const k = Math.min(1, Math.max(0, (now - t0) / dur));
+      el.textContent = Math.round(target * (1 - Math.pow(1 - k, 4))).toLocaleString('en-US');
+      if (k < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }
+  if (id === 'chapter') {
+    document.getElementById('chN').textContent = q.get('n') || '';
+    document.getElementById('chT').textContent = q.get('t') || '';
+    document.getElementById('chS').textContent = q.get('sub') || '';
+  }
+  if (id === 'install') {
+    const term = document.getElementById('term');
+    const lines = [
+      ['type', '<span class="pr">$</span> ', 'npx knowyourtokens'],
+      ['out', '<span class="dim">Copied app files to ~/.knowyourtokens</span>'],
+      ['out', '<span class="dim">Creating Python environment with uv...</span>'],
+      ['out', '<span class="dim">Installing Python dependencies...</span>'],
+      ['out', '<span class="ok">✓</span> Installed Claude Code telemetry hooks in ~/.claude/settings.json'],
+      ['out', '<span class="ok">✓</span> Agents found: Claude Code · Codex CLI · Gemini CLI · OpenCode'],
+      ['out', ''],
+      ['out', '<span class="ok">Install complete (v2.3.0).</span>'],
+      ['out', 'Backend    <span class="ac">http://127.0.0.1:8000</span>   <span class="ok">running</span>'],
+      ['out', 'Daemon     reading agent logs            <span class="ok">running</span>'],
+      ['out', 'Dashboard  <span class="ac">http://127.0.0.1:5173</span>   <span class="ok">opened in your browser</span>'],
+    ];
+    let html = '';
+    const render = (extra = '') => (term.innerHTML = html + extra + '<span class="caret"></span>');
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    (async () => {
+      render();
+      await wait(900);
+      for (const [kind, a, b] of lines) {
+        if (kind === 'type') {
+          for (let i = 0; i <= b.length; i++) { render(a + b.slice(0, i)); await wait(70); }
+          html += a + b + '\n'; await wait(500);
+        } else { html += a + '\n'; render(); await wait(430); }
+      }
+    })();
+  }
+</script>
+</body>
+</html>

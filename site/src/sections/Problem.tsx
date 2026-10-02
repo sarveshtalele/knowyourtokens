@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 /**
  * "Flying blind": six pain points of building with LLMs. Each card plays
- * its problem as a small infographic, then morphs into how Token Telemetry
+ * its problem as a small infographic, then morphs into how Know Your Tokens
  * fixes it. Cards flip on their own once visible; visitors can flip them.
  */
 type Pain = {

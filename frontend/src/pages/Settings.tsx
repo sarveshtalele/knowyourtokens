@@ -59,7 +59,7 @@ export function Settings() {
                   </span>
                 ) : (
                   <span className="text-ink-soft text-xs">
-                    Off — set {e.name === 'otlp' ? 'TOKENTELEMETRY_OTLP_ENDPOINT' : 'TOKENTELEMETRY_WEBHOOK_URL'} to
+                    Off — set {e.name === 'otlp' ? 'KNOWYOURTOKENS_OTLP_ENDPOINT' : 'KNOWYOURTOKENS_WEBHOOK_URL'} to
                     enable
                   </span>
                 )

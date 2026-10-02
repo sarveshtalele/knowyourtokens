@@ -12,7 +12,7 @@ policy at this stage.
 Please **do not open a public GitHub issue** for a suspected security
 vulnerability. Instead, use GitHub's private reporting flow:
 
-1. Go to the [Security tab](https://github.com/sarveshtalele/tokentelemetry/security) of this repository.
+1. Go to the [Security tab](https://github.com/sarveshtalele/knowyourtokens/security) of this repository.
 2. Click **"Report a vulnerability"** to open a private advisory.
 
 This keeps the report private between you and the maintainer until a fix
@@ -37,7 +37,7 @@ hosted service to attack. In-scope reports include:
   CORS misconfiguration issue).
 - Command or SQL injection anywhere user-controlled, session-file-derived
   or ingest-API-supplied data reaches a shell command or a SQL query.
-- A way for Token Telemetry to modify another agent's files or database
+- A way for Know Your Tokens to modify another agent's files or database
   (it should only ever read them).
 - A dependency with a known, exploitable CVE that this project actually
   uses in a vulnerable way.
@@ -56,7 +56,7 @@ hosted service to attack. In-scope reports include:
 
 ## Scope note
 
-Token Telemetry is an independent project, not affiliated with Anthropic,
+Know Your Tokens is an independent project, not affiliated with Anthropic,
 OpenAI, Google or any agent vendor. Vulnerabilities in the agents
 themselves (Claude Code, Codex CLI, Gemini CLI, OpenCode, ...) should be
 reported to their vendors.

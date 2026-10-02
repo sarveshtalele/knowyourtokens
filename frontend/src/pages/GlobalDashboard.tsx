@@ -37,9 +37,10 @@ export function GlobalDashboard() {
     const cacheRead = timeline.reduce((a, d) => a + (d.cache_read || 0), 0);
     const cacheWrite = timeline.reduce((a, d) => a + (d.cache_write || 0), 0);
     const totalTokens = timeline.reduce((a, d) => a + (d.tokens || 0), 0);
-    const totalRequests = projects.reduce((a, p) => a + (p.requests || 0), 0);
+    // Same window as the token totals (the timeline carries requests per day).
+    const totalRequests = timeline.reduce((a, d) => a + (d.requests || 0), 0);
     return { input, output, cacheRead, cacheWrite, totalTokens, totalRequests };
-  }, [timeline, projects]);
+  }, [timeline]);
 
   const error = errProjects || errTimeline;
   if (error) return <ErrorPanel message={error.message} />;
@@ -50,7 +51,8 @@ export function GlobalDashboard() {
     return <div className="p-10 text-center text-ink-soft">Loading overview…</div>;
   }
 
-  const liveTotal = live.metrics.total_tokens as number | undefined;
+  // The live feed's running total is all-time, so it only applies to the all-time view.
+  const liveTotal = days === '0' ? (live.metrics.total_tokens as number | undefined) : undefined;
   const topClient = clients[0];
 
   return (
@@ -122,9 +124,9 @@ export function GlobalDashboard() {
         columns={4}
         stats={[
           {
-            label: 'Requests (all time)',
+            label: `Requests (${rangeLabel})`,
             value: fmt(totals.totalRequests),
-            hint: 'Model requests recorded across every agent and project, always all-time — independent of the date range selected above.',
+            hint: 'Model requests recorded across every agent and project in the selected date range.',
           },
           {
             label: 'Projects',
@@ -139,7 +141,7 @@ export function GlobalDashboard() {
           {
             label: 'Avg tokens/req',
             value: totals.totalRequests > 0 ? fmt(Math.round(totals.totalTokens / totals.totalRequests)) : '—',
-            hint: 'Total tokens (selected range) divided by total requests (all-time) — a rough per-request average, not an exact ratio for the same window.',
+            hint: 'Total tokens divided by requests, both for the selected date range.',
           },
         ]}
       />

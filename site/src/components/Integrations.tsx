@@ -32,8 +32,8 @@ const TABS: { id: string; label: string; code: ReactNode; note: string }[] = [
     label: 'Python SDK',
     code: (
       <>
-        {k('from')} tokentelemetry_client {k('import')} TokenTelemetry
-        {'\n\n'}tt = TokenTelemetry() {c('  # http://127.0.0.1:8000')}
+        {k('from')} knowyourtokens_client {k('import')} KnowYourTokens
+        {'\n\n'}tt = KnowYourTokens() {c('  # http://127.0.0.1:8000')}
         {'\n\n'}summary = tt.summary(start={s('"2025-06-01"')}){'\n'}
         {k('print')}(summary[{s('"total_tokens"')}], summary[{s('"top_model"')}])
         {'\n\n'}
@@ -50,8 +50,8 @@ const TABS: { id: string; label: string; code: ReactNode; note: string }[] = [
     label: 'TypeScript SDK',
     code: (
       <>
-        {k('import')} {'{ TokenTelemetry }'} {k('from')} {s("'tokentelemetry-client'")};{'\n\n'}
-        {k('const')} tt = {k('new')} TokenTelemetry();
+        {k('import')} {'{ KnowYourTokens }'} {k('from')} {s("'knowyourtokens-client'")};{'\n\n'}
+        {k('const')} tt = {k('new')} KnowYourTokens();
         {'\n\n'}
         {k('const')} {'{ total_tokens, top_model }'} = {k('await')} tt.summary({'{ start: '}
         {s("'2025-06-01'")}
@@ -75,16 +75,16 @@ const TABS: { id: string; label: string; code: ReactNode; note: string }[] = [
       <>
         {c('# Opt-in: send token metrics to any OTLP/HTTP endpoint')}
         {'\n'}
-        {k('export')} TOKENTELEMETRY_OTLP_ENDPOINT={s('http://localhost:4318')}
+        {k('export')} KNOWYOURTOKENS_OTLP_ENDPOINT={s('http://localhost:4318')}
         {'\n'}
-        {k('export')} TOKENTELEMETRY_OTLP_HEADERS={s('"x-api-key=..."')}
-        {'\n'}tokentelemetry stop {'&&'} tokentelemetry start
+        {k('export')} KNOWYOURTOKENS_OTLP_HEADERS={s('"x-api-key=..."')}
+        {'\n'}knowyourtokens stop {'&&'} knowyourtokens start
         {'\n\n'}
         {c('# Emits delta counters, by project / model / client:')}
         {'\n'}
-        {c('#   tokentelemetry.tokens   {token.type=input|output|cache_read|cache_write}')}
+        {c('#   knowyourtokens.tokens   {token.type=input|output|cache_read|cache_write}')}
         {'\n'}
-        {c('#   tokentelemetry.requests')}
+        {c('#   knowyourtokens.requests')}
       </>
     ),
     note: 'Works with the OpenTelemetry Collector, Grafana, Datadog, Honeycomb, New Relic, and anything else that accepts OTLP.',
@@ -94,14 +94,14 @@ const TABS: { id: string; label: string; code: ReactNode; note: string }[] = [
     label: 'Webhooks',
     code: (
       <>
-        {k('export')} TOKENTELEMETRY_WEBHOOK_URL={s('https://example.com/hooks/claude')}
+        {k('export')} KNOWYOURTOKENS_WEBHOOK_URL={s('https://example.com/hooks/claude')}
         {'\n'}
-        {k('export')} TOKENTELEMETRY_WEBHOOK_SECRET={s('change-me')}
+        {k('export')} KNOWYOURTOKENS_WEBHOOK_SECRET={s('change-me')}
         {'\n\n'}
         {c('# Receiver (Python): verify the HMAC before trusting the batch')}
         {'\n'}
-        {k('from')} tokentelemetry_client {k('import')} verify_signature
-        {'\n'}ok = verify_signature(secret, raw_body, headers[{s('"X-TokenTelemetry-Signature"')}])
+        {k('from')} knowyourtokens_client {k('import')} verify_signature
+        {'\n'}ok = verify_signature(secret, raw_body, headers[{s('"X-KnowYourTokens-Signature"')}])
       </>
     ),
     note: 'Batches of new requests delivered at least once, with retries and backoff. Full text is excluded unless you opt in.',
@@ -138,6 +138,23 @@ export function Integrations() {
             the same API.
           </motion.p>
         </Reveal>
+        <motion.figure
+          className="int-map"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.7 }}
+        >
+          <img
+            src={`${import.meta.env.BASE_URL}integration-map.svg`}
+            width={1600}
+            height={860}
+            loading="lazy"
+            decoding="async"
+            alt="Integration map. In: Claude Code, Codex CLI, Gemini CLI and OpenCode are read automatically; Antigravity, Cursor, Copilot CLI and your own agents push usage through the ingest API. Know Your Tokens collects it into local SQLite behind a local API. Out: dashboard, live feed, token calculator, REST API with OpenAPI, Python and TypeScript SDKs, CSV/JSON/NDJSON exports, and opt-in OpenTelemetry and webhooks to Grafana, Datadog, Honeycomb, Slack and n8n."
+          />
+          <figcaption className="int-map-hint">Swipe to see the whole map →</figcaption>
+        </motion.figure>
         <motion.div
           className="tabs"
           initial={{ opacity: 0, y: 30 }}

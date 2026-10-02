@@ -45,8 +45,8 @@ interface Envelope<T> {
   meta?: { total: number; page: number; page_size: number };
 }
 
-/** Thin, dependency-free client for the Token Telemetry REST API. */
-export class TokenTelemetry {
+/** Thin, dependency-free client for the Know Your Tokens REST API. */
+export class KnowYourTokens {
   private readonly baseUrl: string;
   private readonly timeoutMs: number;
   private readonly tzOffset: number;
@@ -179,7 +179,7 @@ export class TokenTelemetry {
 }
 
 /**
- * Verify an `X-TokenTelemetry-Signature` header (HMAC-SHA256 of the raw body).
+ * Verify an `X-KnowYourTokens-Signature` header (HMAC-SHA256 of the raw body).
  * Node 18+ / any runtime with Web Crypto.
  */
 export async function verifySignature(secret: string, rawBody: string | Uint8Array, header: string): Promise<boolean> {

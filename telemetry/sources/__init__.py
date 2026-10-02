@@ -61,7 +61,7 @@ class Source:
         return any(r.exists() for r in self.roots())
 
     def enabled(self) -> bool:
-        """On unless TOKENTELEMETRY_SOURCES lists the sources to use."""
+        """On unless KNOWYOURTOKENS_SOURCES lists the sources to use."""
         from telemetry import config
 
         wanted = config.sources()

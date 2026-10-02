@@ -184,7 +184,7 @@ def test_websocket_rejects_foreign_origin(client):
 
 def test_openapi_is_typed(client):
     spec = client.get("/openapi.json").json()
-    assert spec["info"]["title"] == "Token Telemetry API"
+    assert spec["info"]["title"] == "Know Your Tokens API"
     assert "UsageRow" in spec["components"]["schemas"]
 
 

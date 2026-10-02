@@ -9,13 +9,13 @@ export function About() {
     <div className="space-y-8 max-w-3xl">
       <PageHead
         eyebrow="Product"
-        title="About Token Telemetry"
+        title="About Know Your Tokens"
         subtitle="A local-first observability console for AI coding agents (Claude Code, Codex CLI, Gemini CLI, OpenCode and any agent you push) — see exactly where your tokens, tool calls, and skills go, without sending any of that data anywhere but your own machine."
       />
 
       <Section title="What this is, in plain terms">
         <p>
-          Token Telemetry is a small program that runs on your own computer, alongside your coding agents. It quietly
+          Know Your Tokens is a small program that runs on your own computer, alongside your coding agents. It quietly
           keeps a record of how each agent is being used — how many tokens each request costs, which tools and skills
           get called, which MCP servers are active, and which project each of those happened in — and shows it back to
           you in a dashboard you can search, filter, and export.
@@ -51,7 +51,7 @@ export function About() {
         <p className="mt-3">
           The technical version of this — the actual database tables and data-flow diagrams — is in{' '}
           <a
-            href="https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/ARCHITECTURE.md"
+            href="https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/ARCHITECTURE.md"
             target="_blank"
             rel="noreferrer"
             className="text-accent-text underline underline-offset-2"
@@ -133,7 +133,7 @@ export function About() {
           The project is open source under the MIT license. The full source, the installation guide, and a complete
           security review are on{' '}
           <a
-            href="https://github.com/sarveshtalele/tokentelemetry"
+            href="https://github.com/sarveshtalele/knowyourtokens"
             target="_blank"
             rel="noreferrer"
             className="text-accent-text underline underline-offset-2"

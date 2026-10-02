@@ -23,8 +23,8 @@ and doesn't mean is the basis for everything below:
   Codex CLI, Gemini CLI, OpenCode, or records pushed to the ingest API). It never
   leaves the machine — there is no telemetry-of-the-telemetry, no
   third-party analytics, and no outbound network call unless the user
-  configures an exporter (`TOKENTELEMETRY_OTLP_ENDPOINT` or
-  `TOKENTELEMETRY_WEBHOOK_URL`). Since v2.0 the dashboard no longer loads
+  configures an exporter (`KNOWYOURTOKENS_OTLP_ENDPOINT` or
+  `KNOWYOURTOKENS_WEBHOOK_URL`). Since v2.0 the dashboard no longer loads
   Google Fonts either.
 - The realistic attacker is **not** a remote adversary; it's either (a) a
   malicious web page open in the same browser as the dashboard (browser
@@ -125,4 +125,4 @@ Things that are **accepted risk**, not gaps, given the threat model above:
   appear under the `agent` name they were sent with.
 - Exporters send data to user-configured URLs. That is the point of them,
   and they are off by default; webhook payloads exclude prompt text unless
-  `TOKENTELEMETRY_WEBHOOK_INCLUDE_TEXT=1` and can be HMAC-verified.
+  `KNOWYOURTOKENS_WEBHOOK_INCLUDE_TEXT=1` and can be HMAC-verified.

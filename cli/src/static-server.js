@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const net = require('net');
+const { env } = require('./paths');
 
 const dir = path.resolve(process.argv[2] || '.');
 const port = Number(process.argv[3] || 5173);
@@ -27,7 +28,7 @@ const MIME = {
 };
 
 const LOCAL_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]', '::1']);
-for (const h of (process.env.TOKENTELEMETRY_ALLOWED_HOSTS || '').split(',')) {
+for (const h of (env('ALLOWED_HOSTS') || '').split(',')) {
   if (h.trim()) LOCAL_HOSTS.add(h.trim().toLowerCase());
 }
 

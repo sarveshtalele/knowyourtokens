@@ -26,7 +26,7 @@ export function TopBar() {
   return (
     <header className="h-16 bg-surface/90 backdrop-blur border-b border-line flex items-center justify-between px-7 sticky top-0 z-10">
       <div className="flex items-center gap-2 text-sm text-ink-soft">
-        <strong className="text-ink">Telemetry</strong>
+        <strong className="text-ink">Tokens</strong>
         {parts.length === 0 ? (
           <>
             <span className="text-line">/</span>

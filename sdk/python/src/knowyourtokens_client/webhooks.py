@@ -3,7 +3,7 @@ import hmac
 
 
 def verify_signature(secret: str, body: bytes, header: str) -> bool:
-    """Check an ``X-TokenTelemetry-Signature`` header against the raw request body.
+    """Check an ``X-KnowYourTokens-Signature`` header against the raw request body.
 
     Use the exact bytes you received (before JSON parsing)."""
     if not header or not header.startswith("sha256="):

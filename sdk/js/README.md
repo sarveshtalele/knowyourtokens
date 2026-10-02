@@ -1,18 +1,18 @@
-# tokentelemetry-client (TypeScript / JavaScript)
+# knowyourtokens-client (TypeScript / JavaScript)
 
-Zero-dependency, fully typed client for the [Token Telemetry](https://github.com/sarveshtalele/tokentelemetry)
+Zero-dependency, fully typed client for the [Know Your Tokens](https://github.com/sarveshtalele/knowyourtokens)
 local API: query usage from every tracked agent (Claude Code, Codex CLI, Gemini CLI, OpenCode, ...),
-and push usage from agents Token Telemetry can't read on its own. Node 18+, Deno, Bun, or any modern
+and push usage from agents Know Your Tokens can't read on its own. Node 18+, Deno, Bun, or any modern
 browser context that can reach the API.
 
 ```bash
-npm install "github:sarveshtalele/tokentelemetry#path:sdk/js"   # or from npm once published
+npm install "github:sarveshtalele/knowyourtokens#path:sdk/js"   # or from npm once published
 ```
 
 ```ts
-import { TokenTelemetry } from 'tokentelemetry-client';
+import { KnowYourTokens } from 'knowyourtokens-client';
 
-const tt = new TokenTelemetry(); // http://127.0.0.1:8000
+const tt = new KnowYourTokens(); // http://127.0.0.1:8000
 
 const summary = await tt.summary({ start: '2025-06-01', end: '2025-06-30' });
 console.log(summary.total_tokens, summary.top_model);
@@ -39,14 +39,14 @@ const { accepted, new: added } = await tt.ingest('my-agent', [
 ]);
 ```
 
-See [Track any agent](https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/INTEGRATIONS.md#track-any-agent).
+See [Track any agent](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/INTEGRATIONS.md#track-any-agent).
 
-Verify webhooks (`TOKENTELEMETRY_WEBHOOK_SECRET`):
+Verify webhooks (`KNOWYOURTOKENS_WEBHOOK_SECRET`):
 
 ```ts
-import { verifySignature } from 'tokentelemetry-client';
-const ok = await verifySignature(secret, rawBody, req.headers['x-tokentelemetry-signature']);
+import { verifySignature } from 'knowyourtokens-client';
+const ok = await verifySignature(secret, rawBody, req.headers['x-knowyourtokens-signature']);
 ```
 
-API reference: [`docs/API.md`](https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/API.md). License: MIT.
+API reference: [`docs/API.md`](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/API.md). License: MIT.
 Independent project; not affiliated with Anthropic, OpenAI, Google or any agent vendor.

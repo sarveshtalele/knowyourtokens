@@ -273,7 +273,7 @@ function Sidebar({ page, onNav }: { page: Page; onNav: (p: Page) => void }) {
     <aside className="demo-side">
       <div className="demo-brand">
         <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={26} height={26} />
-        Token Telemetry
+        Know Your Tokens
       </div>
       <nav aria-label="Demo navigation">
         {NAV.map((n) => (
@@ -580,7 +580,7 @@ function Integrations({ focus }: { focus?: Step['focus'] }) {
           <small>Settings</small>
           <h3>Integrations</h3>
         </div>
-        <span className="d-pill">v2.0 · schema v7</span>
+        <span className="d-pill">v{__APP_VERSION__} · schema v8</span>
       </header>
       <div className="d-grid2">
         <Card title="Exporters" className={focus === 'otlp' ? 'focus' : ''}>

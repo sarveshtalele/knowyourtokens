@@ -1,28 +1,29 @@
 # Product Hunt launch kit
 
-Everything needed to submit Token Telemetry at <https://www.producthunt.com/posts/new>. All images use
+Everything needed to submit Know Your Tokens at <https://www.producthunt.com/posts/new>. All images use
 fictional demo data (`python scripts/seed_demo.py`), so they contain no real prompts.
 
 ## Listing
 
 | Field | Value |
 |---|---|
-| Name | Token Telemetry |
+| Name | Know Your Tokens |
 | Tagline (≤ 60) | Every AI coding agent, every token, one local dashboard |
-| Website | https://sarveshtalele.github.io/tokentelemetry/ |
-| Source | https://github.com/sarveshtalele/tokentelemetry |
+| Website | https://sarveshtalele.github.io/knowyourtokens/ |
+| Source | https://github.com/sarveshtalele/knowyourtokens |
 | Pricing | Free (MIT, open source) |
 | Topics | Developer Tools · Artificial Intelligence · Open Source · Analytics |
 | Thumbnail | [`thumbnail-240.png`](thumbnail-240.png) (240×240) |
 | Social / LinkedIn | [`social-preview-1280x640.png`](social-preview-1280x640.png) · [`linkedin-1200x627.png`](linkedin-1200x627.png) · [`linkedin-portrait-1080x1350.png`](linkedin-portrait-1080x1350.png) |
-| Reels (9:16) | [`video/`](video) — launch reel and teaser, light theme, no audio (add a track in Instagram) |
+| Reel (9:16) | [`video/launch-reel-1080x1920.mp4`](video/launch-reel-1080x1920.mp4) — 32 s, light theme, no audio (add a track in Instagram) |
+| YouTube (16:9) | [`video/youtube-launch-and-guide-1920x1080.mp4`](video/youtube-launch-and-guide-1920x1080.mp4) — 2:22 launch + how-to guide recorded from the real app; thumbnail [`youtube-thumbnail-1280x720.png`](youtube-thumbnail-1280x720.png); sources in [`src/youtube/`](src/youtube) |
 | Gallery | [`gallery/`](gallery) (1270×760, in order 01 → 07) |
 
 **Description (≤ 260 characters)**
 
 > Local-first token observability for Claude Code, Codex, Gemini CLI, OpenCode and any agent via API.
 > Exact tokens per request, debug the prompt behind any spike, compare agents. Free, open source:
-> npx tokentelemetry
+> npx knowyourtokens
 
 ### Gallery captions
 
@@ -43,7 +44,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 > cheaper for this job? Is this MCP server even worth having on?* Every agent records the answers in its
 > own logs, but nothing showed them to me across all my projects and agents.
 >
-> So I built **Token Telemetry**. Run `npx tokentelemetry` and it:
+> So I built **Know Your Tokens**. Run `npx knowyourtokens` and it:
 >
 > - reads Claude Code, Codex CLI, Gemini CLI and OpenCode logs for **exact** usage (each request
 >   counted once), and takes anything else (Antigravity, Cursor, your own agent) through one API call,
@@ -65,16 +66,16 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 
 **X / Bluesky / Threads**
 
-> Shipped Token Telemetry on Product Hunt today 🚀
+> Shipped Know Your Tokens on Product Hunt today 🚀
 > One local dashboard for every AI coding agent: Claude Code, Codex, Gemini CLI, OpenCode and anything
 > else via API. Debug the prompt behind any spike. 100% local, MIT.
-> `npx tokentelemetry`
+> `npx knowyourtokens`
 > [PH link]
 
 **LinkedIn / dev.to opener**
 
 > Your coding agent tells you a session got expensive. It doesn't tell you *why*, and it never compares
-> itself with the other agents you use. Token Telemetry is a free, local dashboard that does: exact
+> itself with the other agents you use. Know Your Tokens is a free, local dashboard that does: exact
 > tokens per request for Claude Code, Codex, Gemini CLI, OpenCode and anything you push, the full
 > context behind each request, and which tools, skills and MCP servers drive your usage.
 
@@ -84,11 +85,11 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 
 - [ ] Repo About: description, website and topics set (see [GITHUB_SETUP.md](../GITHUB_SETUP.md)).
 - [ ] Social preview image uploaded: Settings → General → Social preview → `site/public/og.png`.
-- [ ] `tokentelemetry` and `tokentelemetry-client` on npm at the release version; `npx tokentelemetry`
+- [ ] `knowyourtokens` and `knowyourtokens-client` on npm at the release version; `npx knowyourtokens`
       works on a clean machine (Windows, macOS, Linux).
 - [ ] GitHub release published with notes from the CHANGELOG.
 - [ ] Website deployed; the Google Search Console property (URL prefix
-      `https://sarveshtalele.github.io/tokentelemetry/`) is verified and `sitemap.xml` is submitted.
+      `https://sarveshtalele.github.io/knowyourtokens/`) is verified and `sitemap.xml` is submitted.
 - [ ] Link previews checked: <https://www.opengraph.xyz/> on the site URL.
 - [ ] A couple of `good first issue`s open, so new visitors have somewhere to start.
 - [ ] Discussions enabled for questions.

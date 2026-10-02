@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sarveshtalele.github.io/tokentelemetry/sitemap.xml
+Sitemap: https://sarveshtalele.github.io/knowyourtokens/sitemap.xml

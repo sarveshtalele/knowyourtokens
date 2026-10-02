@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Publish a Token Telemetry release from a Mac, in one go.
+# Publish a Know Your Tokens release from a Mac, in one go.
 #
-#   curl -fsSL https://raw.githubusercontent.com/sarveshtalele/tokentelemetry/main/scripts/release-macos.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/sarveshtalele/knowyourtokens/main/scripts/release-macos.sh | bash
 #   # or, inside a clone:
 #   bash scripts/release-macos.sh [--dry-run] [--dir PATH] [--no-tag] [--pypi] [--yes]
 #
 # What it does (each step is skipped when it's already done, so re-running is safe):
 #   1. checks git, Node >= 18 and npm
-#   2. clones the repo (default ~/tokentelemetry) or updates it to the latest main
+#   2. clones the repo (default ~/knowyourtokens) or updates it to the latest main
 #   3. checks every package has the same version
 #   4. logs you in to npm if needed
-#   5. publishes the JS SDK (tokentelemetry-client) and the CLI (tokentelemetry) to npm
+#   5. publishes the JS SDK (knowyourtokens-client) and the CLI (knowyourtokens) to npm
 #   6. waits until npm serves the new versions
 #   7. pushes the vX.Y.Z tag, which runs the Release workflow (tests + GitHub release)
 #   8. optionally publishes the Python SDK to PyPI (--pypi)
 #   9. prints the checklist of things only you can do in a browser
 set -euo pipefail
 
-REPO_URL="https://github.com/sarveshtalele/tokentelemetry.git"
-DIR="${TOKENTELEMETRY_DIR:-$HOME/tokentelemetry}"
+REPO_URL="https://github.com/sarveshtalele/knowyourtokens.git"
+DIR="${KNOWYOURTOKENS_DIR:-$HOME/knowyourtokens}"
 DRY=0 TAG=1 PYPI=0 YES=0
 
 usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
@@ -62,7 +62,7 @@ ok "git $(git --version | awk '{print $3}'), node $(node -v), npm $(npm -v)"
 # 2 ─────────────────────────────────────────────────────────────────────────
 step "2/9 Repository ($DIR)"
 # Already inside a clone? Use it.
-if top="$(git rev-parse --show-toplevel 2>/dev/null)" && git -C "$top" remote get-url origin 2>/dev/null | grep -q 'sarveshtalele/tokentelemetry'; then
+if top="$(git rev-parse --show-toplevel 2>/dev/null)" && git -C "$top" remote get-url origin 2>/dev/null | grep -Eq 'sarveshtalele/(knowyourtokens|tokentelemetry)'; then
   DIR="$top"
 fi
 if [ ! -d "$DIR/.git" ]; then
@@ -83,7 +83,7 @@ v_tel="$(sed -n 's/^__version__ = "\(.*\)"/\1/p' telemetry/__init__.py)"
 v_py="$(sed -n 's/^version = "\(.*\)"/\1/p' sdk/python/pyproject.toml)"
 [ "$V" = "$v_sdk" ] && [ "$V" = "$v_tel" ] && [ "$V" = "$v_py" ] \
   || die "Versions differ: cli $V, js sdk $v_sdk, telemetry $v_tel, python sdk $v_py"
-[ -d telemetry/sources ] || die "main doesn't have the multi-agent work yet. Merge the open release PR first: https://github.com/sarveshtalele/tokentelemetry/pulls"
+[ -d telemetry/sources ] || die "main doesn't have the multi-agent work yet. Merge the open release PR first: https://github.com/sarveshtalele/knowyourtokens/pulls"
 ok "everything is $V"
 
 # 4 ─────────────────────────────────────────────────────────────────────────
@@ -105,13 +105,13 @@ pub() { # <package> <dir>
     if [ "$DRY" = 1 ]; then npm publish --access public --dry-run; else npm publish --access public; fi )
   if [ "$DRY" = 1 ]; then ok "$1@$V packs cleanly (dry run, not published)"; else ok "$1@$V published"; fi
 }
-pub tokentelemetry-client sdk/js
-pub tokentelemetry cli   # prepack builds the dashboard and bundles it (takes a minute)
+pub knowyourtokens-client sdk/js
+pub knowyourtokens cli   # prepack builds the dashboard and bundles it (takes a minute)
 
 # 6 ─────────────────────────────────────────────────────────────────────────
 step "6/9 Check npm"
 if [ "$DRY" = 1 ]; then warn "skipped (dry run)"; else
-  for p in tokentelemetry-client tokentelemetry; do
+  for p in knowyourtokens-client knowyourtokens; do
     for i in $(seq 1 18); do published "$p" "$V" && break; sleep 10; done
     published "$p" "$V" && ok "npm serves $p@$V" \
       || warn "$p@$V isn't visible yet. npm can take a few minutes; check later with: npm view $p version --prefer-online"
@@ -126,18 +126,18 @@ elif [ "$DRY" = 1 ]; then warn "would push tag v$V"
 elif confirm "Push tag v$V? It runs the Release workflow, which re-runs the tests and creates the GitHub release."; then
   git tag -a "v$V" -m "v$V"
   if git push origin "v$V"; then
-    ok "pushed. Watch it: https://github.com/sarveshtalele/tokentelemetry/actions/workflows/publish.yml"
+    ok "pushed. Watch it: https://github.com/sarveshtalele/knowyourtokens/actions/workflows/publish.yml"
   else
     git tag -d "v$V" >/dev/null
     warn "GitHub refused the push (not signed in to git?). Make the release in the browser instead:"
-    warn "https://github.com/sarveshtalele/tokentelemetry/releases/new  → tag v$V, target main, Publish release"
+    warn "https://github.com/sarveshtalele/knowyourtokens/releases/new  → tag v$V, target main, Publish release"
   fi
 else warn "not pushed. Later: git tag -a v$V -m v$V && git push origin v$V"; fi
 
 # 8 ─────────────────────────────────────────────────────────────────────────
 step "8/9 Python SDK on PyPI (optional)"
-if [ "$PYPI" = 0 ]; then warn "skipped (add --pypi to publish tokentelemetry-client to PyPI)"
-elif curl -fsS "https://pypi.org/pypi/tokentelemetry-client/$V/json" >/dev/null 2>&1; then ok "tokentelemetry-client $V is already on PyPI"
+if [ "$PYPI" = 0 ]; then warn "skipped (add --pypi to publish knowyourtokens-client to PyPI)"
+elif curl -fsS "https://pypi.org/pypi/knowyourtokens-client/$V/json" >/dev/null 2>&1; then ok "knowyourtokens-client $V is already on PyPI"
 else
   command -v python3 >/dev/null || die "python3 is missing. Run: brew install python"
   venv="$(mktemp -d)/venv"
@@ -149,28 +149,25 @@ else
   if [ "$DRY" = 1 ]; then warn "built; not uploaded (dry run)"; else
     echo "  Paste a PyPI API token when asked (https://pypi.org/manage/account/token/); the username is __token__."
     "$venv/bin/twine" upload -u __token__ sdk/python/dist/*
-    ok "published to https://pypi.org/project/tokentelemetry-client/"
+    ok "published to https://pypi.org/project/knowyourtokens-client/"
   fi
 fi
 
 # 9 ─────────────────────────────────────────────────────────────────────────
 step "9/9 What's left (browser only)"
 cat <<EOF
-  Full checklist with ticks: docs/LAUNCH_CHECKLIST.md
-
-  [ ] Repo About: description, website, topics ........ https://github.com/sarveshtalele/tokentelemetry
+  [ ] Repo About: description, website, topics ........ https://github.com/sarveshtalele/knowyourtokens
   [ ] Social preview: docs/launch/social-preview-1280x640.png
-                                    ........ https://github.com/sarveshtalele/tokentelemetry/settings
-  [ ] Trusted publishing for both npm packages ........ https://www.npmjs.com/package/tokentelemetry-client/access
+                                    ........ https://github.com/sarveshtalele/knowyourtokens/settings
+  [ ] Trusted publishing for both npm packages ........ https://www.npmjs.com/package/knowyourtokens-client/access
   [ ] Enable Discussions + private vulnerability reporting
-  [ ] Protect main (require CI) ....................... https://github.com/sarveshtalele/tokentelemetry/settings/rules
+  [ ] Protect main (require CI) ....................... https://github.com/sarveshtalele/knowyourtokens/settings/rules
   [ ] Google Search Console + submit sitemap.xml ...... https://search.google.com/search-console
-  [ ] Post the reels and LinkedIn images (docs/launch/)
+  [ ] Post the launch reel, YouTube video and LinkedIn images (docs/launch/)
 EOF
 if [ "$DRY" = 0 ] && command -v open >/dev/null && confirm "Open these pages in the browser now?"; then
-  open "https://github.com/sarveshtalele/tokentelemetry/releases"
-  open "https://www.npmjs.com/package/tokentelemetry"
-  open "https://github.com/sarveshtalele/tokentelemetry/settings"
-  open "$DIR/docs/LAUNCH_CHECKLIST.md"
+  open "https://github.com/sarveshtalele/knowyourtokens/releases"
+  open "https://www.npmjs.com/package/knowyourtokens"
+  open "https://github.com/sarveshtalele/knowyourtokens/settings"
 fi
-printf '\n%sDone.%s Test it: npx tokentelemetry@%s --version\n' "$G" "$N" "$V"
+printf '\n%sDone.%s Test it: npx knowyourtokens@%s --version\n' "$G" "$N" "$V"

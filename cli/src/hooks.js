@@ -50,7 +50,7 @@ function stripOurHooks(cfg) {
 }
 
 function backupOnce(file) {
-  const backup = `${file}.bak-tokentelemetry`;
+  const backup = `${file}.bak-knowyourtokens`;
   if (fs.existsSync(file) && !fs.existsSync(backup)) fs.copyFileSync(file, backup);
 }
 

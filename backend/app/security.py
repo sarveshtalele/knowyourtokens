@@ -6,19 +6,20 @@
   cross-site requests (CSRF) from any page that isn't the dashboard.
 """
 
-import os
 import re
 from urllib.parse import urlsplit
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from telemetry import config
+
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1", "[::1]", "testserver"}
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
 
 def allowed_hosts():
-    extra = {h.strip().lower() for h in os.environ.get("TOKENTELEMETRY_ALLOWED_HOSTS", "").split(",") if h.strip()}
+    extra = {h.strip().lower() for h in config.env("KNOWYOURTOKENS_ALLOWED_HOSTS", "").split(",") if h.strip()}
     return LOCAL_HOSTS | extra
 
 
