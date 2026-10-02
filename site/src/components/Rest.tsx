@@ -81,11 +81,11 @@ export const FAQ: [string, string][] = [
   ],
   [
     'Which tools does it work with?',
-    'Anything that runs Claude Code: the terminal CLI, VS Code, JetBrains, Cursor, Windsurf, the Agent SDK and remote sessions. Each is detected and labelled automatically.',
+    'Claude Code (terminal, VS Code, JetBrains, Agent SDK, remote), Codex CLI, Gemini CLI and OpenCode are read automatically. Antigravity, Cursor, Copilot CLI or your own agent can push usage to one local endpoint. Each is detected and labelled automatically.',
   ],
   [
     'Are the numbers exact?',
-    'Per-request token counts are exact: they come from the API usage Claude Code records. Per-file and per-tool attribution is an estimate, and it is labelled as one everywhere it appears.',
+    'Per-request token counts are exact: they come from the usage each agent records itself. Per-file and per-tool attribution is an estimate, and it is labelled as one everywhere it appears.',
   ],
   [
     'Why are there no cost columns?',
@@ -195,8 +195,8 @@ export function Footer() {
         <div>
           <strong style={{ color: 'var(--ink)' }}>Token Telemetry</strong>
           <p style={{ margin: '8px 0 0', maxWidth: 360 }}>
-            Local-first token, tool, skill & MCP observability for Claude Code. MIT licensed. Not affiliated with
-            Anthropic.
+            Local-first token observability for every AI coding agent. MIT licensed. Not affiliated with Anthropic,
+            OpenAI, Google or any agent vendor.
           </p>
         </div>
         <nav aria-label="Documentation">

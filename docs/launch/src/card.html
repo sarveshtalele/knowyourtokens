@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Token Telemetry card</title>
+<style>
+  /* One layout, four exports: ?w=1280&h=640 (GitHub social preview),
+     1200x630 (site og:image), 1200x627 (LinkedIn), 1080x1350 (LinkedIn portrait). */
+  :root {
+    --ink: #111118;
+    --soft: #4a4a57;
+    --faint: #8a8a99;
+    --bg: #fbfbfd;
+    --card: #ffffff;
+    --line: rgba(17, 17, 24, 0.08);
+    --c1: #6e56f8;
+    --c2: #0fb5a3;
+    --c3: #3b82f6;
+    --c4: #f59e0b;
+    --c5: #ec4899;
+    --font: 'Inter', -apple-system, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    width: var(--w); height: var(--h); overflow: hidden; position: relative;
+    background: var(--bg); color: var(--ink); font-family: var(--font);
+  }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; }
+  .b1 { width: 620px; height: 620px; background: #c9bfff; top: -260px; right: -140px; }
+  .b2 { width: 520px; height: 520px; background: #b7f0e7; bottom: -300px; left: -160px; }
+  .b3 { width: 380px; height: 380px; background: #ffd1e8; bottom: -160px; right: 220px; opacity: .45; }
+  .grid {
+    position: absolute; inset: 0; opacity: .5;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
+  }
+  .wrap { position: relative; height: 100%; padding: var(--pad); display: grid; grid-template-columns: var(--cols); gap: var(--gap); align-items: center; }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 750; font-size: var(--brand); letter-spacing: -.02em; }
+  .brand svg { width: calc(var(--brand) * 1.7); height: calc(var(--brand) * 1.7); }
+  h1 { font-size: var(--h1); line-height: 1.02; letter-spacing: -.05em; font-weight: 800; margin: var(--h1gap) 0 calc(var(--h1gap) * .55); }
+  .g { background: linear-gradient(100deg, var(--c1), var(--c5) 55%, var(--c2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: var(--sub); color: var(--soft); line-height: 1.35; margin: 0 0 calc(var(--h1gap) * .8); max-width: 680px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: calc(var(--h1gap) * .9); }
+  .chip { font-size: var(--chip); font-weight: 650; padding: .45em .9em; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 6px 18px -10px rgba(20, 20, 40, .25); display: inline-flex; align-items: center; gap: .5em; }
+  .chip i { width: .62em; height: .62em; border-radius: 50%; display: inline-block; }
+  .chip.more { color: var(--soft); background: transparent; box-shadow: none; border-style: dashed; }
+  .cmd { display: inline-flex; align-items: center; gap: 14px; font: 600 var(--cmd) ui-monospace, 'SF Mono', Menlo, monospace; background: #111118; color: #f5f5f7; padding: .62em 1em; border-radius: 14px; }
+  .cmd b { color: #34d3be; }
+  .meta { margin-left: 16px; font-size: calc(var(--cmd) * .72); color: var(--faint); font-weight: 600; }
+
+  /* mini dashboard */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 22px; box-shadow: 0 40px 80px -40px rgba(40, 30, 120, .35), 0 10px 30px -18px rgba(0, 0, 0, .15); }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+  .ph b { font-size: 15px; letter-spacing: -.01em; }
+  .ph span { font-size: 12px; color: var(--faint); font-weight: 600; }
+  .total { font-size: 40px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+  .total small { display: block; font-size: 12px; color: var(--faint); font-weight: 600; letter-spacing: 0; margin-top: 6px; }
+  .rows { margin-top: 18px; display: grid; gap: 11px; }
+  .row { display: grid; grid-template-columns: 104px 1fr 54px; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+  .track { height: 10px; border-radius: 99px; background: #f1f1f6; overflow: hidden; }
+  .track span { display: block; height: 100%; border-radius: 99px; }
+  .row em { font-style: normal; text-align: right; color: var(--soft); font-variant-numeric: tabular-nums; }
+  .spark { margin-top: 18px; height: 70px; width: 100%; }
+  .foot { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .foot span { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #f3f0ff; color: #4b3bd1; }
+  .foot span.t { background: #e7faf6; color: #0b7d70; }
+
+  /* portrait */
+  body.portrait .wrap { align-content: center; }
+  body.portrait .panel { max-width: 860px; }
+  body.portrait .rows { gap: 16px; }
+  body.portrait .row { grid-template-columns: 150px 1fr 70px; font-size: 18px; }
+  body.portrait .track { height: 14px; }
+  body.portrait .ph b { font-size: 20px; }
+  body.portrait .ph span { font-size: 15px; }
+  body.portrait .total { font-size: 58px; }
+  body.portrait .total small { font-size: 15px; }
+  body.portrait .spark { height: 110px; }
+  body.portrait .foot span { font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="grid"></div>
+<div class="wrap">
+  <div class="copy">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b7bff"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="#111118"/><path d="M14 44 L24 30 L33 37 L50 18" fill="none" stroke="url(#lg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="18" r="5" fill="#2dd4bf"/></svg>
+      Token Telemetry
+    </div>
+    <h1 id="h1">Every AI agent.<br/><span class="g">Every token.</span></h1>
+    <p class="sub" id="sub">One local dashboard to debug prompts, context and cost across all your coding agents.</p>
+    <div class="chips">
+      <span class="chip"><i style="background:#d97757"></i>Claude Code</span>
+      <span class="chip"><i style="background:#10a37f"></i>Codex</span>
+      <span class="chip"><i style="background:#4285f4"></i>Gemini CLI</span>
+      <span class="chip"><i style="background:#111118"></i>OpenCode</span>
+      <span class="chip more">+ Antigravity, Cursor, any agent via API</span>
+    </div>
+    <div><span class="cmd"><b>$</b>npx tokentelemetry</span><span class="meta">Free · MIT · 100% local</span></div>
+  </div>
+  <div class="panel" id="panel">
+    <div class="ph"><b>Tokens by agent</b><span>last 30 days</span></div>
+    <div class="total">48.2M<small>exact tokens · 6,214 requests</small></div>
+    <div class="rows">
+      <div class="row">Claude Code<div class="track"><span style="width:92%;background:#d97757"></span></div><em>21.4M</em></div>
+      <div class="row">Codex<div class="track"><span style="width:61%;background:#10a37f"></span></div><em>13.9M</em></div>
+      <div class="row">Gemini CLI<div class="track"><span style="width:34%;background:#4285f4"></span></div><em>7.8M</em></div>
+      <div class="row">OpenCode<div class="track"><span style="width:22%;background:#6e56f8"></span></div><em>5.1M</em></div>
+    </div>
+    <svg class="spark" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="sf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e56f8" stop-opacity=".35"/><stop offset="1" stop-color="#6e56f8" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0 55 L25 50 L50 52 L75 40 L100 44 L125 30 L150 36 L175 22 L200 28 L225 14 L250 20 L275 9 L300 12 L300 70 L0 70 Z" fill="url(#sf)"/>
+      <path d="M0 55 L25 50 L50 52 L75 40 L100 44 L125 30 L150 36 L175 22 L200 28 L225 14 L250 20 L275 9 L300 12" fill="none" stroke="#6e56f8" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <div class="foot"><span>Prompt debugger</span><span class="t">Context hotspots</span><span>MCP & tools</span><span class="t">Token calculator</span></div>
+  </div>
+</div>
+<script>
+  // Size presets from the query string, so one file renders every format.
+  const q = new URLSearchParams(location.search);
+  const w = +(q.get('w') || 1280), h = +(q.get('h') || 640);
+  const portrait = h > w;
+  const s = (portrait ? w / 1080 : h / 640);
+  const set = (k, v) => document.documentElement.style.setProperty(k, v);
+  set('--w', w + 'px'); set('--h', h + 'px');
+  if (portrait) {
+    document.body.classList.add('portrait');
+    set('--pad', `${96 * s}px ${84 * s}px`); set('--cols', '1fr'); set('--gap', `${56 * s}px`);
+    set('--brand', `${30 * s}px`); set('--h1', `${112 * s}px`); set('--h1gap', `${40 * s}px`);
+    set('--sub', `${34 * s}px`); set('--chip', `${24 * s}px`); set('--cmd', `${30 * s}px`);
+  } else {
+    set('--pad', `${58 * s}px ${64 * s}px`); set('--cols', '1.12fr .88fr'); set('--gap', `${44 * s}px`);
+    set('--brand', `${22 * s}px`); set('--h1', `${74 * s}px`); set('--h1gap', `${26 * s}px`);
+    set('--sub', `${23 * s}px`); set('--chip', `${15.5 * s}px`); set('--cmd', `${20 * s}px`);
+  }
+</script>
+</body>
+</html>

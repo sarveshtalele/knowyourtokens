@@ -30,7 +30,7 @@ export function Sessions() {
       <PageHead
         eyebrow="Execution history"
         title="Sessions"
-        subtitle="Session-level context for diagnosing high-volume Claude Code workflows."
+        subtitle="Session-level context for diagnosing high-volume agent workflows."
       />
       <div className="flex gap-2 flex-wrap">
         <ProjectFilter projects={projects.map((p) => p.project)} value={project} onChange={setProject} />
@@ -49,7 +49,7 @@ export function Sessions() {
             render: (v) => <span className="font-mono">{String(v).slice(0, 12)}</span>,
           },
           { key: 'project', label: 'Project' },
-          { key: 'client', label: 'Client' },
+          { key: 'client', label: 'Agent' },
           { key: 'model', label: 'Model' },
           { key: 'total_tokens', label: 'Tokens', align: 'right', render: (v) => fmt(v as number) },
           { key: 'interactions', label: 'Interactions', align: 'right', render: (v) => fmt(v as number) },

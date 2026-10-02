@@ -19,7 +19,8 @@ and doesn't mean is the basis for everything below:
   from another machine, and doing so is a deployment choice outside this
   project's threat model.
 - The data collected (prompts, responses, tool calls, file paths) is
-  exactly as sensitive as the Claude Code sessions it comes from. It never
+  exactly as sensitive as the agent sessions it comes from (Claude Code,
+  Codex CLI, Gemini CLI, OpenCode, or records pushed to the ingest API). It never
   leaves the machine — there is no telemetry-of-the-telemetry, no
   third-party analytics, and no outbound network call unless the user
   configures an exporter (`TOKENTELEMETRY_OTLP_ENDPOINT` or
@@ -28,13 +29,14 @@ and doesn't mean is the basis for everything below:
 - The realistic attacker is **not** a remote adversary; it's either (a) a
   malicious web page open in the same browser as the dashboard (browser
   same-origin attacks: CSRF, XSS, an attacker-controlled export link), or
-  (b) data that flows through the pipeline from Claude Code's own session
-  transcripts, which are attacker-influenceable in principle (a prompt or
+  (b) data that flows through the pipeline from the agents' own session
+  files or from `POST /api/v1/ingest`, which are attacker-influenceable in
+  principle (a prompt or
   a file a session touches can contain adversarial content) even though
   they're locally generated.
 - Anyone with local code execution as the same OS user already has direct
-  read access to the SQLite database and the Claude Code session files it
-  parses — that is out of scope by definition, the same way "an attacker
+  read access to the SQLite database and the agent session files it
+  parses (and can push records to the ingest API) — that is out of scope by definition, the same way "an attacker
   with root" is out of scope for most local tools.
 
 ## Methodology
@@ -50,7 +52,8 @@ committed) covering:
 2. **Dependency audit** — `npm audit` for both `frontend/` and `cli/`;
    `pip-audit` against `requirements.txt` and `backend/requirements.txt`.
 3. **Manual read-through** of every file-path-handling code path (the CLI
-   installer, the static file server, reconcile's transcript parsing) for
+   installer, the static file server, reconcile's session-file parsing in
+   `telemetry/sources/`) for
    path-traversal and injection risk.
 4. **Manual read-through** of every SQL query for string-built (as
    opposed to parameterized) values.
@@ -87,6 +90,8 @@ committed) covering:
 | 18 | `stop` trusted PIDs from `run.json`; PID reuse could terminate an unrelated process | Low | **Fixed (v2.0)**: command line must still match the service | `cli/src/process.js` |
 | 19 | Dashboard served without CSP / `nosniff` / framing protection | Low | **Fixed (v2.0)**: strict CSP (no inline scripts), `X-Frame-Options: DENY`, `nosniff`, `no-referrer` | `cli/src/static-server.js` |
 | 20 | Dev server (`backend/run.py`) bound `0.0.0.0` | Low | **Fixed (v2.0)**: binds `127.0.0.1` | `backend/run.py` |
+| 21 | New write endpoint `POST /api/v1/ingest` (v2.1) accepts usage records from any local client | Design note | **Mitigated by design**: same Host allowlist and Origin check as the other `POST` endpoints (a web page can't post cross-site); body validated by Pydantic (`agent` 1–64 chars, at most 1000 records, non-negative integer token counts); runs through the same parameterized ingest as file sources | `backend/app/api/routes/ingest.py`, `backend/app/schemas.py`, `telemetry/ingest.py` |
+| 22 | Reading other agents' local data (v2.1): Codex/Gemini CLI session files and OpenCode's SQLite database | Design note | **Mitigated by design**: files are only read, never written; OpenCode's database is opened `mode=ro`; a file that fails to parse is logged and skipped | `telemetry/sources/` |
 
 ## Residual risk and recommendations
 
@@ -115,6 +120,9 @@ Things that are **accepted risk**, not gaps, given the threat model above:
   loopback-only service.
 - No CSRF *token*. Origin checking (finding 14) covers browsers; a
   non-browser client on the same machine already has full local access.
+- Any local process can push records to `POST /api/v1/ingest`, so pushed
+  usage is only as trustworthy as the processes on the machine. Records
+  appear under the `agent` name they were sent with.
 - Exporters send data to user-configured URLs. That is the point of them,
   and they are off by default; webhook payloads exclude prompt text unless
   `TOKENTELEMETRY_WEBHOOK_INCLUDE_TEXT=1` and can be HMAC-verified.

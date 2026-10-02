@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Token Telemetry
-description: Observability design system for Claude Code token, request, tool, skill, client, and project telemetry.
+description: Observability design system for AI coding agent token, request, tool, skill, client, and project telemetry.
 colors:
   ink: "#111827"
   ink-soft: "#475569"

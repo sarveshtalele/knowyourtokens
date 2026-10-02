@@ -1,8 +1,10 @@
 """Generate a realistic, entirely fictional dataset for demos and screenshots.
 
-Writes synthetic Claude Code transcripts into a throwaway config dir and runs
-the real ingest pipeline over them, so every page of the dashboard has data
-without exposing anyone's real prompts.
+Writes synthetic sessions for several agents, each in that agent's own
+on-disk format (Claude Code transcripts, Codex rollouts, Gemini CLI chats,
+an OpenCode SQLite database) into a throwaway directory, then runs the real
+ingest pipeline over them, so every page of the dashboard has data without
+exposing anyone's real prompts.
 
     python scripts/seed_demo.py --out /tmp/tt-demo
     CLAUDE_TELEMETRY_DB=/tmp/tt-demo/telemetry.db uvicorn app.main:app --app-dir backend
@@ -16,6 +18,7 @@ import argparse
 import json
 import os
 import random
+import sqlite3
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -31,6 +34,12 @@ PROJECTS = {
     "ml-pipeline": (0.12, ["pipeline/train.py", "pipeline/features.py", "notebooks/eval.ipynb"]),
 }
 MODELS = [("claude-opus-4-5", 0.35), ("claude-sonnet-4-5", 0.5), ("claude-haiku-4-5", 0.15)]
+AGENTS = [("claude-code", 0.5), ("codex", 0.25), ("gemini-cli", 0.15), ("opencode", 0.10)]
+AGENT_MODELS = {
+    "codex": [("gpt-5-codex", 0.7), ("gpt-5", 0.3)],
+    "gemini-cli": [("gemini-2.5-pro", 0.6), ("gemini-2.5-flash", 0.4)],
+    "opencode": [("claude-sonnet-4-5", 0.5), ("gpt-5", 0.3), ("qwen3-coder", 0.2)],
+}
 ENTRYPOINTS = [("cli", 0.45), ("claude-vscode", 0.3), ("claude-jetbrains", 0.1), ("sdk-py", 0.08), ("remote", 0.07)]
 PROMPTS = [
     "Why does checkout fail when the cart has a gift card?",
@@ -168,6 +177,162 @@ def session_lines(rng, sid, cwd, files, start, entry, counter):
     return lines
 
 
+def _requests(lines):
+    """(user prompt, assistant event) pairs from Claude-shaped lines."""
+    prompt = None
+    for e in lines:
+        if e["type"] == "user" and isinstance(e["message"]["content"], str):
+            prompt = e["message"]["content"]
+        elif e["type"] == "assistant":
+            yield prompt, e
+            prompt = None
+
+
+def write_codex(out: Path, rng, sid, cwd, lines):
+    model = pick(rng, AGENT_MODELS["codex"])
+    day = lines[0]["timestamp"][:10].split("-")
+    path = (
+        out
+        / "codex"
+        / "sessions"
+        / day[0]
+        / day[1]
+        / day[2]
+        / f"rollout-{lines[0]['timestamp'][:19].replace(':', '-')}-{sid}.jsonl"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = [
+        {"timestamp": lines[0]["timestamp"], "type": "session_meta", "payload": {"id": sid, "cwd": cwd}},
+        {"timestamp": lines[0]["timestamp"], "type": "turn_context", "payload": {"cwd": cwd, "model": model}},
+    ]
+    for prompt, e in _requests(lines):
+        ts, msg = e["timestamp"], e["message"]
+        if prompt:
+            rows.append({"timestamp": ts, "type": "event_msg", "payload": {"type": "user_message", "message": prompt}})
+        for b in msg["content"]:
+            if b["type"] == "tool_use":
+                name = "shell" if b["name"] in ("Bash", "Read", "Grep") else b["name"]
+                rows.append(
+                    {
+                        "timestamp": ts,
+                        "type": "response_item",
+                        "payload": {
+                            "type": "function_call",
+                            "name": name,
+                            "arguments": json.dumps(b["input"]),
+                            "call_id": b["id"],
+                        },
+                    }
+                )
+        u = msg["usage"]
+        rows.append(
+            {
+                "timestamp": ts,
+                "type": "token_usage_record",
+                "payload": {
+                    "response_id": f"resp_{msg['id']}",
+                    "usage": {
+                        "input_tokens": u["input_tokens"]
+                        + u["cache_creation_input_tokens"]
+                        + u["cache_read_input_tokens"],
+                        "cached_input_tokens": u["cache_read_input_tokens"],
+                        "output_tokens": u["output_tokens"],
+                    },
+                },
+            }
+        )
+    path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+
+
+def write_gemini(out: Path, rng, sid, cwd, name, lines):
+    model = pick(rng, AGENT_MODELS["gemini-cli"])
+    home = out / "gemini-home" / ".gemini"
+    chats = home / "tmp" / name / "chats"
+    chats.mkdir(parents=True, exist_ok=True)
+    registry = home / "projects.json"
+    projects = json.loads(registry.read_text()) if registry.exists() else {"projects": {}}
+    projects["projects"][cwd] = name
+    registry.write_text(json.dumps(projects))
+    rows = [{"sessionId": sid, "projectHash": name, "startTime": lines[0]["timestamp"]}]
+    for i, (prompt, e) in enumerate(_requests(lines)):
+        msg, u = e["message"], e["message"]["usage"]
+        if prompt:
+            rows.append({"id": f"u{i}", "timestamp": e["timestamp"], "type": "user", "content": prompt})
+        calls = [
+            {"id": b["id"], "name": b["name"].lower(), "args": b["input"]}
+            for b in msg["content"]
+            if b["type"] == "tool_use"
+        ]
+        rows.append(
+            {
+                "id": f"g{i}",
+                "timestamp": e["timestamp"],
+                "type": "gemini",
+                "model": model,
+                "content": "Done.",
+                "tokens": {
+                    "input": u["input_tokens"] + u["cache_creation_input_tokens"] + u["cache_read_input_tokens"],
+                    "cached": u["cache_read_input_tokens"],
+                    "output": u["output_tokens"],
+                    "thoughts": 0,
+                    "tool": 0,
+                },
+                "toolCalls": calls,
+            }
+        )
+    (chats / f"session-{lines[0]['timestamp'][:16].replace(':', '-')}-{sid[:8]}.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+    )
+
+
+def write_opencode(out: Path, rng, sid, cwd, lines):
+    db = out / "xdg" / "opencode" / "opencode.db"
+    db.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS message (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, data TEXT)"
+    )
+    conn.execute("CREATE TABLE IF NOT EXISTS part (id TEXT PRIMARY KEY, message_id TEXT, session_id TEXT, data TEXT)")
+    model, provider = pick(rng, AGENT_MODELS["opencode"]), None
+    provider = {"claude-sonnet-4-5": "anthropic", "gpt-5": "openai"}.get(model, "openrouter")
+    for i, (prompt, e) in enumerate(_requests(lines)):
+        ms = int(datetime.fromisoformat(e["timestamp"].replace("Z", "+00:00")).timestamp() * 1000)
+        key = f"{ms:015d}{sid[:6]}{i:04d}"
+        u = e["message"]["usage"]
+        if prompt:
+            conn.execute(
+                "INSERT INTO message VALUES(?,?,?,?)",
+                (f"msg_{key}u", sid, ms, json.dumps({"role": "user", "path": {"cwd": cwd}, "time": {"created": ms}})),
+            )
+            conn.execute(
+                "INSERT INTO part VALUES(?,?,?,?)",
+                (f"prt_{key}a", f"msg_{key}u", sid, json.dumps({"type": "text", "text": prompt})),
+            )
+        meta = {
+            "role": "assistant",
+            "modelID": model,
+            "providerID": provider,
+            "path": {"cwd": cwd},
+            "time": {"created": ms},
+        }
+        conn.execute("INSERT INTO message VALUES(?,?,?,?)", (f"msg_{key}a", sid, ms, json.dumps(meta)))
+        for j, b in enumerate(b for b in e["message"]["content"] if b["type"] == "tool_use"):
+            tool = {"type": "tool", "callID": b["id"], "tool": b["name"].lower(), "state": {"input": b["input"]}}
+            conn.execute("INSERT INTO part VALUES(?,?,?,?)", (f"prt_{key}b{j}", f"msg_{key}a", sid, json.dumps(tool)))
+        tokens = {
+            "input": u["input_tokens"] + u["cache_creation_input_tokens"],
+            "output": u["output_tokens"],
+            "reasoning": 0,
+            "cache": {"read": u["cache_read_input_tokens"], "write": 0},
+        }
+        conn.execute(
+            "INSERT INTO part VALUES(?,?,?,?)",
+            (f"prt_{key}z", f"msg_{key}a", sid, json.dumps({"type": "step-finish", "tokens": tokens})),
+        )
+    conn.commit()
+    conn.close()
+
+
 def generate(out: Path, days: int, seed: int) -> Path:
     rng = random.Random(seed)
     claude = out / "claude"
@@ -187,9 +352,17 @@ def generate(out: Path, days: int, seed: int) -> Path:
             if start > datetime.now(timezone.utc):
                 start = datetime.now(timezone.utc) - timedelta(minutes=rng.randint(5, 120))
             lines = session_lines(rng, sid, cwd, PROJECTS[name][1], start, pick(rng, ENTRYPOINTS), counter)
-            folder = projects_dir / ("-home-demo-code-" + name)
-            folder.mkdir(exist_ok=True)
-            (folder / f"{sid}.jsonl").write_text("\n".join(json.dumps(x) for x in lines) + "\n", encoding="utf-8")
+            agent = pick(rng, AGENTS)
+            if agent == "codex":
+                write_codex(out, rng, sid, cwd, lines)
+            elif agent == "gemini-cli":
+                write_gemini(out, rng, sid, cwd, name, lines)
+            elif agent == "opencode":
+                write_opencode(out, rng, sid, cwd, lines)
+            else:
+                folder = projects_dir / ("-home-demo-code-" + name)
+                folder.mkdir(exist_ok=True)
+                (folder / f"{sid}.jsonl").write_text("\n".join(json.dumps(x) for x in lines) + "\n", encoding="utf-8")
     return claude
 
 
@@ -205,13 +378,19 @@ def main(argv=None):
         sys.exit(f"{db} already exists; pick an empty --out")
     claude = generate(args.out, args.days, args.seed)
     os.environ["CLAUDE_CONFIG_DIR"] = str(claude)
+    os.environ["CODEX_HOME"] = str(args.out / "codex")
+    os.environ["GEMINI_CLI_HOME"] = str(args.out / "gemini-home")
+    os.environ["XDG_DATA_HOME"] = str(args.out / "xdg")
+    os.environ.pop("OPENCODE_DB", None)
     os.environ["CLAUDE_TELEMETRY_DB"] = str(db)
 
     from telemetry.reconcile import reconcile
 
     changed, scanned = reconcile(db_path=db)
-    print(f"Seeded {changed}/{scanned} demo transcripts into {db}")
-    print(f"Run: CLAUDE_TELEMETRY_DB={db} python -m uvicorn app.main:app --app-dir backend --port 8000")
+    print(f"Seeded {changed}/{scanned} demo session files (Claude Code, Codex, Gemini CLI, OpenCode) into {db}")
+    print(
+        f"Run: CLAUDE_TELEMETRY_DB={db} TOKENTELEMETRY_SOURCES=none python -m uvicorn app.main:app --app-dir backend --port 8000"
+    )
 
 
 if __name__ == "__main__":

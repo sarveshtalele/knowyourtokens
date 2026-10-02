@@ -186,3 +186,37 @@ def test_openapi_is_typed(client):
     spec = client.get("/openapi.json").json()
     assert spec["info"]["title"] == "Token Telemetry API"
     assert "UsageRow" in spec["components"]["schemas"]
+
+
+def test_ingest_any_agent_is_idempotent_and_listed_as_a_client(client):
+    body = {
+        "agent": "Antigravity",
+        "records": [
+            {
+                "request_id": "ag-1",
+                "session_id": "ag-sess",
+                "cwd": "/work/shop",
+                "model": "gemini-3-pro",
+                "input_tokens": 1200,
+                "output_tokens": 300,
+                "cache_read_tokens": 5000,
+                "prompt": "fix the cart",
+                "tool_calls": [{"name": "read_file", "input": {"file_path": "/work/shop/cart.ts"}}, "run_command"],
+            }
+        ],
+    }
+    first = client.post("/api/v1/ingest", json=body)
+    assert first.status_code == 200, first.text
+    assert first.json()["data"] == {"accepted": 1, "new": 1}
+    again = client.post("/api/v1/ingest", json=body).json()["data"]
+    assert again["new"] == 0  # same request_id: no double count
+
+    clients = {c["client"]: c for c in client.get("/api/v1/clients").json()["data"]}
+    assert clients["Antigravity"]["total_tokens"] == 6500
+    tools = {t["tool_name"] for t in client.get("/api/v1/tools").json()["data"]}
+    assert {"read_file", "run_command"} <= tools
+
+
+def test_ingest_rejects_cross_site_posts(client):
+    r = client.post("/api/v1/ingest", json={"agent": "x", "records": []}, headers={"Origin": "https://evil.example"})
+    assert r.status_code == 403

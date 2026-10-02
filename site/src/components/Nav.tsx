@@ -64,6 +64,7 @@ export function Nav() {
           <Logo /> Token Telemetry
         </a>
         <div className="nav-links">
+          <a href="#agents">Agents</a>
           <a href="#problem">Why</a>
           <a href="#demo">Demo</a>
           <a href="#debug">Debug</a>

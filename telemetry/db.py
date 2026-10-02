@@ -17,7 +17,7 @@ from telemetry import config
 
 log = logging.getLogger("telemetry.db")
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 # ---------------------------------------------------------------------------
 # v7: normalized schema
@@ -227,8 +227,20 @@ def _migrate_to_v7(conn):
             conn.execute(f"DROP TABLE IF EXISTS legacy_{t}")
 
 
+def _migrate_to_v8(conn):
+    """Multi-agent sources: which agent wrote each transcript, and the
+    parser state some formats need between incremental reads (for example
+    Codex's current session/model, or the last cumulative token total)."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(transcripts)")}
+    if "source" not in cols:
+        conn.execute("ALTER TABLE transcripts ADD COLUMN source TEXT NOT NULL DEFAULT 'claude-code'")
+    if "source_state" not in cols:
+        conn.execute("ALTER TABLE transcripts ADD COLUMN source_state TEXT")
+
+
 MIGRATIONS = {
     7: _migrate_to_v7,
+    8: _migrate_to_v8,
 }
 
 

@@ -1,7 +1,7 @@
 {
   "name": "tokentelemetry-client",
   "version": "2.1.0",
-  "description": "TypeScript/JavaScript client for the Token Telemetry local API (Claude Code token/tool/skill/MCP observability)",
+  "description": "TypeScript/JavaScript client for the Token Telemetry local API (token, tool, skill and MCP observability for AI coding agents)",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -24,8 +24,12 @@
     "node": ">=18"
   },
   "keywords": [
-    "claude",
+    "ai-agents",
     "claude-code",
+    "codex",
+    "gemini-cli",
+    "opencode",
+    "llm",
     "telemetry",
     "tokens",
     "observability",

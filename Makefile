@@ -42,7 +42,7 @@ openapi:          ## Regenerate docs/openapi.json after API changes
 
 demo:             ## Seed a fictional dataset into ./.demo and serve it on :8000
 	rm -rf .demo && $(BIN)/python scripts/seed_demo.py --out .demo
-	CLAUDE_TELEMETRY_DB=.demo/telemetry.db $(BIN)/python -m uvicorn app.main:app --app-dir backend --port 8000
+	CLAUDE_TELEMETRY_DB=.demo/telemetry.db TOKENTELEMETRY_SOURCES=none $(BIN)/python -m uvicorn app.main:app --app-dir backend --port 8000
 
 check: lint test openapi-check  ## Everything CI runs (minus the cross-OS matrix)
 	cd frontend && npm run build

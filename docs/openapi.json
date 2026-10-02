@@ -123,6 +123,18 @@
         "title": "Envelope[AttributionSummary]",
         "type": "object"
       },
+      "Envelope_IngestResult_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/IngestResult"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Envelope[IngestResult]",
+        "type": "object"
+      },
       "Envelope_PluginsPayload_": {
         "properties": {
           "data": {
@@ -566,6 +578,223 @@
           "call_count"
         ],
         "title": "HookStats",
+        "type": "object"
+      },
+      "IngestRecord": {
+        "description": "One model request made by an agent.",
+        "properties": {
+          "cache_read_tokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Read Tokens",
+            "type": "integer"
+          },
+          "cache_write_tokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Write Tokens",
+            "type": "integer"
+          },
+          "cwd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Working directory (becomes the project)",
+            "title": "Cwd"
+          },
+          "input_tokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "output_tokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Project name, if there is no cwd",
+            "title": "Project"
+          },
+          "prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Unique per request; re-sending the same id is a no-op",
+            "title": "Request Id"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO-8601; defaults to now",
+            "title": "Timestamp"
+          },
+          "tool_calls": {
+            "default": [],
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IngestToolCall"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "title": "Tool Calls",
+            "type": "array"
+          }
+        },
+        "title": "IngestRecord",
+        "type": "object"
+      },
+      "IngestRequest": {
+        "properties": {
+          "agent": {
+            "description": "Agent name shown as the client, e.g. \"Antigravity\"",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Agent",
+            "type": "string"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/IngestRecord"
+            },
+            "maxItems": 1000,
+            "title": "Records",
+            "type": "array"
+          }
+        },
+        "required": [
+          "agent",
+          "records"
+        ],
+        "title": "IngestRequest",
+        "type": "object"
+      },
+      "IngestResult": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "new": {
+            "title": "New",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accepted",
+          "new"
+        ],
+        "title": "IngestResult",
+        "type": "object"
+      },
+      "IngestToolCall": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "input": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "IngestToolCall",
         "type": "object"
       },
       "McpServer": {
@@ -2268,6 +2497,48 @@
         "summary": "Raw hook events, newest first",
         "tags": [
           "events"
+        ]
+      }
+    },
+    "/api/v1/ingest": {
+      "post": {
+        "description": "Record model requests from an agent without readable local logs\n(Antigravity, Cursor, your own agent). Same pipeline as file sources;\n`request_id` makes retries idempotent.",
+        "operationId": "post_ingest_api_v1_ingest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_IngestResult_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Push usage from any agent",
+        "tags": [
+          "ingest"
         ]
       }
     },

@@ -6,7 +6,8 @@ const autostart = require('../src/autostart');
 const paths = require('../src/paths');
 const shortcut = require('../src/shortcut');
 
-const HELP = `tokentelemetry ${paths.version()} -- local-first token, tool, skill & MCP observability for Claude Code
+const HELP = `tokentelemetry ${paths.version()} -- local-first token observability for AI coding agents
+(Claude Code, Codex CLI, Gemini CLI, OpenCode, and any agent via the ingest API)
 
 Usage:
   tokentelemetry                    Install (if needed) and start everything

@@ -37,11 +37,16 @@ class TokenTelemetry:
         self.tz_offset = _local_tz_offset() if tz_offset is None else tz_offset
 
     # -- transport --------------------------------------------------------
-    def _request(self, method: str, path: str, params: JSON | None = None) -> Any:
+    def _request(self, method: str, path: str, params: JSON | None = None, body: Any = None) -> Any:
         query = {k: v for k, v in (params or {}).items() if v is not None}
         query.setdefault("tz_offset", self.tz_offset)
         url = f"{self.base_url}{path}?{urllib.parse.urlencode(query)}"
-        req = urllib.request.Request(url, method=method, headers={"Accept": "application/json"})
+        headers = {"Accept": "application/json"}
+        data = None
+        if body is not None:
+            data = json.dumps(body).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+        req = urllib.request.Request(url, data=data, method=method, headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # noqa: S310 -- caller-chosen URL
                 return json.loads(resp.read().decode("utf-8"))
@@ -128,6 +133,14 @@ class TokenTelemetry:
 
     def settings(self) -> JSON:
         return self._get("/api/v1/settings")
+
+    def ingest(self, agent: str, records: list[JSON]) -> JSON:
+        """Push usage from an agent with no readable local logs (Antigravity,
+        Cursor, your own agent). Each record is one model request: request_id,
+        session_id, cwd or project, model, input_tokens, output_tokens,
+        cache_read_tokens, cache_write_tokens, and optionally prompt, response
+        and tool_calls. Re-sending a request_id is a no-op."""
+        return self._request("POST", "/api/v1/ingest", body={"agent": agent, "records": records})["data"]
 
     def reconcile(self) -> JSON:
         """Ask the backend to re-scan transcripts now."""

@@ -53,8 +53,9 @@ export function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          See exactly where your Claude Code tokens go, which prompt blew up your context and why. Every tool, skill and
-          MCP server too. Free, open source, and it never leaves your machine.
+          Claude Code, Codex, Gemini CLI, OpenCode and any other agent, in one local dashboard. See which prompt blew up
+          your context and why. Every tool, skill and MCP server too. Free, open source, and it never leaves your
+          machine.
         </motion.p>
         <motion.div
           className="hero2-cta"

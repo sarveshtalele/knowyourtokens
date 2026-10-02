@@ -1,9 +1,18 @@
 # tokentelemetry
 
 Install and run [Token Telemetry](https://github.com/sarveshtalele/tokentelemetry)
-console — a local-first FastAPI backend + React dashboard for Claude Code
-token/tool/skill/hook telemetry — as a global tool on Windows, macOS, and
-Linux, with Claude Code hooks wired up automatically.
+— a local-first FastAPI backend + React dashboard for token, tool, skill and
+MCP telemetry from AI coding agents — as a global tool on Windows, macOS, and
+Linux.
+
+Claude Code, Codex CLI, Gemini CLI and OpenCode are read automatically from
+their local session files (Claude Code also gets live hooks, wired up on
+install). Any other agent (Antigravity, Cursor, GitHub Copilot CLI, your own)
+can push usage to `POST /api/v1/ingest`; see
+[Integrations](https://github.com/sarveshtalele/tokentelemetry/blob/main/docs/INTEGRATIONS.md#track-any-agent).
+
+Website: https://sarveshtalele.github.io/tokentelemetry/ · Independent project;
+not affiliated with Anthropic, OpenAI, Google or any agent vendor.
 
 The npm package bundles the backend, telemetry collector, hooks, and a
 pre-built copy of the dashboard, so once it's built, no separate `git clone`
@@ -79,7 +88,8 @@ node cli/setup.js install   # re-run the full build+install, e.g. after `git pul
 3. Merges the telemetry hook into your Claude Code settings
    (`~/.claude/settings.json`, or `$CLAUDE_CONFIG_DIR/settings.json`) for the
    `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `SubagentStop`, `PreCompact`, and
-   `Stop` events — safe to re-run, entries are de-duplicated.
+   `Stop` events — safe to re-run, entries are de-duplicated. Hooks are
+   Claude-Code-only; the other agents need no setup.
 
 ## What "start" does
 
@@ -87,7 +97,8 @@ Runs three local processes (see `tokentelemetry status` for health/PIDs, and
 `~/.tokentelemetry/logs/` for their output):
 
 - FastAPI backend on `http://127.0.0.1:8000`
-- Telemetry reconcile daemon (polls Claude Code session transcripts)
+- Telemetry reconcile daemon (polls each agent's session files: Claude Code,
+  Codex CLI, Gemini CLI, OpenCode; `TOKENTELEMETRY_SOURCES` limits which)
 - A static file server for the dashboard on `http://127.0.0.1:5173`
 
 To have this run automatically every time you log in, run
@@ -102,3 +113,5 @@ disable` removes it, and `tokentelemetry status` shows whether it's on.
 - Node.js 18+ (to run `npx`)
 - Python 3.10+ on `PATH` (or [`uv`](https://docs.astral.sh/uv/), which is
   preferred automatically when present)
+- At least one AI coding agent. Compressed Codex rollouts (`.jsonl.zst`)
+  additionally need Python 3.14+ or the `zstandard` package

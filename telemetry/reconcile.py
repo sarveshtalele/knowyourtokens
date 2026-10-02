@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Parse Claude Code session transcripts (~/.claude/projects/**/*.jsonl)
-into exact per-request token usage, tool calls, and skill activations.
+"""Parse AI coding agents' session logs into exact per-request token usage,
+tool calls, and skill activations.
+
+Each agent is a ``telemetry.sources.Source`` (Claude Code, Codex CLI, Gemini
+CLI, OpenCode). A source translates its native records into normalized,
+Claude-transcript-shaped events, and everything below is shared.
 
 Ingest is incremental: each transcript's byte offset, line count, and the
 not-yet-answered prompt context are stored in ``transcripts`` so a poll only
@@ -228,10 +232,13 @@ def ingest_lines(conn, path, lines, tid, start_line, pending):
     dims = _Dims(conn, path)
     last_time = None
     for idx, line in enumerate(lines, start_line + 1):
-        try:
-            obj = json.loads(line)
-        except ValueError:
-            continue
+        if isinstance(line, dict):
+            obj = line
+        else:
+            try:
+                obj = json.loads(line)
+            except ValueError:
+                continue
         if not isinstance(obj, dict):
             continue
 
@@ -342,45 +349,62 @@ def rebuild_attributions(conn, transcript_id=None, from_line=0):
             )
 
 
-def reconcile_file(conn, path, force=False):
-    """Ingest whatever is new in one transcript. Returns True if anything was read."""
+def reconcile_file(conn, path, force=False, source=None):
+    """Ingest whatever is new in one session file. Returns True if anything was read."""
+    from telemetry.sources.claude import ClaudeCode
+
+    source = source or ClaudeCode()
+    kind = source.kind_for(path)
     try:
-        stat = path.stat()
+        mtime_ns, size = source.signature(path)
     except OSError:
         return False
     row = conn.execute(
-        "SELECT id,mtime_ns,size_bytes,offset_bytes,line_count,pending_context FROM transcripts WHERE path=?",
+        "SELECT id,mtime_ns,size_bytes,offset_bytes,line_count,pending_context,source_state "
+        "FROM transcripts WHERE path=?",
         (str(path),),
     ).fetchone()
-    if row and not force and row["mtime_ns"] == stat.st_mtime_ns and row["size_bytes"] == stat.st_size:
+    if row and not force and row["mtime_ns"] == mtime_ns and row["size_bytes"] == size:
         return False
 
     with transaction(conn):
         if row is None:
-            tid = conn.execute("INSERT INTO transcripts(path) VALUES(?)", (str(path),)).lastrowid
-            offset, line_count, pending = 0, 0, []
+            tid = conn.execute("INSERT INTO transcripts(path,source) VALUES(?,?)", (str(path), source.name)).lastrowid
+            offset, line_count, pending, state = 0, 0, [], {}
         else:
             tid = row["id"]
             offset, line_count = row["offset_bytes"], row["line_count"]
             pending = json.loads(row["pending_context"] or "[]")
-            if force or stat.st_size < offset:
-                # Rewritten/truncated (or forced): start over for this file.
+            state = json.loads(row["source_state"] or "{}")
+            # Documents are re-read whole; a log that shrank was rewritten.
+            if force or kind == "document" or (kind == "lines" and size < offset):
                 conn.execute("DELETE FROM usage WHERE transcript_id=?", (tid,))
                 conn.execute("DELETE FROM tool_calls WHERE transcript_id=?", (tid,))
-                offset, line_count, pending = 0, 0, []
-        lines, new_offset = _read_new_lines(path, offset)
-        pending = ingest_lines(conn, path, lines, tid, line_count, pending)
+                offset, line_count, pending, state = 0, 0, [], {}
+        if kind == "document":
+            records = source.load(path)
+            if records is None:
+                return False  # mid-write; the next poll sees the finished file
+            new_offset = size
+        elif kind == "incremental":
+            records, new_offset = source.read_new(path, state), size
+        else:
+            records, new_offset = _read_new_lines(path, offset)
+        events = source.translate(path, records, state)
+        pending = ingest_lines(conn, path, events, tid, line_count, pending)
         rebuild_attributions(conn, tid, line_count + 1)
         conn.execute(
             """UPDATE transcripts SET mtime_ns=?,size_bytes=?,offset_bytes=?,line_count=?,pending_context=?,
-                                      reconciled_at=?
+                                      source=?,source_state=?,reconciled_at=?
                WHERE id=?""",
             (
-                stat.st_mtime_ns,
-                stat.st_size,
+                mtime_ns,
+                size,
                 new_offset,
-                line_count + len(lines),
+                line_count + len(events),
                 json.dumps(pending[-20:], ensure_ascii=False),
+                source.name,
+                json.dumps(state, ensure_ascii=False) if state else None,
                 utc_now_iso(),
                 tid,
             ),
@@ -389,19 +413,22 @@ def reconcile_file(conn, path, force=False):
 
 
 def reconcile(force=False, db_path=None):
-    """Reconcile every transcript. Returns (changed_files, scanned_files)."""
+    """Reconcile every agent's session files. Returns (changed_files, scanned_files)."""
+    from telemetry.sources import all_sources
+
     conn = connect(db_path)
     changed = scanned = 0
     try:
-        root = config.projects_dir()
-        if root.exists():
-            for p in sorted(root.rglob("*.jsonl")):
+        for source in all_sources():
+            if not source.enabled():
+                continue
+            for p in source.files():
                 scanned += 1
                 try:
-                    if reconcile_file(conn, p, force=force):
+                    if reconcile_file(conn, p, force=force, source=source):
                         changed += 1
                 except Exception:  # noqa: BLE001 -- one bad file must not stop the rest
-                    log.exception("Failed to reconcile %s", p)
+                    log.exception("Failed to reconcile %s (%s)", p, source.name)
         if changed:
             conn.execute(
                 "INSERT INTO meta(key,value) VALUES('last_reconcile',?) "
@@ -416,7 +443,7 @@ def reconcile(force=False, db_path=None):
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     changed, scanned = reconcile(force=config.force_reconcile())
-    print(f"Reconciled {changed} of {scanned} transcript(s) into {config.db_path()}")
+    print(f"Reconciled {changed} of {scanned} session file(s) into {config.db_path()}")
 
 
 if __name__ == "__main__":

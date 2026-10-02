@@ -10,21 +10,21 @@ export function About() {
       <PageHead
         eyebrow="Product"
         title="About Token Telemetry"
-        subtitle="A local-first observability console for Claude Code — see exactly where your tokens, tool calls, and skills go, without sending any of that data anywhere but your own machine."
+        subtitle="A local-first observability console for AI coding agents (Claude Code, Codex CLI, Gemini CLI, OpenCode and any agent you push) — see exactly where your tokens, tool calls, and skills go, without sending any of that data anywhere but your own machine."
       />
 
       <Section title="What this is, in plain terms">
         <p>
-          Token Telemetry is a small program that runs on your own computer, alongside Claude Code. It quietly keeps a
-          record of how Claude Code is being used — how many tokens each request costs, which tools and skills get
-          called, which MCP servers are active, and which project each of those happened in — and shows it back to you
-          in a dashboard you can search, filter, and export.
+          Token Telemetry is a small program that runs on your own computer, alongside your coding agents. It quietly
+          keeps a record of how each agent is being used — how many tokens each request costs, which tools and skills
+          get called, which MCP servers are active, and which project each of those happened in — and shows it back to
+          you in a dashboard you can search, filter, and export.
         </p>
         <p className="mt-3">
           Nothing about that record is guessed after the fact from a bill or an invoice: it is built the moment things
-          actually happen, by reading the same files Claude Code already writes for itself. Nothing about it is sent
-          anywhere either — there is no account to sign into and no server to trust besides the one already running on
-          your machine.
+          actually happen, by reading the same session files each agent already writes for itself. Nothing about it is
+          sent anywhere either — there is no account to sign into and no server to trust besides the one already running
+          on your machine.
         </p>
       </Section>
 
@@ -34,18 +34,18 @@ export function About() {
 
       <Section title="How it works, without the jargon">
         <ol className="space-y-3 list-none">
-          <Step n={1} title="Claude Code tells us when something happens">
-            Five small hooks (already wired in automatically during install) notify this tool the instant a session
-            starts, a prompt is sent, or a tool runs — so live activity shows up right away, not on a delay.
+          <Step n={1} title="Each agent already keeps a log">
+            Claude Code, Codex CLI, Gemini CLI and OpenCode all record every request's exact token usage in their own
+            session files. A background process reads only what's new in them on a short timer, and catches up on
+            anything it missed while it was off. Claude Code also gets live hooks, so its activity shows up instantly.
           </Step>
-          <Step n={2} title="A background process fills in the exact numbers">
-            Every request's real token usage only exists in Claude Code's own session files, so a background process
-            reads those files on a short timer and fills in the precise counts — catching up automatically on anything
-            it missed if it was off for a while.
+          <Step n={2} title="Any other agent can push">
+            Agents without readable logs (Antigravity, Cursor, your own) send usage to one local endpoint,{' '}
+            <span className="font-mono">POST /api/v1/ingest</span>, and are treated exactly the same.
           </Step>
-          <Step n={3} title="The dashboard shows you both">
-            Everything lands in one local database, and this dashboard reads from it — nothing you see here required
-            Claude Code to be told about this tool, or required any data to leave your machine.
+          <Step n={3} title="One dashboard for all of them">
+            Everything lands in one local database, and this dashboard reads from it — no agent had to be told about
+            this tool, and no data left your machine.
           </Step>
         </ol>
         <p className="mt-3">
@@ -64,7 +64,7 @@ export function About() {
 
       <Section title="Exact vs. estimated — what “attributed” means">
         <p className="mb-3">
-          The Claude API reports token usage per <em>request</em>, not per file or tool call. So anywhere you see an{' '}
+          Model APIs report token usage per <em>request</em>, not per file or tool call. So anywhere you see an{' '}
           <Badge tone="success">Exact</Badge> badge, that number came straight from the API. Anywhere you see an{' '}
           <Badge tone="warning">Estimated</Badge> badge — attribution hotspots, top files/paths, per-project token
           breakdowns by category — that number is a heuristic: each request's exact token count is divided across the
@@ -92,17 +92,17 @@ export function About() {
 
       <Section title="Why is “cache read” so much bigger than “input”?">
         <p className="mb-3">
-          Claude Code sends your entire conversation on every request (the API is stateless), but most of that — the
-          system prompt, tool definitions, and everything said earlier in the session — is usually a prompt-cache hit by
-          the second turn. The API bills that reused portion as <span className="font-mono">cache read</span>, at a
-          fraction of fresh-token cost, and only counts genuinely new content as{' '}
+          Coding agents send your entire conversation on every request (model APIs are stateless), but most of that —
+          the system prompt, tool definitions, and everything said earlier in the session — is usually a prompt-cache
+          hit by the second turn. The API bills that reused portion as <span className="font-mono">cache read</span>, at
+          a fraction of fresh-token cost, and only counts genuinely new content as{' '}
           <span className="font-mono">input</span>. So a request showing <b>Input: 2</b> and <b>Cache read: 764,387</b>{' '}
           isn't hiding anything — that 764K really is mostly your system prompt and prior conversation, exact and fully
           accounted for, just filed under a different label than you might expect.
         </p>
         <p>
-          One limitation worth naming directly: Claude Code doesn't expose the literal system prompt or tool definition
-          text anywhere this collector can see — not in session transcripts, not in hook payloads. So the{' '}
+          One limitation worth naming directly: agents don't write the literal system prompt or tool definition text to
+          their session logs, so this collector can't see it. So the{' '}
           <Link to="/requests" className="text-accent-text underline underline-offset-2">
             full prompt view
           </Link>{' '}
@@ -184,7 +184,7 @@ const FEATURES: { Icon: (props: SVGProps<SVGSVGElement>) => ReactNode; title: st
   {
     Icon: IconBolt,
     title: 'Live activity',
-    body: 'A live indicator and event feed reflect what Claude Code is doing right now.',
+    body: 'A live indicator and event feed reflect what your agents are doing right now.',
   },
   {
     Icon: IconPlug,

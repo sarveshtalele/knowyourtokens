@@ -68,8 +68,8 @@ export function Problem() {
           Building with LLMs, <span className="muted">you’re flying blind.</span>
         </h2>
         <p className="lede2">
-          Tokens are your budget, your latency and your context window. Claude Code records every one of them, then
-          shows you almost none.
+          Tokens are your budget, your latency and your context window. Every coding agent records them, then shows you
+          almost none.
         </p>
         <div className="pain-grid">
           {PAINS.map((p, i) => (

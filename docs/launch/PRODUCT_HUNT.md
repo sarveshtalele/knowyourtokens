@@ -8,24 +8,26 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 | Field | Value |
 |---|---|
 | Name | Token Telemetry |
-| Tagline (≤ 60) | See where every Claude Code token goes, 100% locally |
+| Tagline (≤ 60) | Every AI coding agent, every token, one local dashboard |
 | Website | https://sarveshtalele.github.io/tokentelemetry/ |
 | Source | https://github.com/sarveshtalele/tokentelemetry |
 | Pricing | Free (MIT, open source) |
 | Topics | Developer Tools · Artificial Intelligence · Open Source · Analytics |
 | Thumbnail | [`thumbnail-240.png`](thumbnail-240.png) (240×240) |
+| Social / LinkedIn | [`social-preview-1280x640.png`](social-preview-1280x640.png) · [`linkedin-1200x627.png`](linkedin-1200x627.png) · [`linkedin-portrait-1080x1350.png`](linkedin-portrait-1080x1350.png) |
+| Reels (9:16) | [`video/`](video) — launch reel and teaser, light theme, no audio (add a track in Instagram) |
 | Gallery | [`gallery/`](gallery) (1270×760, in order 01 → 07) |
 
 **Description (≤ 260 characters)**
 
-> Open-source, local-first observability for Claude Code. Exact tokens per request, project, session,
-> tool, skill and MCP server. Open any request to see what filled its context. REST API, SDKs,
-> OpenTelemetry. One command: npx tokentelemetry
+> Local-first token observability for Claude Code, Codex, Gemini CLI, OpenCode and any agent via API.
+> Exact tokens per request, debug the prompt behind any spike, compare agents. Free, open source:
+> npx tokentelemetry
 
 ### Gallery captions
 
 1. **Every token. Accounted for.** One command installs it; nothing leaves your machine.
-2. **All your Claude Code usage in one place.** Every project, session, model and IDE, all time.
+2. **Every agent in one place.** Claude Code, Codex, Gemini CLI, OpenCode, side by side, all time.
 3. **Debug a prompt.** Open any request to see its full context and exactly where the tokens went.
 4. **Find the hotspots.** See which files and tools fill your context window.
 5. **Know your toolbox.** Call counts for every tool, MCP server, skill and plugin.
@@ -36,15 +38,16 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 
 > Hey Product Hunt 👋
 >
-> I use Claude Code every day, and kept asking the same questions: *which project is eating my tokens?
-> Why did that one request cost 300K? Is this MCP server even worth having on?* Claude Code records the
-> answers in its own transcripts, but nothing showed them to me across all my projects.
+> I code with several AI agents every day (Claude Code, Codex, Gemini CLI) and kept asking the same
+> questions: *which project is eating my tokens? Why did that one request cost 300K? Which agent is
+> cheaper for this job? Is this MCP server even worth having on?* Every agent records the answers in its
+> own logs, but nothing showed them to me across all my projects and agents.
 >
 > So I built **Token Telemetry**. Run `npx tokentelemetry` and it:
 >
-> - wires into Claude Code's hooks and reads its transcripts for **exact** usage (each API request
->   counted once),
-> - gives you a dashboard by project, session, model, IDE, tool, skill and MCP server,
+> - reads Claude Code, Codex CLI, Gemini CLI and OpenCode logs for **exact** usage (each request
+>   counted once), and takes anything else (Antigravity, Cursor, your own agent) through one API call,
+> - gives you one dashboard by agent, project, session, model, IDE, tool, skill and MCP server,
 > - lets you open any request and see the **full context** behind it, with likely secrets redacted,
 > - has a **token calculator**: estimate a prompt before you send it and price your real usage at your
 >   own rates,
@@ -56,23 +59,24 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 >
 > MIT licensed. I'd love feedback, issues and PRs, especially on which views you'd want next.
 >
-> *(Independent project, not affiliated with Anthropic.)*
+> *(Independent project, not affiliated with Anthropic, OpenAI, Google or any agent vendor.)*
 
 ## Short posts
 
 **X / Bluesky / Threads**
 
 > Shipped Token Telemetry on Product Hunt today 🚀
-> See where every Claude Code token goes, per project, request, tool, skill and MCP server. Open any
-> request to see what filled its context. 100% local, MIT.
+> One local dashboard for every AI coding agent: Claude Code, Codex, Gemini CLI, OpenCode and anything
+> else via API. Debug the prompt behind any spike. 100% local, MIT.
 > `npx tokentelemetry`
 > [PH link]
 
 **LinkedIn / dev.to opener**
 
-> Claude Code tells you a session got expensive. It doesn't tell you *why*. Token Telemetry is a free,
-> local dashboard that does: exact tokens per request, the full context behind each one, and which
-> tools, skills and MCP servers drive your usage.
+> Your coding agent tells you a session got expensive. It doesn't tell you *why*, and it never compares
+> itself with the other agents you use. Token Telemetry is a free, local dashboard that does: exact
+> tokens per request for Claude Code, Codex, Gemini CLI, OpenCode and anything you push, the full
+> context behind each request, and which tools, skills and MCP servers drive your usage.
 
 ## Launch checklist
 

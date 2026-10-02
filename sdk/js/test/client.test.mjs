@@ -53,3 +53,15 @@ test('verifySignature matches the server HMAC', async () => {
   assert.ok(!(await verifySignature('k', body + ' ', sig)));
   assert.ok(!(await verifySignature('k', body, '')));
 });
+
+test('ingest posts JSON to /api/v1/ingest', async () => {
+  const { impl, calls } = fakeFetch({ 'POST /api/v1/ingest': () => ({ data: { accepted: 1, new: 1 } }) });
+  const tt = new TokenTelemetry({ fetch: impl });
+  const res = await tt.ingest('Antigravity', [{ request_id: 'r1', input_tokens: 10, output_tokens: 2 }]);
+  assert.deepStrictEqual(res, { accepted: 1, new: 1 });
+  assert.strictEqual(calls[0].init.headers['Content-Type'], 'application/json');
+  assert.deepStrictEqual(JSON.parse(calls[0].init.body), {
+    agent: 'Antigravity',
+    records: [{ request_id: 'r1', input_tokens: 10, output_tokens: 2 }],
+  });
+});

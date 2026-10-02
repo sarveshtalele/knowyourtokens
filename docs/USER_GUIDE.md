@@ -5,6 +5,10 @@ the numbers mean, and how to get data out of the tool. For how the system
 is built, see [Architecture](ARCHITECTURE.md); for installation, see
 [Installation Guide](INSTALLATION.md) or the main [README](../README.md#install).
 
+Every page covers all the agents Token Telemetry reads: Claude Code, Codex CLI, Gemini CLI,
+OpenCode, and anything you push through the [ingest API](INTEGRATIONS.md#track-any-agent). Use the
+**client** filter to look at one agent at a time.
+
 ## Contents
 
 1. [Exact vs. estimated data](#exact-vs-estimated-data)
@@ -24,9 +28,10 @@ is built, see [Architecture](ARCHITECTURE.md); for installation, see
 Every number in the dashboard carries one of two labels, and the
 distinction matters:
 
-- **Exact** — read straight from the Claude API's own usage reporting for
-  that request (input/output/cache tokens). Shown with a green badge.
-- **Estimated** — a heuristic. The Claude API reports token usage per
+- **Exact** — the per-request usage the agent recorded from its model
+  provider (input/output/cache tokens), read from the agent's session
+  logs or pushed through the ingest API. Shown with a green badge.
+- **Estimated** — a heuristic. Model APIs report token usage per
   *request*, not per file or tool call, so anywhere you see a per-file or
   per-tool token breakdown, that number was computed by dividing a
   request's exact token count across the tool calls active near it in the
@@ -34,6 +39,11 @@ distinction matters:
   touched. A slice that can't be matched to any nearby tool call is
   bucketed as `[unattributed]` rather than silently dropped or guessed.
   Shown with an amber badge.
+
+How each agent's numbers map onto input / output / cache read / cache
+write is described in [Architecture](ARCHITECTURE.md#sources). Agents
+report different fields (Gemini CLI reports no cache writes, for example),
+so a zero in one column can simply mean the agent doesn't report it.
 
 Treat estimated numbers as directionally useful for finding hotspots
 (which files or tools are driving spend), not as a precise per-file cost.
@@ -59,19 +69,21 @@ range filter in the top bar):
 ## Projects
 
 Routes: `/projects` (inventory), `/projects/:id` (workspace). Every
-project Claude Code has been used in is its own telemetry scope, detected
+project any agent has been used in is its own telemetry scope, detected
 automatically from the working directory recorded in each session
-transcript — no manual configuration.
+(for Gemini CLI, from `~/.gemini/projects.json`; for pushed records, from
+`cwd` or `project`) — no manual configuration. A repo you work on with
+two agents is one project, split by client.
 
 The project workspace page adds a summary card showing that project's
 **top skill, top MCP server, and top hook** by call count — useful for
-answering "what is this project actually using Claude Code for" at a
+answering "what is this project actually using its agents for" at a
 glance, without cross-referencing the Tools/Skills/MCP pages by hand.
 
 ## Requests
 
 Routes: `/requests` (list), `/requests/:id` (full view). The trace
-explorer — one row per Claude API request, with exact token counts,
+explorer — one row per model request (from any agent), with exact token counts,
 model, client, and a truncated prompt/response preview. Filter by
 project, model, or client, or search.
 
@@ -86,16 +98,21 @@ what was sent, without the preview's truncation.
 Four dedicated breakdown views, each following the same shape (a
 distribution chart plus a sortable table):
 
-- **`/tools`** — which Claude Code tools (`Bash`, `Read`, `Edit`, `Grep`,
-  MCP tool calls, ...) are driving call volume and context growth, with
+- **`/tools`** — which agent tools (Claude Code's `Bash`, `Read`, `Edit`,
+  Codex's `shell`, Gemini CLI and OpenCode tool calls, MCP tool calls,
+  ...) are driving call volume and context growth, with
   call counts, unique sessions, and first/last-seen timestamps.
 - **`/skills`** — skill activations, including which plugin a skill came
-  from when its identifier is namespaced (`plugin:skill`).
-- **`/sessions`** — one row per Claude Code session (a single `session_id`
+  from when its identifier is namespaced (`plugin:skill`). Skills are a
+  Claude Code concept, so this page shows Claude Code data.
+- **`/sessions`** — one row per agent session (a single `session_id`
   across its lifetime), with token totals and duration.
-- **`/clients`** — which client surface requests came from (terminal
-  Claude Code, Cursor, VS Code, JetBrains, Windsurf), auto-classified from
-  transcript metadata.
+- **`/clients`** — which agent requests came from. Codex CLI, Gemini CLI
+  and OpenCode each appear as one client; pushed records appear under the
+  `agent` name you sent (for example `Antigravity`). Claude Code is split
+  further by surface (Terminal/CLI, VS Code, JetBrains, Claude Desktop,
+  Agent SDK, Web/Remote), classified from its `entrypoint` field or, when
+  that is missing, by best-effort sniffing for IDE names.
 
 ## MCP & Plugins
 
@@ -103,9 +120,10 @@ Route: `/mcp-plugins`. MCP tool calls are grouped by **server** — a tool
 name like `mcp__github__search_issues` is reported as server `github`,
 not as one bucket per distinct tool — so you can see at a glance which
 MCP servers (and, separately, which installed plugins) a project actually
-exercises. This reads from the `tool_calls` table (backfilled by
+exercises. Codex MCP calls are grouped the same way. This reads from the `tool_calls` table (backfilled by
 reconcile from transcripts), not just live hook events, so historical
-usage from before the hooks were installed still shows up.
+usage from before the hooks were installed still shows up, and agents
+without hooks are covered too.
 
 ## Export Reports
 
@@ -114,7 +132,7 @@ data — for spreadsheets, BI tools, or ad hoc analysis outside the
 dashboard.
 
 **Report type:**
-- **Requests** — one row per Claude request: timestamp, project, session,
+- **Requests** — one row per model request: timestamp, project, session,
   client, model, exact token counts, and prompt/response previews. CSV, JSON or NDJSON, with no row
   cap. Date ranges are whole local days, end day included.
 - **Projects** — one row per project: total tokens, request count,
@@ -142,8 +160,9 @@ Route: `/calculator`. Three tools on one page, all computed in your browser:
 
 - **Estimate a prompt:** paste a prompt, file or tool output to get an approximate token count, plus
   characters, words and lines. The content type (prose, code, JSON) is detected automatically and
-  can be overridden. Claude's tokenizer isn't available offline, so this is an **estimate (about
-  ±15%)**. Every count elsewhere in the dashboard comes from Claude Code and is exact.
+  can be overridden. Model tokenizers aren't available offline, so this is an **estimate (about
+  ±15%)**; real counts differ between model families. Every count elsewhere in the dashboard comes
+  from the agents' own usage records and is exact.
 - **Will it fit?** Add your system/tool overhead, conversation history and expected output to see how
   much of a 200K or 1M context window the request uses, and how close it is to auto-compaction.
 - **Cost at your rates:** Token Telemetry ships no prices, because billing depends on your plan.
@@ -156,8 +175,8 @@ Route: `/calculator`. Three tools on one page, all computed in your browser:
 Route: `/settings`. Operational view of the collector itself: database
 path and size, poll interval, when reconcile last ran, and row counts per
 table. The **Reconcile now** button triggers an immediate transcript scan
-instead of waiting for the next poll — useful right after a long Claude
-Code session if you don't want to wait up to `CLAUDE_TELEMETRY_INTERVAL`
+instead of waiting for the next poll — useful right after a long agent
+session if you don't want to wait up to `CLAUDE_TELEMETRY_INTERVAL`
 seconds for it to show up.
 
 ## About

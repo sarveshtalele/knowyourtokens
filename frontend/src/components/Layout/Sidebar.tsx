@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { to: '/tools', label: 'Tools', Icon: IconWrench },
   { to: '/skills', label: 'Skills', Icon: IconBolt },
   { to: '/sessions', label: 'Sessions', Icon: IconChat },
-  { to: '/clients', label: 'Clients', Icon: IconMonitor },
+  { to: '/clients', label: 'Agents', Icon: IconMonitor },
   { to: '/mcp-plugins', label: 'MCP & Plugins', Icon: IconPlug },
   { to: '/reports', label: 'Reports', Icon: IconDownload },
   { to: '/calculator', label: 'Calculator', Icon: IconCalculator },
@@ -101,7 +101,7 @@ export function Sidebar() {
         <div className="px-4 py-3 text-[11px] text-slate-400 border-t border-slate-800">
           Local-first · SQLite
           <br />
-          Token Telemetry v2 · schema v7
+          Token Telemetry v2 · schema v8
         </div>
       )}
     </aside>

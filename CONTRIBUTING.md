@@ -14,7 +14,7 @@ git clone https://github.com/sarveshtalele/tokentelemetry && cd tokentelemetry
 make setup          # .venv + all Python/Node deps
 make dev-backend    # API on :8000 (auto-reload)
 make dev-frontend   # dashboard on :5173 (proxies /api and /ws)
-make dev-daemon     # transcript poller, optional
+make dev-daemon     # session-file poller (all agents), optional
 make check          # everything CI runs: lint, format, tests, OpenAPI drift, build
 ```
 
@@ -27,7 +27,7 @@ it globally, runs `install`).
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#repository-layout). The rules that matter most:
 
-- **One implementation of schema, collector and reconcile:** `telemetry/`. `backend/` imports it; never
+- **One implementation of schema, collector, sources and reconcile:** `telemetry/`. `backend/` imports it; never
   copy that logic.
 - **Schema changes ship as a new migration** in `telemetry/db.py` (`MIGRATIONS[n]`, bump
   `SCHEMA_VERSION`) with a test in `tests/test_migration.py`. Never edit a released migration.
@@ -36,6 +36,11 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#repository-layout). The rules th
   endpoints.
 - **Hooks must never fail a Claude Code session.** Anything in `telemetry/collector.py` catches and
   logs.
+- **Sources only read.** A reader in `telemetry/sources/` must never write to an agent's files or
+  database (OpenCode's is opened `mode=ro`), and one bad file must not stop the rest.
+- **Don't claim support that isn't there.** A new agent source needs real sample files from that
+  agent as test fixtures. If an agent doesn't store per-request token usage in a readable form,
+  document the [ingest API](docs/INTEGRATIONS.md#track-any-agent) for it instead.
 - **Exact vs. estimated** must stay labelled in the UI, the API docs and the exports.
 - **Local-first:** no new outbound network calls unless they're opt-in and documented.
 
@@ -51,13 +56,25 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#repository-layout). The rules th
 
 | Area | Where | Run |
 |---|---|---|
-| Collector, reconcile, migrations, API, exporters, Python SDK | `tests/`, `sdk/python/tests/` | `.venv/bin/python -m pytest --cov` (80% gate) |
+| Collector, reconcile, agent sources, migrations, API, exporters, Python SDK | `tests/`, `sdk/python/tests/` | `.venv/bin/python -m pytest --cov` (80% gate) |
 | Dashboard | `frontend/src/**/*.test.ts(x)` | `cd frontend && npm test` |
 | CLI | `cli/test/` | `cd cli && node --test test/*.test.js` |
 | JS SDK | `sdk/js/test/` | `cd sdk/js && npm test` |
 
 Every bug fix needs a regression test. CI also runs Python 3.10–3.13, macOS and Windows, and a full
 `npm pack → install → start → doctor` end-to-end on all three OSes.
+
+## Adding an agent source
+
+1. Add a `Source` subclass in `telemetry/sources/<agent>.py` (see the docstring in
+   [`telemetry/sources/__init__.py`](telemetry/sources/__init__.py) and
+   [ARCHITECTURE.md → Sources](docs/ARCHITECTURE.md#sources)). Pick the kind (`lines`, `document`,
+   `incremental`) that matches how the agent writes its files.
+2. Map the agent's usage to input / output / cache read / cache write without double counting
+   (watch for cumulative totals and input that already includes cached tokens).
+3. Register it in `all_sources()` and give it a `name` for `TOKENTELEMETRY_SOURCES`.
+4. Add tests to `tests/test_sources.py`, and update `docs/INSTALLATION.md`, `docs/ARCHITECTURE.md` and
+   the README.
 
 ## Pull requests
 

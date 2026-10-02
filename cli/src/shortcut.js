@@ -39,13 +39,13 @@ function linuxDesktopEntry(node = process.execPath, bin = paths.stableBinPath(),
 Type=Application
 Version=1.0
 Name=${APP_NAME}
-GenericName=Claude Code token observability
-Comment=See where every Claude Code token goes
+GenericName=AI agent token observability
+Comment=See where every AI coding agent token goes
 Exec=${desktopQuote(node)} ${desktopQuote(bin)} start
 Icon=${icon}
 Terminal=false
 Categories=Development;Utility;Monitor;
-Keywords=claude;tokens;telemetry;observability;mcp;
+Keywords=ai;agents;claude;codex;gemini;opencode;tokens;telemetry;observability;mcp;
 StartupNotify=false
 `;
 }
@@ -184,7 +184,7 @@ function windowsShortcutScript(node = process.execPath, bin = paths.stableBinPat
         `$s = $shell.CreateShortcut((Join-Path ${dir} ${psQuote(`${APP_NAME}.lnk`)})); ` +
         `$s.TargetPath = ${psQuote(node)}; $s.Arguments = ${psQuote(`"${bin}" start`)}; ` +
         `$s.WorkingDirectory = ${psQuote(paths.installDir())}; $s.IconLocation = ${psQuote(`${icon},0`)}; ` +
-        `$s.WindowStyle = 7; $s.Description = ${psQuote('See where every Claude Code token goes')}; $s.Save(); ` +
+        `$s.WindowStyle = 7; $s.Description = ${psQuote('See where every AI coding agent token goes')}; $s.Save(); ` +
         `Write-Output (Join-Path ${dir} ${psQuote(`${APP_NAME}.lnk`)})`,
     ),
   ].join('\n');

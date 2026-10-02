@@ -58,7 +58,7 @@ export function GlobalDashboard() {
       <PageHead
         eyebrow="Command center"
         title="Usage overview"
-        subtitle="Global Claude Code telemetry across projects, sessions, clients, tools and skills."
+        subtitle="Every AI coding agent, across projects, sessions, tools and skills."
         actions={<DateRangeFilter value={days} onChange={setDays} />}
       />
 
@@ -68,22 +68,22 @@ export function GlobalDashboard() {
           {
             label: `Total tokens (${rangeLabel})`,
             value: fmt(liveTotal ?? totals.totalTokens),
-            hint: 'Input + output + cache read + cache write tokens across all requests in the selected date range. Exact figures reported by the Claude API, not estimates.',
+            hint: 'Input + output + cache read + cache write tokens across all requests in the selected date range. Exact figures reported by each agent, not estimates.',
           },
           {
             label: 'Input tokens',
             value: fmt(totals.input),
-            hint: 'Tokens sent to Claude as part of the prompt and context, in the selected range.',
+            hint: 'Uncached tokens sent to the model as prompt and context, in the selected range.',
           },
           {
             label: 'Output tokens',
             value: fmt(totals.output),
-            hint: 'Tokens Claude generated in its responses, in the selected range.',
+            hint: 'Tokens the models generated in their responses (including reasoning), in the selected range.',
           },
           {
             label: 'Cache read',
             value: fmt(totals.cacheRead),
-            hint: "Tokens served from Claude's prompt cache instead of being reprocessed from scratch — cheaper than a fresh input token, and tracked separately from Input above.",
+            hint: "Tokens served from the provider's prompt cache instead of being reprocessed from scratch — cheaper than a fresh input token, and tracked separately from Input above.",
           },
         ]}
       />
@@ -124,7 +124,7 @@ export function GlobalDashboard() {
           {
             label: 'Requests (all time)',
             value: fmt(totals.totalRequests),
-            hint: 'Total Claude API requests recorded across every project, always all-time — independent of the date range selected above.',
+            hint: 'Model requests recorded across every agent and project, always all-time — independent of the date range selected above.',
           },
           {
             label: 'Projects',
@@ -132,7 +132,7 @@ export function GlobalDashboard() {
             hint: 'Number of distinct projects with recorded telemetry.',
           },
           {
-            label: 'Top client',
+            label: 'Top agent',
             value: topClient ? topClient.client : '—',
             hint: 'The IDE/CLI client that has sent the most requests, all-time.',
           },

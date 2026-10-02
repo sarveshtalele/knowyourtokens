@@ -1,7 +1,11 @@
 # Installation Guide
 
 Everything needed to get Token Telemetry running, per platform,
-plus what to do when something doesn't come up cleanly. For what the
+plus what to do when something doesn't come up cleanly. Token Telemetry
+reads usage from Claude Code, Codex CLI, Gemini CLI and OpenCode
+automatically, and accepts usage from any other agent through the
+[ingest API](API.md#ingest). It is an independent project, not affiliated with
+Anthropic, OpenAI, Google or any agent vendor. For what the
 dashboard actually shows once it's running, see the
 [User Guide](USER_GUIDE.md); for how the pieces fit together, see
 [Architecture](ARCHITECTURE.md).
@@ -10,15 +14,16 @@ dashboard actually shows once it's running, see the
 
 1. [Requirements](#requirements)
 2. [Quick install (all platforms)](#quick-install-all-platforms)
-3. [Windows-specific notes](#windows-specific-notes)
-4. [macOS-specific notes](#macos-specific-notes)
-5. [Linux-specific notes](#linux-specific-notes)
-6. [Running automatically at login](#running-automatically-at-login)
-7. [Verifying the install](#verifying-the-install)
-8. [Updating](#updating)
-9. [Uninstalling](#uninstalling)
-10. [Troubleshooting](#troubleshooting)
-11. [Manual / development install](#manual--development-install)
+3. [Which agents are picked up](#which-agents-are-picked-up)
+4. [Windows-specific notes](#windows-specific-notes)
+5. [macOS-specific notes](#macos-specific-notes)
+6. [Linux-specific notes](#linux-specific-notes)
+7. [Running automatically at login](#running-automatically-at-login)
+8. [Verifying the install](#verifying-the-install)
+9. [Updating](#updating)
+10. [Uninstalling](#uninstalling)
+11. [Troubleshooting](#troubleshooting)
+12. [Manual / development install](#manual--development-install)
 
 ## Requirements
 
@@ -27,7 +32,8 @@ dashboard actually shows once it's running, see the
 | Node.js | 18+ | Needed to build and run the `tokentelemetry` CLI itself |
 | Python | 3.10+ | Runs the collector and the FastAPI backend |
 | [`uv`](https://docs.astral.sh/uv/) | any | Optional but recommended — the installer uses it automatically when present for a much faster virtual environment setup; falls back to the standard `venv`/`pip` otherwise |
-| Claude Code | any recent version | The tool wires into Claude Code's own hook system — it has nothing to observe without it |
+| At least one AI coding agent | any recent version | Claude Code, Codex CLI, Gemini CLI or OpenCode are read automatically; anything else can push usage over the [ingest API](INTEGRATIONS.md#track-any-agent) |
+| `zstandard` (Python) | optional | Only for compressed Codex rollouts (`.jsonl.zst`) on Python < 3.14. Python 3.14+ reads them natively |
 
 `cli/setup.js` checks for Node and Python up front and tells you exactly
 what's missing rather than failing partway through the install.
@@ -43,12 +49,14 @@ npx tokentelemetry
 
 That one command sets up a Python virtual environment (`uv venv` if [`uv`](https://docs.astral.sh/uv/)
 is available, otherwise `python3 -m venv`), installs the backend's Python dependencies,
-merges five hook entries into Claude Code's own `~/.claude/settings.json`
+merges hook entries into Claude Code's `~/.claude/settings.json`
 (`SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop`, `SubagentStop`,
 `PreCompact`; your other hooks are preserved and `settings.json` is backed up once to
 `settings.json.bak-tokentelemetry`. Safe to run more
 than once, entries are de-duplicated by command string rather than appended again), and then
-starts the backend, daemon, and dashboard. Your default browser opens to
+starts the backend, daemon, and dashboard. The hooks are Claude-Code-only and harmless if you don't
+use Claude Code. Other agents need no setup: the daemon finds their session logs on its own (see
+[Which agents are picked up](#which-agents-are-picked-up)). Your default browser opens to
 `http://127.0.0.1:5173` automatically once the dashboard is actually reachable (not just "the
 process was launched"); set `TOKENTELEMETRY_NO_OPEN=1` in your environment first if you'd
 rather open it yourself.
@@ -87,6 +95,24 @@ This one command:
    check status, enable/disable autostart at login, or uninstall.
 
 </details>
+
+## Which agents are picked up
+
+The daemon polls each agent's local session files and reads only what is new since the last poll.
+Agents that aren't installed are skipped.
+
+| Agent | What is read | Location override |
+|---|---|---|
+| Claude Code | `~/.claude/projects/**/*.jsonl`, plus live hooks | `CLAUDE_CONFIG_DIR` |
+| Codex CLI | `~/.codex/sessions/**/rollout-*.jsonl` and `archived_sessions/` | `CODEX_HOME` |
+| Gemini CLI | `~/.gemini/tmp/<project>/chats/*.jsonl` (and legacy `*.json`) | `GEMINI_CLI_HOME` |
+| OpenCode | `~/.local/share/opencode/opencode.db` (read-only) | `XDG_DATA_HOME`, `OPENCODE_DB` |
+| Anything else | Pushed to `POST /api/v1/ingest` | — |
+
+To limit which agents are read, set `TOKENTELEMETRY_SOURCES` to a comma-separated list of
+`claude-code`, `codex`, `gemini-cli`, `opencode` (for example `claude-code,codex`). Antigravity,
+Cursor and GitHub Copilot CLI don't keep usable per-request token counts on disk; track them with the
+ingest API ([INTEGRATIONS.md](INTEGRATIONS.md#track-any-agent)).
 
 ## Windows-specific notes
 
@@ -134,7 +160,7 @@ your OS uses:
 
 | OS | Mechanism | Undo |
 |---|---|---|
-| Windows | Task Scheduler task, trigger "At log on" | `tokentelemetry autostart disable`, or `Unregister-ScheduledTask -TaskName "Claude Token Telemetry"` |
+| Windows | Task Scheduler task, trigger "At log on" | `tokentelemetry autostart disable`, or `Unregister-ScheduledTask -TaskName "Token Telemetry"` |
 | macOS | launchd agent at `~/Library/LaunchAgents/com.tokentelemetry.app.plist` | `tokentelemetry autostart disable`, or `launchctl unload` that file |
 | Linux | systemd `--user` service at `~/.config/systemd/user/tokentelemetry.service` | `tokentelemetry autostart disable`, or `systemctl --user disable --now tokentelemetry.service` |
 
@@ -248,20 +274,27 @@ session is available (e.g. after logging in via a desktop session, or with
 `loginctl enable-linger $USER` on a server), run `systemctl --user
 enable --now tokentelemetry.service` manually to pick it up.
 
-**No data shows up even though Claude Code sessions are happening** —
-data capture doesn't depend on `tokentelemetry start` being on (the hooks
-write live events regardless), but *exact token usage* and full
-prompt/response text only appear once the daemon has reconciled the
-session transcript — either wait for the next poll
-(`CLAUDE_TELEMETRY_INTERVAL`, default 5 seconds, only while `start` has
-been run) or click **Reconcile now** on the Settings page for an immediate
-pass.
+**No data shows up even though agent sessions are happening** —
+Claude Code's hooks write live events regardless of whether `tokentelemetry
+start` is on, but *exact token usage* and full prompt/response text (for
+every agent) only appear once the daemon has read the session files —
+either wait for the next poll (`CLAUDE_TELEMETRY_INTERVAL`, default 5
+seconds, only while `start` has been run) or click **Reconcile now** on the
+Settings page for an immediate pass. Also check that the agent's files are
+where the table in [Which agents are picked up](#which-agents-are-picked-up)
+expects them, and that `TOKENTELEMETRY_SOURCES` (if set) includes it.
+
+**Codex sessions are missing** — older rollouts may be compressed
+(`.jsonl.zst`). They're read with Python 3.14+, or once `zstandard` is
+installed into the app's Python environment (`~/.tokentelemetry/.venv`, for
+example `uv pip install -p ~/.tokentelemetry/.venv/bin/python zstandard`);
+otherwise they are skipped.
 
 ## Manual / development install
 
 If you're working on the app itself rather than just running it, skip the
 CLI entirely and run the pieces directly — see
-[README: Development](../README.md#development)
+[CONTRIBUTING: Quick start](../CONTRIBUTING.md#quick-start)
 for the exact commands.
 
 ## Ports and other settings
@@ -273,6 +306,10 @@ for the exact commands.
 | `TOKENTELEMETRY_HOME` | `~/.tokentelemetry` | App files, venv, logs |
 | `CLAUDE_TELEMETRY_DB` | `~/.claude/telemetry/telemetry.db` | Database path |
 | `CLAUDE_CONFIG_DIR` | `~/.claude` | Claude Code config directory |
+| `CODEX_HOME` | `~/.codex` | Codex CLI home |
+| `GEMINI_CLI_HOME` | home directory | Directory containing `.gemini` |
+| `OPENCODE_DB` | `$XDG_DATA_HOME/opencode/opencode.db` | OpenCode database |
+| `TOKENTELEMETRY_SOURCES` | unset (all detected) | Comma-separated sources to read: `claude-code,codex,gemini-cli,opencode` |
 | `CLAUDE_TELEMETRY_INTERVAL` | `5` | Daemon poll interval (seconds) |
 | `TOKENTELEMETRY_RETENTION_DAYS` | `0` (keep) | Delete rows older than N days |
 | `TOKENTELEMETRY_FULL_TEXT_RETENTION_DAYS` | `0` (keep) | Blank prompt/response text older than N days |
@@ -281,9 +318,15 @@ for the exact commands.
 
 Exporter settings are in [INTEGRATIONS.md](INTEGRATIONS.md).
 
+## Upgrading from 2.0
+
+The first start after upgrading migrates the database to schema v8 automatically (it records which
+agent wrote each session file). A backup is written next to it first (`telemetry.db.bak-v7`).
+Existing data is kept as Claude Code data.
+
 ## Upgrading from 1.x
 
-The first start after upgrading migrates the database to schema v7 automatically. A backup is written
+The first start after upgrading migrates the database to the current schema automatically. A backup is written
 next to it first (`telemetry.db.bak-v0`). Request totals may *drop*: 1.x counted multi-block
 assistant messages several times, and v2 counts each API request once. History from transcripts that
 Claude Code has since deleted is kept as it was.

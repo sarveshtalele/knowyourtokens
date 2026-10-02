@@ -1,6 +1,8 @@
 # REST API reference
 
-The backend serves a read-mostly JSON API on **`http://127.0.0.1:8000`** (`TOKENTELEMETRY_BACKEND_PORT`).
+The backend serves a read-mostly JSON API over usage from every agent Token Telemetry tracks
+(Claude Code, Codex CLI, Gemini CLI, OpenCode, and anything pushed through [Ingest](#ingest)) on **`http://127.0.0.1:8000`**
+(`TOKENTELEMETRY_BACKEND_PORT`).
 The dashboard's static server also proxies it at `http://127.0.0.1:5173/api/...`.
 
 - **Machine-readable contract:** [`docs/openapi.json`](openapi.json) (also served live at `/openapi.json`;
@@ -26,7 +28,7 @@ follow pages for you.
 | Param | Meaning |
 |---|---|
 | `project` | Project display name (`All` or empty = no filter) |
-| `client` | Client label, e.g. `VS Code · Claude Code` |
+| `client` | Client label: the agent (`Codex CLI`, `Gemini CLI`, `OpenCode`, or a pushed `agent` name such as `Antigravity`), or for Claude Code the surface, e.g. `VS Code · Claude Code` |
 | `model` | Exact model id |
 | `session_id` | One session |
 | `start`, `end` | Inclusive local calendar days, `YYYY-MM-DD` |
@@ -64,13 +66,68 @@ allowed.
 | `GET /api/v1/skills` | Activations per skill/plugin/trigger |
 | `GET /api/v1/mcp` | Calls per MCP server |
 | `GET /api/v1/plugins` | `{plugins, hooks, agents}` usage |
-| `GET /api/v1/clients` | Usage per client / IDE |
-| `GET /api/v1/events` | Paginated raw hook events. Extra: `event_type` |
+| `GET /api/v1/clients` | Usage per client: agent, or IDE/entrypoint for Claude Code |
+| `GET /api/v1/events` | Paginated raw hook events (Claude Code only). Extra: `event_type` |
 | `GET /api/v1/attributions` | *Estimated* tokens by project × category |
 | `GET /api/v1/settings` | Version, schema, DB path/size, table counts, last reconcile, exporter status |
-| `POST /api/v1/settings/reconcile` | Re-scan transcripts now → `{changed, scanned}` |
+| `POST /api/v1/settings/reconcile` | Re-scan every agent's session files now → `{changed, scanned}` |
+| `POST /api/v1/ingest` | Push usage from any agent → `{accepted, new}`. See [Ingest](#ingest) |
 | `GET /api/v1/reports/preview` | `kind=requests\|projects` → row count, columns, first 5 rows |
 | `GET /api/v1/reports/export` | `kind`, `format=csv\|json\|ndjson`, optional `limit`. Streamed, no row cap |
+
+### Ingest
+
+`POST /api/v1/ingest` records model requests from an agent whose local logs Token Telemetry can't
+read: Antigravity, Cursor, GitHub Copilot CLI, an in-house agent, a CI job. Records go through the same
+pipeline as the built-in sources, so they show up on every page (as client `agent`) with tool counts,
+projects and attributions.
+
+```json
+{
+  "agent": "Antigravity",
+  "records": [
+    {
+      "request_id": "run-42-step-3",
+      "session_id": "run-42",
+      "timestamp": "2026-06-01T12:00:00Z",
+      "cwd": "/home/me/my-repo",
+      "model": "gemini-2.5-pro",
+      "input_tokens": 1200,
+      "output_tokens": 340,
+      "cache_read_tokens": 8000,
+      "cache_write_tokens": 0,
+      "prompt": "optional",
+      "response": "optional",
+      "tool_calls": ["shell", {"name": "read_file", "input": {"path": "src/app.py"}}]
+    }
+  ]
+}
+```
+
+| Field | Notes |
+|---|---|
+| `agent` | Required, 1–64 characters. Shown as the client |
+| `records` | Up to 1000 per request (more is a `422`) |
+| `request_id` | Unique per model request. Re-sending the same id is a no-op, so retries are safe. Without it, an id is derived from the record's fields |
+| `session_id` | Groups requests into a session. Defaults to `<agent>-session` |
+| `timestamp` | ISO-8601. Defaults to now |
+| `cwd` / `project` | Working directory (preferred) or a project name |
+| `input_tokens`, `output_tokens`, `cache_read_tokens`, `cache_write_tokens` | Integers ≥ 0, default 0. `input_tokens` should exclude cache reads |
+| `prompt`, `response`, `tool_calls` | Optional. `tool_calls` items are a name or `{name, id?, input?}` |
+
+The response is `{"data": {"accepted": <records received>, "new": <requests not seen before>}}`. The
+same `Host`/`Origin` checks as the other `POST` endpoints apply: curl and the SDKs work as-is, and a
+browser page can only post from a local origin.
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"agent": "my-agent", "records": [{"request_id": "r1", "session_id": "s1",
+       "cwd": "/home/me/my-repo", "model": "gpt-5", "input_tokens": 1200, "output_tokens": 340}]}'
+```
+
+More examples (Python, TypeScript, Antigravity) are in
+[INTEGRATIONS.md](INTEGRATIONS.md#track-any-agent).
 
 ### WebSocket
 
@@ -96,10 +153,12 @@ from tokentelemetry_client import TokenTelemetry
 tt = TokenTelemetry()
 for p in tt.projects():
     print(p["project"], p["total_tokens"])
+tt.ingest("my-agent", [{"request_id": "r1", "model": "gpt-5", "input_tokens": 1200, "output_tokens": 340}])
 ```
 
 ```ts
 import { TokenTelemetry } from 'tokentelemetry-client';
 const tt = new TokenTelemetry();
 console.log(await tt.summary({ start: '2025-06-01' }));
+await tt.ingest('my-agent', [{ request_id: 'r1', model: 'gpt-5', input_tokens: 1200, output_tokens: 340 }]);
 ```

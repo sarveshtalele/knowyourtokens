@@ -45,6 +45,12 @@ async function doctor() {
   const hookErrors = fs.existsSync(hookLog) && fs.statSync(hookLog).size > 0;
   check(!hookErrors, 'No hook errors logged', `See ${hookLog} (hooks never block Claude Code, but data may be missing).`);
 
+  const found = paths.agentDataPaths().filter((a) => fs.existsSync(a.path));
+  console.log(
+    `INFO  Agents found: ${found.length ? found.map((a) => a.name).join(', ') : 'none yet'}` +
+      ' (any other agent can push usage to POST /api/v1/ingest)',
+  );
+
   const backend = await httpOk(`http://127.0.0.1:${paths.backendPort()}/health`);
   healthy &= check(backend, `Backend /health on port ${paths.backendPort()}`, 'Run "tokentelemetry start", then check logs.');
   const dash = await httpOk(`http://127.0.0.1:${paths.dashboardPort()}/`);

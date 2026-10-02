@@ -39,7 +39,7 @@ export const TOUR: Step[] = [
     page: 'requests',
     cursor: [95, 158],
     click: true,
-    caption: 'Each row is one Claude API request, with exact tokens.',
+    caption: 'Each row is one model request from any agent, with exact tokens.',
     ms: 2200,
   },
   {
@@ -515,9 +515,9 @@ function Projects({ focus }: { focus?: Step['focus'] }) {
               <b>Pipe logs through</b> <code>tail</code> or <code>grep</code> instead of reading whole files.
             </li>
             <li>
-              Add <code>node_modules/</code> to Claude Code’s ignore list.
+              Add <code>node_modules/</code> to your agent’s ignore list.
             </li>
-            <li>Split the 412-line ledger into smaller modules Claude can read in part.</li>
+            <li>Split the 412-line ledger into smaller modules the agent can read in part.</li>
           </ul>
           <div className="d-saving">
             <span>Projected saving</span>
