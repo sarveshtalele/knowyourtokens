@@ -7,6 +7,22 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+### Security
+- Ingest API: per-field bounds (ids, paths, prompt/response text, token counts up to 10^12, at most
+  1000 tool calls per record) and a 64 MB request-body cap, so one request can't exhaust memory or
+  overflow SQLite integers.
+- Release workflow passes the bump input through an environment variable instead of interpolating it
+  into the shell script.
+
+### Fixed
+- Website: the "Verify" step of the debugging walkthrough rendered a huge red block (its bars shared a
+  CSS class with the Dock section's taskbar). Tooltips are centred again, the feedback-loop chart's
+  labels are readable on phones, and the walkthrough's footnote no longer overlaps the charts.
+
+### Changed
+- `scripts/release-macos.sh` also deprecates the old `tokentelemetry` npm packages and prints the
+  Trusted Publisher setup for both new ones.
+
 ## [2.3.0] - 2026-10-02
 
 ### Changed

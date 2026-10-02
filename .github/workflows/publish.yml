@@ -49,11 +49,13 @@ jobs:
           node-version: "22"
       - name: Bump the version and commit it to main
         if: github.event_name == 'workflow_dispatch' && inputs.bump != 'none'
+        env:
+          BUMP: ${{ inputs.bump }} # via env, never interpolated into the script
         run: |
           if [ "$GITHUB_REF_NAME" != "main" ]; then
             echo "::error::Run the Release workflow from the main branch to bump the version"; exit 1
           fi
-          v="$(node scripts/bump-version.mjs "${{ inputs.bump }}")"
+          v="$(node scripts/bump-version.mjs "$BUMP")"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -qam "release: v$v"
