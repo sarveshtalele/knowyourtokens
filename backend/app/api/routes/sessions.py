@@ -1,38 +1,41 @@
-from fastapi import APIRouter
-from ...db.connection import connect
+from fastapi import APIRouter, Depends, HTTPException
+
+from ...deps import Filters, get_db, page_params
+from ...schemas import Envelope, PagedEnvelope, PageMeta, SessionDetail, SessionRow
 
 router = APIRouter()
 
 
-@router.get("")
-async def get_sessions():
-    conn = connect()
+@router.get("", response_model=PagedEnvelope[list[SessionRow]], summary="Sessions, most recent first")
+def list_sessions(f: Filters = Depends(), paging=Depends(page_params), conn=Depends(get_db)):
+    page, page_size = paging
+    where, params = f.where()
+    base = f"""SELECT u.session_ref, u.session_id, MAX(u.project) AS project, MAX(u.client) AS client,
+                      COALESCE(SUM(u.total_tokens),0) AS total_tokens, COUNT(*) AS interactions,
+                      MIN(u.event_time) AS started_at, MAX(u.event_time) AS last_active
+               FROM v_usage u {where} GROUP BY u.session_ref"""
+    total = conn.execute(f"SELECT COUNT(*) FROM ({base})", params).fetchone()[0]
     rows = conn.execute(
-        """
-        SELECT session_id, project, client, model,
-               COALESCE(SUM(total_tokens),0) as total_tokens,
-               COUNT(*) as interactions,
-               MIN(event_time) as started_at,
-               MAX(event_time) as last_active
-        FROM usage GROUP BY session_id
-        ORDER BY last_active DESC LIMIT 200
-        """,
+        f"""SELECT b.*, (SELECT model FROM usage m WHERE m.session_ref=b.session_ref AND m.model IS NOT NULL
+                         GROUP BY model ORDER BY COUNT(*) DESC LIMIT 1) AS model
+            FROM ({base}) b ORDER BY last_active DESC LIMIT ? OFFSET ?""",
+        params + [page_size, (page - 1) * page_size],
     ).fetchall()
-    conn.close()
-    return {"data": [dict(r) for r in rows]}
+    return {"data": [dict(r) for r in rows], "meta": PageMeta(total=total, page=page, page_size=page_size)}
 
 
-@router.get("/{session_id}")
-async def get_session_detail(session_id: str):
-    conn = connect()
-    rows = conn.execute(
-        "SELECT id,event_time,project,client,model,input_tokens,output_tokens,total_tokens "
-        "FROM usage WHERE session_id=? ORDER BY event_time DESC",
-        (session_id,),
+@router.get("/{session_id}", response_model=Envelope[SessionDetail], summary="One session's requests and tools")
+def session_detail(session_id: str, conn=Depends(get_db)):
+    sref = conn.execute("SELECT id FROM sessions WHERE session_id=?", (session_id,)).fetchone()
+    if not sref:
+        raise HTTPException(status_code=404, detail="Session not found")
+    usage = conn.execute(
+        """SELECT id,event_time,project,client,model,input_tokens,output_tokens,total_tokens
+           FROM v_usage WHERE session_ref=? ORDER BY event_time DESC""",
+        (sref[0],),
     ).fetchall()
     tools = conn.execute(
-        "SELECT tool_name, COUNT(*) as calls FROM tool_calls WHERE session_id=? GROUP BY tool_name",
-        (session_id,),
+        "SELECT tool_name, COUNT(*) AS calls FROM tool_calls WHERE session_ref=? GROUP BY tool_name ORDER BY calls DESC",
+        (sref[0],),
     ).fetchall()
-    conn.close()
-    return {"data": {"usage": [dict(r) for r in rows], "tools": [dict(r) for r in tools]}}
+    return {"data": {"usage": [dict(r) for r in usage], "tools": [dict(r) for r in tools]}}
