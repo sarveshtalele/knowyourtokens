@@ -580,7 +580,7 @@ function Integrations({ focus }: { focus?: Step['focus'] }) {
           <small>Settings</small>
           <h3>Integrations</h3>
         </div>
-        <span className="d-pill">v2.0 · schema v7</span>
+        <span className="d-pill">v{__APP_VERSION__} · schema v8</span>
       </header>
       <div className="d-grid2">
         <Card title="Exporters" className={focus === 'otlp' ? 'focus' : ''}>

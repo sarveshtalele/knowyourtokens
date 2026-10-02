@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <title>Know Your Tokens card</title>
 <style>
+  /* Inter and JetBrains Mono (SIL OFL 1.1) shipped next to this file so renders don't depend on installed fonts */
+  @font-face { font-family: 'Inter'; src: url('fonts/InterVariable.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'JetBrains Mono'; src: url('fonts/JetBrainsMonoVariable.woff2') format('woff2'); font-weight: 100 800; }
   /* One layout, four exports: ?w=1280&h=640 (GitHub social preview),
      1200x630 (site og:image), 1200x627 (LinkedIn), 1080x1350 (LinkedIn portrait). */
   :root {
@@ -46,7 +49,7 @@
   .chip { font-size: var(--chip); font-weight: 650; padding: .45em .9em; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 6px 18px -10px rgba(20, 20, 40, .25); display: inline-flex; align-items: center; gap: .5em; }
   .chip i { width: .62em; height: .62em; border-radius: 50%; display: inline-block; }
   .chip.more { color: var(--soft); background: transparent; box-shadow: none; border-style: dashed; }
-  .cmd { display: inline-flex; align-items: center; gap: 14px; font: 600 var(--cmd) ui-monospace, 'SF Mono', Menlo, monospace; background: #111118; color: #f5f5f7; padding: .62em 1em; border-radius: 14px; }
+  .cmd { display: inline-flex; align-items: center; gap: 14px; font: 600 var(--cmd) 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; background: #111118; color: #f5f5f7; padding: .62em 1em; border-radius: 14px; }
   .cmd b { color: #34d3be; }
   .meta { margin-left: 16px; font-size: calc(var(--cmd) * .72); color: var(--faint); font-weight: 600; }
 

@@ -7,6 +7,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-02
+
 ### Changed
 - **Renamed to Know Your Tokens** (formerly Token Telemetry). New npm packages: `knowyourtokens` (CLI,
   with a short `kyt` alias) and `knowyourtokens-client` (JS SDK); the Python SDK is
@@ -151,7 +153,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 - First npm release.
 
-[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/sarveshtalele/tokentelemetry/releases/tag/v2.0.0

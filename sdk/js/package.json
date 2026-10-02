@@ -1,6 +1,6 @@
 {
   "name": "knowyourtokens-client",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "TypeScript/JavaScript client for the Know Your Tokens local API (token, tool, skill and MCP observability for AI coding agents)",
   "type": "module",
   "main": "./dist/index.js",
