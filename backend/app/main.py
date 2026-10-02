@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Token Telemetry API",
     version=__version__,
-    summary="Local-first token, tool, skill and MCP observability for Claude Code.",
+    summary="Local-first token, tool, skill and MCP observability for every AI coding agent.",
     description=(
         "Read-only REST API over the local Token Telemetry database. Binds to 127.0.0.1; "
         "see docs/API.md for conventions (envelopes, filters, pagination, time zones)."

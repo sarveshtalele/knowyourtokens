@@ -131,9 +131,10 @@ publish:
 
 ## 5. Publish the v2.2.0 release
 
-**Fastest:** after merging the release PR, run `bash scripts/release-macos.sh` in a clone on your Mac.
-It publishes both npm packages from your login and pushes the tag; the steps below are the
-browser-only alternative. The ticked overview is in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md).
+**Fastest:** GitHub → **Actions → Release → Run workflow** → `patch` / `minor` / `major`. The workflow
+bumps the versions, commits, publishes both npm packages and creates the release. It needs npm
+Trusted Publishing (step 4b) or an `NPM_TOKEN` secret (step 4a). `bash scripts/release-macos.sh` does the
+same from your Mac with your own npm login; the steps below are the manual alternative. The ticked overview is in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md).
 
 1. **Releases → Draft a new release** (https://github.com/sarveshtalele/tokentelemetry/releases/new).
 2. **Choose a tag:** type `v2.2.0` → **Create new tag: v2.2.0 on publish** · **Target:** `main`.

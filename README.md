@@ -162,13 +162,7 @@ Details: [API reference](docs/API.md) · [Integrations](docs/INTEGRATIONS.md).
 
 ## How it works
 
-```
-Claude Code ──hooks──────────────► SQLite ◄── incremental readers ── Claude Code · Codex · Gemini CLI · OpenCode
-any agent ──POST /api/v1/ingest──►   │
-                    FastAPI on 127.0.0.1 (/api/v1, /ws/live, /openapi.json)
-                     │            │                 │
-                 dashboard     SDKs / curl     OTLP · webhooks (opt-in)
-```
+<p align="center"><img src="docs/assets/integration-map.svg" alt="Integration map: every agent in (read automatically or through the ingest API), local collector, SQLite and API in the middle, and the dashboard, SDKs, exports, OpenTelemetry and webhooks out" width="100%"></p>
 
 Hooks capture Claude Code events the instant they happen. The daemon reads only what's new in each
 agent's session logs for exact usage and full text, and catches up after downtime. Full diagrams, the schema,
@@ -185,6 +179,7 @@ and design decisions are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, agent sources, data flow, schema v8, migrations |
 | [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Threat model and findings |
 | [DESIGN](DESIGN.md) | Dashboard design tokens |
+| [Launch kit](docs/launch/PRODUCT_HUNT.md) | Reels ([launch](docs/launch/video/launch-reel-1080x1920.mp4), [teaser](docs/launch/video/teaser-reel-1080x1920.mp4)), social images, [integration map](docs/launch/integration-map-1600x860.png) |
 | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) | Where it's going, what changed |
 
 ## Contributing

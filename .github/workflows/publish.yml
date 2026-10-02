@@ -1,44 +1,107 @@
 name: Release
 
-# Runs when a v* tag is pushed -- including the tag GitHub creates when you
-# publish a release in the UI. (A separate `release:` trigger would start a
-# second, duplicate run for the same tag.) If the release doesn't exist yet,
-# the github-release job creates it with notes from CHANGELOG.md; if you
-# made it in the UI, your text is kept.
+# Publishes the CLI (`tokentelemetry`) and the JS SDK (`tokentelemetry-client`) to npm and creates
+# the GitHub release. Three ways to start it; all end the same way:
+#
+#   1. Actions -> Release -> Run workflow, pick patch / minor / major. It bumps every version, moves
+#      the CHANGELOG's Unreleased notes under the new version, commits to main, then publishes.
+#      Nothing to run on your machine.
+#   2. Merge a PR that changes the version in cli/package.json: that version is published.
+#   3. Push a vX.Y.Z tag (or publish a release in the GitHub UI).
+#
+# Every step skips what's already done (versions already on npm, an existing release), so re-running
+# is always safe. npm auth: Trusted Publishing (OIDC, no secret) or an NPM_TOKEN repository secret.
 on:
   push:
     tags: ["v*"]
+    branches: [main]
+    paths: [cli/package.json]
   workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump (none = publish the version already on main)"
+        type: choice
+        options: [patch, minor, major, none]
+        default: patch
 
 permissions:
   contents: read
 
+# One release at a time, whatever started it.
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 jobs:
-  verify:
-    name: Verify versions, tests, build
+  prepare:
+    name: Decide what to release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # only for pushing the version-bump commit
     outputs:
       version: ${{ steps.v.outputs.version }}
+      sha: ${{ steps.v.outputs.sha }}
+      publish: ${{ steps.v.outputs.publish }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Bump the version and commit it to main
+        if: github.event_name == 'workflow_dispatch' && inputs.bump != 'none'
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::error::Run the Release workflow from the main branch to bump the version"; exit 1
+          fi
+          v="$(node scripts/bump-version.mjs "${{ inputs.bump }}")"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "release: v$v"
+          if ! git push origin HEAD:main; then
+            echo "::error::Couldn't push the version bump to main (is main protected?). Allow GitHub Actions to bypass the rule, or bump the version in a PR and merge it; that publishes too."
+            exit 1
+          fi
+          echo "Bumped to $v"
       - id: v
-        name: Every package version matches the tag
+        name: Version, commit, and whether anything is left to do
         run: |
           version="$(node -p "require('./cli/package.json').version")"
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then tag="${GITHUB_REF_NAME#v}"; else tag="$version"; fi
+          {
+            echo "version=$version"
+            echo "sha=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+          publish=true
+          # A push to main that touched cli/package.json without a new version: nothing to release.
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_TYPE" = "branch" ] \
+             && npm view "tokentelemetry@$version" version >/dev/null 2>&1 \
+             && git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
+            echo "v$version is already released; nothing to do."
+            publish=false
+          fi
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: Verify versions, tests, build
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - name: Every package version matches
+        run: |
+          want="${{ needs.prepare.outputs.version }}"
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "${GITHUB_REF_NAME#v}" != "$want" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match cli/package.json ($want)"; exit 1
+          fi
           fail=0
           for v in \
-            "$version" \
             "$(node -p "require('./sdk/js/package.json').version")" \
             "$(python3 -c "import re;print(re.search(r'__version__ = \"(.+)\"', open('telemetry/__init__.py').read()).group(1))")" \
             "$(python3 -c "import re;print(re.search(r'^version = \"(.+)\"', open('sdk/python/pyproject.toml').read(), re.M).group(1))")"; do
-            if [ "$v" != "$tag" ]; then echo "::error::version $v does not match $tag"; fail=1; fi
+            if [ "$v" != "$want" ]; then echo "::error::version $v does not match $want"; fail=1; fi
           done
-          echo "version=$tag" >> "$GITHUB_OUTPUT"
           exit $fail
       - uses: actions/setup-python@v7
         with:
@@ -51,26 +114,28 @@ jobs:
 
   npm-cli:
     name: Publish CLI to npm
-    needs: verify
+    needs: [prepare, verify]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
       # Trusted publishing (OIDC) needs npm >= 11.5.1. If an NPM_TOKEN secret
-      # exists it is used instead (needed for a package's very first publish).
+      # exists it is used instead.
       - run: npm install -g npm@latest
       - name: Publish (skipped if this version is already on npm)
         working-directory: cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          v="${{ needs.verify.outputs.version }}"
+          v="${{ needs.prepare.outputs.version }}"
           if npm view "tokentelemetry@$v" version >/dev/null 2>&1; then
             echo "tokentelemetry@$v is already published"; exit 0
           fi
@@ -78,13 +143,15 @@ jobs:
 
   npm-sdk:
     name: Publish JS SDK to npm
-    needs: verify
+    needs: [prepare, verify]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
@@ -95,7 +162,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          v="${{ needs.verify.outputs.version }}"
+          v="${{ needs.prepare.outputs.version }}"
           if npm view "tokentelemetry-client@$v" version >/dev/null 2>&1; then
             echo "tokentelemetry-client@$v is already published"; exit 0
           fi
@@ -104,25 +171,28 @@ jobs:
 
   github-release:
     name: Create GitHub release
-    if: github.event_name == 'push'
-    needs: [verify, npm-cli]
+    needs: [prepare, npm-cli, npm-sdk]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
       - name: Release notes from CHANGELOG.md
         run: |
-          v="${{ needs.verify.outputs.version }}"
+          v="${{ needs.prepare.outputs.version }}"
           awk -v v="$v" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ && f {exit} f' CHANGELOG.md > notes.md
           test -s notes.md || echo "See CHANGELOG.md" > notes.md
-      - name: Create the release unless it already exists
+      - name: Create the release (and its tag) unless it already exists
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="v${{ needs.verify.outputs.version }}"
+          tag="v${{ needs.prepare.outputs.version }}"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release $tag already exists -- leaving it as is"
-          else
+          elif git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
             gh release create "$tag" --title "$tag" --notes-file notes.md --verify-tag
+          else
+            gh release create "$tag" --title "$tag" --notes-file notes.md --target "${{ needs.prepare.outputs.sha }}"
           fi

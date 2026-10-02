@@ -7,6 +7,16 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+### Added
+- Integration map infographic (`docs/assets/integration-map.svg`, animated) in the README and on the
+  website's Integrations section, plus a PNG for sharing in `docs/launch/`.
+- One-click releases: **Actions → Release → Run workflow** bumps the version (`scripts/bump-version.mjs`),
+  rolls the CHANGELOG, commits, publishes both npm packages and creates the GitHub release. Merging a
+  PR that changes the CLI's version publishes it too.
+
+### Fixed
+- The API's OpenAPI summary still described the project as Claude Code only.
+
 ## [2.2.0] - 2026-10-02
 
 ### Added

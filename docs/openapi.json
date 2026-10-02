@@ -2132,7 +2132,7 @@
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
     },
-    "summary": "Local-first token, tool, skill and MCP observability for Claude Code.",
+    "summary": "Local-first token, tool, skill and MCP observability for every AI coding agent.",
     "title": "Token Telemetry API",
     "version": "2.2.0"
   },

@@ -138,6 +138,23 @@ export function Integrations() {
             the same API.
           </motion.p>
         </Reveal>
+        <motion.figure
+          className="int-map"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.7 }}
+        >
+          <img
+            src={`${import.meta.env.BASE_URL}integration-map.svg`}
+            width={1600}
+            height={860}
+            loading="lazy"
+            decoding="async"
+            alt="Integration map. In: Claude Code, Codex CLI, Gemini CLI and OpenCode are read automatically; Antigravity, Cursor, Copilot CLI and your own agents push usage through the ingest API. Token Telemetry collects it into local SQLite behind a local API. Out: dashboard, live feed, token calculator, REST API with OpenAPI, Python and TypeScript SDKs, CSV/JSON/NDJSON exports, and opt-in OpenTelemetry and webhooks to Grafana, Datadog, Honeycomb, Slack and n8n."
+          />
+          <figcaption className="int-map-hint">Swipe to see the whole map →</figcaption>
+        </motion.figure>
         <motion.div
           className="tabs"
           initial={{ opacity: 0, y: 30 }}

@@ -92,12 +92,17 @@ Good first issues are labelled
 First time? Do the one-time setup in [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md) first.
 
 
-1. Bump the version everywhere it appears: `telemetry/__init__.py`, `cli/package.json`,
-   `sdk/js/package.json`, `sdk/python/pyproject.toml` +
-   `sdk/python/src/tokentelemetry_client/__init__.py`, `frontend/package.json`, `site/package.json`.
-2. Move the CHANGELOG's Unreleased entries under the new version.
-3. Tag `vX.Y.Z` and publish a GitHub release. `.github/workflows/publish.yml` checks every version
-   matches the tag, then publishes the CLI and the JS SDK to npm with provenance.
+Releases are automated by `.github/workflows/publish.yml`. Pick one:
+
+- **One click (usual):** GitHub → **Actions → Release → Run workflow** → choose `patch`, `minor` or
+  `major`. It bumps every version (`scripts/bump-version.mjs`), moves the CHANGELOG's Unreleased notes
+  under the new version, commits to `main`, runs the tests, publishes the CLI and the JS SDK to npm with
+  provenance, and creates the GitHub release.
+- **Through a PR:** run `node scripts/bump-version.mjs patch` locally, open a PR, merge it. The version
+  change on `main` triggers the same publish.
+- **From a Mac by hand:** `bash scripts/release-macos.sh` (publishes from your own npm login).
+
+Keep the CHANGELOG's Unreleased section up to date in each PR; that becomes the release notes.
 
 ## Reporting bugs / security issues
 

@@ -1839,6 +1839,35 @@ main > section,
   line-height: 1.5;
 }
 
+/* ---------- integration map ---------- */
+.int-map {
+  margin: 0 0 clamp(28px, 4vw, 48px);
+  overflow-x: auto;
+  border-radius: 24px;
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.04),
+    0 24px 60px -30px rgba(60, 50, 140, 0.35);
+}
+.int-map-hint {
+  display: none;
+}
+@media (max-width: 760px) {
+  .int-map-hint {
+    display: block;
+    position: sticky;
+    left: 0;
+    padding: 10px 16px 12px;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+}
+.int-map img {
+  display: block;
+  width: 100%;
+  min-width: 720px;
+  height: auto;
+}
+
 /* ---------- dark stage band (pipeline + integrations) ---------- */
 .dark-band {
   background: var(--bg-2);
