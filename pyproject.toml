@@ -10,7 +10,7 @@ authors = [{ name = "Sarvesh Talele" }]
 [tool.ruff]
 target-version = "py310"
 line-length = 120
-extend-exclude = ["app.py", "tests/test_dashboard.py", "sdk/python/build"]
+extend-exclude = ["app.py", "tests/test_dashboard.py", "sdk/python/build", "docs/superpowers"]
 
 [tool.ruff.lint]
 # Pinned explicitly: ruff's default selection changes between releases.
@@ -21,6 +21,10 @@ ignore = [
   "B904",  # raise ... from None is used deliberately where it matters
   "E501",  # the formatter owns line length; long lines left are SQL string literals
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# The SDK supports Python 3.9: keep typing.Optional/List spellings there.
+"sdk/python/**" = ["UP006", "UP007", "UP035", "UP045"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["telemetry", "app", "tokentelemetry_client"]
