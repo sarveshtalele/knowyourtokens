@@ -33,6 +33,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   **Requests** and **Avg tokens/req** mixed all-time requests with the range's tokens. All three now
   follow the selected range.
 - The API's OpenAPI summary still described the project as Claude Code only.
+- Backend: shutting down while the live feed was mid-poll could crash the process (a worker thread read
+  from a SQLite connection that was being closed).
 
 ## [2.2.0] - 2026-10-02
 

@@ -56,3 +56,7 @@ sdk/python/build/
 # Copied from the repo root at pack time
 cli/LICENSE
 *.tsbuildinfo
+
+# emitted by a stray `tsc -b` (the dashboard type-checks with plain `tsc`)
+frontend/vite.config.js
+frontend/vite.config.d.ts
