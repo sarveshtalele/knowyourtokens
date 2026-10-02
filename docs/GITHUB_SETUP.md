@@ -114,6 +114,8 @@ publish:
 
 | Error in the log | Fix |
 |---|---|
+| `403 ... OIDC permission denied for this action` | npm found a Trusted Publisher for the package but it doesn't match. On npmjs.com → package → **Settings → Trusted Publisher**, it must be exactly: user `sarveshtalele`, repository `tokentelemetry`, workflow filename `publish.yml` (just the file name, not a path or the workflow's display name), **environment empty**. Delete and re-add it if unsure, then **Re-run failed jobs** |
+| `EOTP` / `This operation requires a one-time password` | `NPM_TOKEN` is a 2FA-protected token, which CI can't use. Either publish that package once from your machine (`cd sdk/js && npm ci && npm publish --access public`, then enter your OTP) and set up its Trusted Publisher, or replace the secret with a granular token that has **Bypass two-factor authentication** ticked |
 | `ENEEDAUTH` / `401` / `404 Not Found - PUT` | `NPM_TOKEN` missing or wrong (step 4a), or trusted publisher not set up (4b) |
 | `403 ... cannot publish over the previously published version` | That version is already on npm. Bump the version (see CONTRIBUTING → Releasing) |
 | `version X does not match` | A package version differs from the tag. Fix it in a PR, then re-run |
