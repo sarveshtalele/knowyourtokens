@@ -33,6 +33,10 @@ updates:
 
   - package-ecosystem: "pip"
     directory: "/backend"
+    # Keep the tested lower bounds; only touch a range when a new release
+    # falls outside it. (Raising floors broke Python 3.10 support once:
+    # websockets 17 has no 3.10 wheels.)
+    versioning-strategy: increase-if-necessary
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
