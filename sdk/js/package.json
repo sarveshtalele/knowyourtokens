@@ -1,6 +1,6 @@
 {
   "name": "tokentelemetry-client",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "TypeScript/JavaScript client for the Token Telemetry local API (token, tool, skill and MCP observability for AI coding agents)",
   "type": "module",
   "main": "./dist/index.js",
