@@ -28,8 +28,10 @@ function run(cmd, args) {
 // ---------- Linux ----------
 
 function desktopQuote(s) {
-  // Desktop Entry spec: quote args containing reserved chars; escape \ " ` $
-  return `"${String(s).replace(/([\\"`$])/g, '\\$1')}"`;
+  // Desktop Entry spec: inside a quoted Exec arg escape \ " ` $; then the
+  // string-level escape doubles every backslash again, and a literal % is %%.
+  const quoted = `"${String(s).replace(/([\\"`$])/g, '\\$1')}"`;
+  return quoted.replace(/\\/g, '\\\\').replace(/%/g, '%%');
 }
 
 function linuxDesktopEntry(node = process.execPath, bin = paths.stableBinPath(), icon = LINUX_ID) {
@@ -98,6 +100,10 @@ function macAppDir() {
   return path.join(os.homedir(), 'Applications', `${APP_NAME}.app`);
 }
 
+function xmlEscape(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function shQuote(s) {
   return `'${String(s).replace(/'/g, `'\\''`)}'`;
 }
@@ -141,7 +147,7 @@ function macCreate({ dock = false } = {}) {
   fs.copyFileSync(iconSource('icon.icns'), path.join(app, 'Contents', 'Resources', 'icon.icns'));
   run('touch', [app]); // refresh Finder's icon cache
   if (dock) {
-    const tile = `<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>file://${encodeURI(app)}/</string><key>_CFURLStringType</key><integer>15</integer></dict></dict></dict>`;
+    const tile = `<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${xmlEscape(`file://${encodeURI(app)}/`)}</string><key>_CFURLStringType</key><integer>15</integer></dict></dict></dict>`;
     run('defaults', ['write', 'com.apple.dock', 'persistent-apps', '-array-add', tile]);
     run('killall', ['Dock']);
   }

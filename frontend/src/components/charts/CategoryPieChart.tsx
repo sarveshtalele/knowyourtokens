@@ -12,7 +12,7 @@ export function CategoryPieChart({ data, title = 'Distribution' }: Props) {
   const total = data.reduce((a, d) => a + d.value, 0) || 1;
   return (
     <div className="bg-surface border border-line rounded-lg p-4">
-      <h3 className="text-sm font-bold mb-4">{title}</h3>
+      <h2 className="text-sm font-bold mb-4">{title}</h2>
       <ResponsiveContainer width="100%" height={260}>
         <PieChart>
           <Pie

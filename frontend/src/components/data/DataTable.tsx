@@ -38,7 +38,12 @@ export function DataTable<T extends object>({ columns, data, onRowClick, emptyLa
   };
 
   return (
-    <div className="bg-surface border border-line rounded-lg overflow-x-auto">
+    <section
+      aria-label="Table"
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- scrollable region must be keyboard reachable (WCAG 2.1.1)
+      tabIndex={0}
+      className="bg-surface border border-line rounded-lg overflow-x-auto focus-visible:ring-2 focus-visible:ring-accent"
+    >
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="border-b border-line bg-surface-muted">
@@ -83,6 +88,6 @@ export function DataTable<T extends object>({ columns, data, onRowClick, emptyLa
           )}
         </tbody>
       </table>
-    </div>
+    </section>
   );
 }

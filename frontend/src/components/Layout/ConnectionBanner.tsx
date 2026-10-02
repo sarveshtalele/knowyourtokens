@@ -29,7 +29,7 @@ export function ConnectionBanner() {
   return (
     <div
       role="alert"
-      className="bg-warning-soft text-warning px-7 py-2 text-sm flex items-center justify-between gap-3"
+      className="bg-warning-soft text-warning-text px-7 py-2 text-sm flex items-center justify-between gap-3"
     >
       <span>
         <b>Not connected to the telemetry backend.</b> New data won't load automatically until the connection is back —

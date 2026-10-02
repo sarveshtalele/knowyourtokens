@@ -10,7 +10,7 @@ export function ClientFilter({
   onChange: (v: string) => void;
 }) {
   return (
-    <Select value={value} onChange={(e) => onChange(e.target.value)}>
+    <Select aria-label="Client" value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="">All clients</option>
       {clients.map((c) => (
         <option key={c} value={c}>

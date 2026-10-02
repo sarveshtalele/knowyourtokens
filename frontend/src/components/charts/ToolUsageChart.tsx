@@ -13,7 +13,7 @@ function truncateLabel(label: string, max = 14) {
 export function ToolUsageChart({ data }: Props) {
   return (
     <div className="bg-surface border border-line rounded-lg p-4">
-      <h3 className="text-sm font-bold mb-4">Tool call distribution</h3>
+      <h2 className="text-sm font-bold mb-4">Tool call distribution</h2>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data.slice(0, 12)} margin={{ top: 5, right: 10, left: 10, bottom: 60 }}>
           <XAxis

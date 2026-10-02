@@ -58,7 +58,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Token Telemetry 2.0
+            Token Telemetry 2.1
           </motion.p>
           <h1 className="display">
             {['Every token.', 'Accounted for.'].map((line, i) => (
@@ -97,7 +97,7 @@ export function Hero() {
 
         <motion.div ref={laptopRef} className="laptop" style={{ scale, y }}>
           <motion.div className="laptop-lid" style={{ rotateX: lid }}>
-            <div className="laptop-screen">
+            <div className="laptop-screen" aria-hidden="true" inert>
               <motion.div className="laptop-glow" style={{ opacity: glow }} aria-hidden="true" />
               <DemoApp chrome={false} interactive={false} onCaption={(c) => setCaption(c)} />
             </div>

@@ -47,7 +47,7 @@ export function ProjectDetail() {
       <div className="flex items-start justify-between gap-5 flex-wrap">
         <div>
           <ProjectScope project={project.project} sessions={project.sessions} clients={project.client_count} />
-          <div className="text-[27px] font-extrabold tracking-tight">{project.project}</div>
+          <h1 className="text-[27px] font-extrabold tracking-tight">{project.project}</h1>
         </div>
         <div className="flex items-center gap-2">
           <Badge tone="success">Live collector</Badge>
@@ -85,7 +85,7 @@ export function ProjectDetail() {
           <div className="grid grid-cols-[1.35fr_.65fr] gap-4">
             <div className="bg-surface border border-line rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold">Attribution hotspots</h3>
+                <h2 className="text-sm font-bold">Attribution hotspots</h2>
                 <Badge tone="warning">Estimated</Badge>
               </div>
               {[...projectAttrs]
@@ -120,7 +120,7 @@ export function ProjectDetail() {
               )}
             </div>
             <div className="bg-surface border border-line rounded-lg p-4">
-              <h3 className="text-sm font-bold mb-3">Project profile</h3>
+              <h2 className="text-sm font-bold mb-3">Project profile</h2>
               <KV k="Sessions" v={String(project.sessions)} />
               <KV k="Clients" v={String(project.client_count)} />
               <KV k="Last activity" v={ago(project.last_activity)} />
@@ -129,7 +129,7 @@ export function ProjectDetail() {
           </div>
 
           <div className="bg-surface border border-line rounded-lg p-4">
-            <h3 className="text-sm font-bold mb-3">Most used in this project</h3>
+            <h2 className="text-sm font-bold mb-3">Most used in this project</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <MostUsedTile
                 label="Top skill"

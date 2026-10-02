@@ -134,7 +134,7 @@ export function DemoApp({
       <div ref={outer} className="demo-viewport" style={{ aspectRatio: `${W} / ${H}` }}>
         <div className="demo-canvas" style={{ width: W, height: H, transform: `scale(${scale})` }}>
           <Sidebar page={shownPage} onNav={(p) => takeOver(() => (setPage(p), setDrawer(false)))} />
-          <main className="demo-main">
+          <div className="demo-main">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={shownPage}
@@ -153,7 +153,7 @@ export function DemoApp({
                 {shownPage === 'integrations' && <Integrations focus={shownFocus} />}
               </motion.div>
             </AnimatePresence>
-          </main>
+          </div>
           <AnimatePresence>
             {shownDrawer && shownPage === 'requests' && (
               <Drawer focus={shownFocus} onClose={() => takeOver(() => setDrawer(false))} />

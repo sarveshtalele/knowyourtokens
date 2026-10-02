@@ -7,6 +7,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-02
+
 ### Added
 - The dashboard is an installable app (web manifest, app icons, offline shell) with an **Install app**
   button, so it can live in the Dock or taskbar.
@@ -14,10 +16,24 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   Menu + Desktop), macOS (`~/Applications`, optional Dock) and Linux (app launcher + Desktop).
 - Redesigned website: scroll-driven product hero, a full interactive demo of the dashboard with a
   guided tour, workflow stories (including prompt debugging), and audience and app-pinning sections.
+- Website SEO: FAQ structured data, a 404 page, sitemap `lastmod` stamped at build, Search Console
+  verification file.
+- `scripts/seed_demo.py` (`make demo`): a fictional 30-day dataset run through the real ingest
+  pipeline, for demos and screenshots without exposing real prompts.
+- Product Hunt launch kit in [`docs/launch/`](docs/launch/PRODUCT_HUNT.md).
+
+### Changed
+- Accessibility: the dashboard and website pass an axe-core WCAG 2.1 AA audit in light and dark
+  themes. Text colours meet 4.5:1 contrast, every page has one `h1` and ordered headings, filters
+  have labels, and scrollable tables are keyboard-reachable.
+- Fresh README screenshots, taken with the demo dataset.
 
 ### Fixed
 - Launchers and autostart no longer point into npx's cache, which `npm cache clean` can delete. They
   now run a stable copy of the CLI under `~/.tokentelemetry/cli`.
+- The dashboard's service worker no longer caches error responses under asset URLs.
+- Linux `.desktop` launchers escape backslashes and `%` in paths as the Desktop Entry spec requires;
+  the macOS Dock entry XML-escapes the app path.
 
 ## [2.0.0] - 2026-10-02
 
@@ -74,5 +90,6 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 - First npm release.
 
-[Unreleased]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/sarveshtalele/tokentelemetry/releases/tag/v2.0.0

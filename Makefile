@@ -4,7 +4,7 @@ PY ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: setup dev-backend dev-frontend dev-daemon check test lint format openapi clean
+.PHONY: setup dev-backend dev-frontend dev-daemon check test lint format openapi clean demo
 
 setup:            ## Create the venv and install every dependency
 	$(PY) -m venv $(VENV)
@@ -39,6 +39,10 @@ test:
 
 openapi:          ## Regenerate docs/openapi.json after API changes
 	$(BIN)/python scripts/export_openapi.py
+
+demo:             ## Seed a fictional dataset into ./.demo and serve it on :8000
+	rm -rf .demo && $(BIN)/python scripts/seed_demo.py --out .demo
+	CLAUDE_TELEMETRY_DB=.demo/telemetry.db $(BIN)/python -m uvicorn app.main:app --app-dir backend --port 8000
 
 check: lint test openapi-check  ## Everything CI runs (minus the cross-OS matrix)
 	cd frontend && npm run build

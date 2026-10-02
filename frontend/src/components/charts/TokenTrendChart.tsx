@@ -11,7 +11,7 @@ export function TokenTrendChart({ data, title = 'Daily token volume' }: Props) {
   const sorted = [...data].sort((a, b) => a.day.localeCompare(b.day));
   return (
     <div className="bg-surface border border-line rounded-lg p-4">
-      <h3 className="text-sm font-bold mb-4">{title}</h3>
+      <h2 className="text-sm font-bold mb-4">{title}</h2>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={sorted}>
           <XAxis dataKey="day" tick={axisTickStyle} minTickGap={30} />

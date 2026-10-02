@@ -94,7 +94,7 @@ export function GlobalDashboard() {
           title={`Token consumption (${rangeLabel})`}
         />
         <div className="bg-surface border border-line rounded-lg p-4">
-          <h3 className="text-sm font-bold mb-4">Token mix</h3>
+          <h2 className="text-sm font-bold mb-4">Token mix</h2>
           {[
             ['Input', totals.input],
             ['Cache read', totals.cacheRead],
@@ -153,7 +153,7 @@ export function GlobalDashboard() {
       <div className="bg-surface border border-line rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-line">
           <span className="font-bold text-sm">Projects</span>
-          <Link to="/projects" className="text-sm font-semibold text-accent-strong hover:underline">
+          <Link to="/projects" className="text-sm font-semibold text-accent-text hover:underline">
             View all
           </Link>
         </div>
@@ -185,8 +185,8 @@ export function PageHead({
   return (
     <div className="flex items-start justify-between gap-5 flex-wrap">
       <div>
-        <div className="text-accent text-[11px] font-extrabold uppercase tracking-wide">{eyebrow}</div>
-        <div className="text-[27px] font-extrabold tracking-tight mt-1 mb-1.5">{title}</div>
+        <div className="text-accent-text text-[11px] font-extrabold uppercase tracking-wide">{eyebrow}</div>
+        <h1 className="text-[27px] font-extrabold tracking-tight mt-1 mb-1.5">{title}</h1>
         {subtitle && <div className="text-ink-soft text-sm max-w-2xl">{subtitle}</div>}
       </div>
       {actions && <div className="flex gap-2 flex-wrap">{actions}</div>}

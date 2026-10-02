@@ -67,7 +67,7 @@ export function Privacy() {
   );
 }
 
-const FAQ: [string, string][] = [
+export const FAQ: [string, string][] = [
   [
     'Is it really free and open source?',
     'Yes. MIT licensed: use it, fork it, embed it, ship it commercially. Contributions are welcome.',
@@ -188,7 +188,7 @@ export function Footer() {
           </p>
         </div>
         <nav aria-label="Documentation">
-          <h4>Docs</h4>
+          <h2>Docs</h2>
           <ul>
             <li><a href={`${blob}/docs/INSTALLATION.md`}>Installation</a></li>
             <li><a href={`${blob}/docs/USER_GUIDE.md`}>User guide</a></li>
@@ -197,7 +197,7 @@ export function Footer() {
           </ul>
         </nav>
         <nav aria-label="Project">
-          <h4>Project</h4>
+          <h2>Project</h2>
           <ul>
             <li><a href={REPO}>GitHub</a></li>
             <li><a href={`${blob}/CHANGELOG.md`}>Changelog</a></li>
@@ -206,7 +206,7 @@ export function Footer() {
           </ul>
         </nav>
         <nav aria-label="Community">
-          <h4>Community</h4>
+          <h2>Community</h2>
           <ul>
             <li><a href={`${blob}/CODE_OF_CONDUCT.md`}>Code of conduct</a></li>
             <li><a href={`${blob}/SECURITY.md`}>Security policy</a></li>

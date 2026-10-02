@@ -12,7 +12,7 @@ export function TabNav({ tabs, active, onChange }: Props) {
           key={t}
           onClick={() => onChange(t)}
           className={`border-0 bg-transparent px-3.5 py-2.5 text-sm font-bold border-b-2 -mb-px transition-colors ${
-            active === t ? 'text-accent-strong border-accent' : 'text-ink-soft border-transparent hover:text-ink'
+            active === t ? 'text-accent-text border-accent' : 'text-ink-soft border-transparent hover:text-ink'
           }`}
         >
           {t}

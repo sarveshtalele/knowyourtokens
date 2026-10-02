@@ -14,7 +14,7 @@ function truncateLabel(label: string, max = 16) {
 export function TokenBarChart({ data, title = 'Usage by project' }: Props) {
   return (
     <div className="bg-surface border border-line rounded-lg p-4">
-      <h3 className="text-sm font-bold mb-4">{title}</h3>
+      <h2 className="text-sm font-bold mb-4">{title}</h2>
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 60 }}>
           <XAxis

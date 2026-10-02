@@ -109,7 +109,7 @@ export function Reports() {
                 {loading || !preview ? '…' : fmt(preview.row_count)}
               </div>
               {preview && preview.row_count >= 5000 && (
-                <p className="text-xs text-warning mt-1">
+                <p className="text-xs text-warning-text mt-1">
                   Exports are capped at 5,000 rows — narrow the date range or project to get everything.
                 </p>
               )}
@@ -129,7 +129,12 @@ export function Reports() {
           </div>
 
           {preview && preview.sample.length > 0 && (
-            <div className="overflow-x-auto">
+            <section
+              aria-label="Report preview"
+              // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- scrollable region must be keyboard reachable (WCAG 2.1.1)
+              tabIndex={0}
+              className="overflow-x-auto focus-visible:ring-2 focus-visible:ring-accent"
+            >
               <div className="text-xs font-semibold text-ink-soft mb-2">Preview (first 5 rows)</div>
               <table className="w-full text-xs border-collapse">
                 <thead>
@@ -153,7 +158,7 @@ export function Reports() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </section>
           )}
 
           {preview && preview.row_count === 0 && (
