@@ -69,11 +69,12 @@ export function Nav() {
           <Logo /> Token Telemetry
         </a>
         <div className="nav-links">
-          <a href="#features">Features</a>
-          <a href="#how">How it works</a>
+          <a href="#demo">Demo</a>
+          <a href="#workflows">Workflows</a>
+          <a href="#for-you">For you</a>
+          <a href="#app">App</a>
           <a href="#integrations">Integrations</a>
-          <a href="#privacy">Privacy</a>
-          <a href="#faq">FAQ</a>
+          <a href="#specs">Specs</a>
         </div>
         <div className="nav-spacer" />
         <button
@@ -84,6 +85,9 @@ export function Nav() {
         >
           {theme === 'light' ? <IconMoon /> : <IconSun />}
         </button>
+        <a className="btn btn-sm btn-pill" href="#install">
+          Install
+        </a>
         <a className="btn btn-sm" href="https://github.com/sarveshtalele/tokentelemetry">
           <IconGithub /> <span className="label">GitHub</span>
         </a>

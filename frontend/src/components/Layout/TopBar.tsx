@@ -2,6 +2,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { IconRefresh, IconSun, IconMoon } from '../ui/Icons';
 import { useTheme } from '../../hooks/useTheme';
 import { useLive } from '../../context/LiveContext';
+import { InstallAppButton } from './InstallAppButton';
 
 const LABELS: Record<string, string> = {
   projects: 'Projects',
@@ -45,6 +46,7 @@ export function TopBar() {
         )}
       </div>
       <div className="flex items-center gap-2">
+        <InstallAppButton />
         <button
           onClick={toggle}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}

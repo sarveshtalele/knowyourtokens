@@ -22,7 +22,7 @@ const LAUNCHD_LABEL = 'com.tokentelemetry.app';
 const SYSTEMD_UNIT = 'tokentelemetry.service';
 
 function binScriptPath() {
-  return path.join(paths.packageRoot(), 'bin', 'tokentelemetry.js');
+  return paths.stableBinPath();
 }
 
 function run(cmd, args, opts = {}) {

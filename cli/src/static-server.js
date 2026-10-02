@@ -21,6 +21,7 @@ const MIME = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.ico': 'image/x-icon',
+  '.webmanifest': 'application/manifest+json',
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
 };
@@ -42,6 +43,8 @@ const SECURITY_HEADERS = {
     "img-src 'self' data:",
     "font-src 'self'",
     "connect-src 'self'",
+    "manifest-src 'self'",
+    "worker-src 'self'",
     "frame-ancestors 'none'",
     "base-uri 'none'",
     "form-action 'self'",
@@ -104,8 +107,9 @@ function serveStatic(req, res) {
   const headers = {
     ...SECURITY_HEADERS,
     'Content-Type': MIME[path.extname(filePath)] || 'application/octet-stream',
-    // Vite fingerprints assets; index.html must always be revalidated.
+    // Vite fingerprints assets; index.html (and the service worker) must always be revalidated.
     'Cache-Control': isAsset ? 'public, max-age=31536000, immutable' : 'no-cache',
+    ...(urlPath === '/sw.js' ? { 'Service-Worker-Allowed': '/' } : {}),
   };
   const stream = fs.createReadStream(filePath);
   stream.on('open', () => {

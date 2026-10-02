@@ -145,6 +145,20 @@ OS scheduler, which is a common way autostart entries silently fail.
 whether it's currently on. `tokentelemetry uninstall --purge` disables it
 automatically as part of a full teardown.
 
+## App icon: pin it to your Dock or taskbar
+
+Two ways, use either or both:
+
+| | How | Result |
+|---|---|---|
+| **Installable app** | Open the dashboard and click **Install app** in the top bar (Chrome / Edge / Brave / Arc). Safari: **File → Add to Dock**. | Its own window and icon. Right-click the icon → **Keep in Dock** / **Pin to taskbar** |
+| **Native launcher** | `tokentelemetry shortcut` | Windows: Start Menu + Desktop shortcut. macOS: `~/Applications/Token Telemetry.app` (`--dock` adds it to the Dock). Linux: app-launcher entry + Desktop icon |
+
+The launcher runs `tokentelemetry start` (starting anything that isn't running) and opens the
+dashboard. Windows and macOS don't allow programs to pin themselves to the taskbar or Dock, so the
+last step is one right-click (Windows) or drag (macOS). `tokentelemetry shortcut --remove` removes it,
+and `uninstall --purge` removes it too.
+
 ## Verifying the install
 
 After `tokentelemetry start`, confirm all three pieces are actually up:

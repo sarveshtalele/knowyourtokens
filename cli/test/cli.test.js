@@ -131,3 +131,44 @@ test('ports are configurable and validated', () => {
     assert.strictEqual(paths.dashboardPort(), 5173);
   });
 });
+
+test('app shortcut files are well-formed and quote hostile paths', () => {
+  const sc = require('../src/shortcut');
+  const entry = sc.linuxDesktopEntry('/opt/node $x/bin/node', '/home/a "b"/bin/tokentelemetry.js', '/icons/tt.png');
+  assert.match(entry, /^\[Desktop Entry\]\nType=Application/);
+  assert.match(entry, /Exec="\/opt\/node \\\$x\/bin\/node" "\/home\/a \\"b\\"\/bin\/tokentelemetry.js" start/);
+  assert.match(entry, /Terminal=false/);
+  assert.match(sc.macInfoPlist('9.9.9'), /<key>CFBundleIconFile<\/key><string>icon<\/string>/);
+  assert.match(sc.macInfoPlist('9.9.9'), /<string>9\.9\.9<\/string>/);
+  const script = sc.macLauncherScript("/usr/bin/node", "/Users/o'neil/cli/bin/tokentelemetry.js", '/tmp/l.log');
+  assert.match(script, /^#!\/bin\/sh/);
+  assert.match(script, /'\/Users\/o'\\''neil\/cli\/bin\/tokentelemetry.js' start/);
+  const ps = sc.windowsShortcutScript('C:\\node.exe', "C:\\Users\\o'neil\\tt.js", 'C:\\i.ico');
+  assert.match(ps, /'"C:\\Users\\o''neil\\tt.js" start'/);
+  assert.match(ps, /\$s\.WindowStyle = 7/);
+});
+
+test('icon assets ship with the package', () => {
+  for (const f of ['icon.png', 'icon.ico', 'icon.icns']) {
+    const buf = fs.readFileSync(path.join(__dirname, '..', 'assets', f));
+    assert.ok(buf.length > 1000, f);
+  }
+  const ico = fs.readFileSync(path.join(__dirname, '..', 'assets', 'icon.ico'));
+  assert.deepStrictEqual([...ico.subarray(0, 4)], [0, 0, 1, 0]);
+  assert.strictEqual(fs.readFileSync(path.join(__dirname, '..', 'assets', 'icon.icns')).subarray(0, 4).toString(), 'icns');
+});
+
+test('linux shortcut creates a launcher and removes it again', { skip: process.platform !== 'linux' }, () => {
+  const home = tmpdir();
+  withEnv({ XDG_DATA_HOME: path.join(home, 'share'), HOME: home, TOKENTELEMETRY_HOME: path.join(home, 'tt') }, () => {
+    delete require.cache[require.resolve('../src/shortcut')];
+    const sc = require('../src/shortcut');
+    const { created } = sc.create();
+    const entry = path.join(home, 'share', 'applications', 'tokentelemetry.desktop');
+    assert.ok(created.includes(entry));
+    assert.match(fs.readFileSync(entry, 'utf8'), /Icon=.*tokentelemetry\.png/);
+    assert.ok(fs.existsSync(path.join(home, 'share', 'icons', 'hicolor', '512x512', 'apps', 'tokentelemetry.png')));
+    assert.ok(sc.remove().includes(entry));
+    assert.ok(!fs.existsSync(entry));
+  });
+});

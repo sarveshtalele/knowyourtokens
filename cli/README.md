@@ -34,6 +34,7 @@ tokentelemetry stop               # stop everything started by "start"
 tokentelemetry autostart enable   # start automatically at login (Task Scheduler / launchd / systemd)
 tokentelemetry autostart disable  # remove the autostart entry
 tokentelemetry doctor             # diagnose the install and print fixes
+tokentelemetry shortcut           # app icon for your Dock / taskbar / launcher (--dock, --remove)
 tokentelemetry uninstall          # remove the Claude Code hooks (--purge: app files too; --delete-data: database too)
 tokentelemetry --version
 ```
