@@ -1,46 +1,88 @@
 name: Release
 
+# Publish by pushing a version tag (git tag v2.0.0 && git push origin v2.0.0)
+# or by publishing a GitHub release. A tag push also creates the GitHub
+# release, with notes taken from CHANGELOG.md.
 on:
+  push:
+    tags: ["v*"]
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  npm-cli:
-    name: Publish CLI to npm
+  verify:
+    name: Verify versions, tests, build
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
-      # Trusted publishing (OIDC) needs npm >= 11.5.1.
-      - run: npm install -g npm@latest
-      - name: Release tag must match every package version
+      - id: v
+        name: Every package version matches the tag
         run: |
-          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./cli/package.json').version")"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then tag="${GITHUB_REF_NAME#v}"; else tag="$version"; fi
           fail=0
           for v in \
-            "$(node -p "require('./cli/package.json').version")" \
+            "$version" \
             "$(node -p "require('./sdk/js/package.json').version")" \
             "$(python3 -c "import re;print(re.search(r'__version__ = \"(.+)\"', open('telemetry/__init__.py').read()).group(1))")" \
             "$(python3 -c "import re;print(re.search(r'^version = \"(.+)\"', open('sdk/python/pyproject.toml').read(), re.M).group(1))")"; do
-            if [ "$v" != "$tag" ]; then echo "::error::version $v does not match release tag v$tag"; fail=1; fi
+            if [ "$v" != "$tag" ]; then echo "::error::version $v does not match $tag"; fail=1; fi
           done
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
           exit $fail
-      # prepack builds cli/vendor/ (backend, telemetry, hooks, built dashboard).
-      - name: Publish
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: pip install -r backend/requirements-dev.txt && python -m pytest -q
+      - run: cd frontend && npm ci && npm run build
+
+  npm-cli:
+    name: Publish CLI to npm
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      # Trusted publishing (OIDC) needs npm >= 11.5.1. If an NPM_TOKEN secret
+      # exists it is used instead (needed for a package's very first publish).
+      - run: npm install -g npm@latest
+      - name: Publish (skipped if this version is already on npm)
         working-directory: cli
-        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          v="${{ needs.verify.outputs.version }}"
+          if npm view "tokentelemetry@$v" version >/dev/null 2>&1; then
+            echo "tokentelemetry@$v is already published"; exit 0
+          fi
+          npm publish --provenance --access public
 
   npm-sdk:
     name: Publish JS SDK to npm
-    needs: npm-cli
+    needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -48,7 +90,33 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
       - run: npm install -g npm@latest
-      - working-directory: sdk/js
+      - name: Publish (skipped if this version is already on npm)
+        working-directory: sdk/js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          v="${{ needs.verify.outputs.version }}"
+          if npm view "tokentelemetry-client@$v" version >/dev/null 2>&1; then
+            echo "tokentelemetry-client@$v is already published"; exit 0
+          fi
           npm ci
           npm publish --provenance --access public
+
+  github-release:
+    name: Create GitHub release
+    if: github.event_name == 'push'
+    needs: [verify, npm-cli]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Release notes from CHANGELOG.md
+        run: |
+          v="${{ needs.verify.outputs.version }}"
+          awk -v v="$v" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ && f {exit} f' CHANGELOG.md > notes.md
+          test -s notes.md || echo "See CHANGELOG.md" > notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ needs.verify.outputs.version }}
+          body_path: notes.md
