@@ -20,6 +20,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 - OpenTelemetry metric names are now `knowyourtokens.*`.
 
 ### Added
+- YouTube launch + how-to video (2:22, 1080p) recorded from the real app with Playwright, plus its
+  thumbnail, in `docs/launch/`.
 - Integration map infographic (`docs/assets/integration-map.svg`, animated) in the README and on the
   website's Integrations section, plus a PNG for sharing in `docs/launch/`.
 - One-click releases: **Actions → Release → Run workflow** bumps the version (`scripts/bump-version.mjs`),
@@ -27,6 +29,9 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   PR that changes the CLI's version publishes it too.
 
 ### Fixed
+- Dashboard: with a date range selected, **Total tokens** still showed the all-time figure, and
+  **Requests** and **Avg tokens/req** mixed all-time requests with the range's tokens. All three now
+  follow the selected range.
 - The API's OpenAPI summary still described the project as Claude Code only.
 
 ## [2.2.0] - 2026-10-02
