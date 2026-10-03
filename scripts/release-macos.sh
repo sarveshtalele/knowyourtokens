@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Publish a Know Your Tokens release from a Mac, in one go.
+# Publish a Know Your Tokens release from a Mac, in one go. Normally you don't need this: merging to
+# main publishes automatically (.github/workflows/publish.yml). Use it only if CI can't publish.
 #
 #   curl -fsSL https://raw.githubusercontent.com/sarveshtalele/knowyourtokens/main/scripts/release-macos.sh | bash
 #   # or, inside a clone:
@@ -21,7 +22,7 @@ REPO_URL="https://github.com/sarveshtalele/knowyourtokens.git"
 DIR="${KNOWYOURTOKENS_DIR:-$HOME/knowyourtokens}"
 DRY=0 TAG=1 PYPI=0 YES=0
 
-usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
+usage() { sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY=1 ;;
@@ -115,13 +116,6 @@ if [ "$DRY" = 1 ]; then warn "skipped (dry run)"; else
     for i in $(seq 1 18); do published "$p" "$V" && break; sleep 10; done
     published "$p" "$V" && ok "npm serves $p@$V" \
       || warn "$p@$V isn't visible yet. npm can take a few minutes; check later with: npm view $p version --prefer-online"
-  done
-  # Point the pre-rename packages here (once). Needs your login, so it lives here rather than in CI.
-  for pair in tokentelemetry:knowyourtokens tokentelemetry-client:knowyourtokens-client; do
-    old="${pair%%:*}" new="${pair##*:}"
-    if [ -n "$(npm view "$old" deprecated 2>/dev/null)" ]; then ok "$old already points to $new"
-    elif npm deprecate "$old" "Renamed to $new (same project, nothing to migrate): npx $new"; then ok "deprecated $old -> $new"
-    else warn "couldn't deprecate $old (fine to skip)"; fi
   done
 fi
 

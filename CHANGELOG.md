@@ -7,46 +7,38 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
-### Security
-- Ingest API: per-field bounds (ids, paths, prompt/response text, token counts up to 10^12, at most
-  1000 tool calls per record) and a 64 MB request-body cap, so one request can't exhaust memory or
-  overflow SQLite integers.
-- Release workflow passes the bump input through an environment variable instead of interpolating it
-  into the shell script.
-
-### Fixed
-- Website: the "Verify" step of the debugging walkthrough rendered a huge red block (its bars shared a
-  CSS class with the Dock section's taskbar). Tooltips are centred again, the feedback-loop chart's
-  labels are readable on phones, and the walkthrough's footnote no longer overlaps the charts.
-
-### Changed
-- New app icon: a lens over token bars, across the favicon, installable-app icons, CLI launchers
-  (`.png`/`.ico`/`.icns`), website, cards, screenshots and videos. Source: `docs/assets/logo.svg`.
-- Launch videos end with a creator card, and the YouTube video gains a closing end card
-  (sources in `docs/launch/src/`).
-- `scripts/release-macos.sh` also deprecates the old `tokentelemetry` npm packages and prints the
-  Trusted Publisher setup for both new ones.
-
 ## [2.3.0] - 2026-10-02
 
-### Changed
-- **Renamed to Know Your Tokens** (formerly Token Telemetry). New npm packages: `knowyourtokens` (CLI,
-  with a short `kyt` alias) and `knowyourtokens-client` (JS SDK); the Python SDK is
-  `knowyourtokens-client` (`import knowyourtokens_client`). The old `tokentelemetry` packages are
-  deprecated and point here. Nothing to migrate: an existing `~/.tokentelemetry` install, its hooks,
-  launchers and data are reused, `TOKENTELEMETRY_*` environment variables still work (the new names are
-  `KNOWYOURTOKENS_*`), webhooks send both `X-KnowYourTokens-Signature` and the old signature header,
-  and `autostart enable` / `shortcut` replace entries made under the old name.
-- OpenTelemetry metric names are now `knowyourtokens.*`.
-
 ### Added
-- YouTube launch + how-to video (2:22, 1080p) recorded from the real app with Playwright, plus its
+- YouTube launch + how-to video (2:33, 1080p, narrated) recorded from the real app with Playwright, plus its
   thumbnail, in `docs/launch/`.
 - Integration map infographic (`docs/assets/integration-map.svg`, animated) in the README and on the
   website's Integrations section, plus a PNG for sharing in `docs/launch/`.
 - One-click releases: **Actions → Release → Run workflow** bumps the version (`scripts/bump-version.mjs`),
   rolls the CHANGELOG, commits, publishes both npm packages and creates the GitHub release. Merging a
   PR that changes the CLI's version publishes it too.
+
+### Changed
+- **Renamed to Know Your Tokens** (formerly Token Telemetry). New npm packages: `knowyourtokens` (CLI,
+  with a short `kyt` alias) and `knowyourtokens-client` (JS SDK); the Python SDK is
+  `knowyourtokens-client` (`import knowyourtokens_client`). The old `tokentelemetry` packages have
+  been removed from npm. Nothing to migrate: an existing `~/.tokentelemetry` install, its hooks,
+  launchers and data are reused, `TOKENTELEMETRY_*` environment variables still work (the new names are
+  `KNOWYOURTOKENS_*`), webhooks send both `X-KnowYourTokens-Signature` and the old signature header,
+  and `autostart enable` / `shortcut` replace entries made under the old name.
+- OpenTelemetry metric names are now `knowyourtokens.*`.
+- Launch videos now have a deep male voiceover explaining every scene (local Kokoro TTS), an
+  original synthesized music bed that sits low and ducks under the voice, transition sound effects, and caption files
+  (`docs/launch/video/*.srt`). Generators: `docs/launch/src/audio/`.
+- New app icon: a lens over token bars, across the favicon, installable-app icons, CLI launchers
+  (`.png`/`.ico`/`.icns`), website, cards, screenshots and videos. Source: `docs/assets/logo.svg`.
+- Launch videos end with a creator card, and the YouTube video gains a closing end card
+  (sources in `docs/launch/src/`).
+- npm releases are fully automated: merging to `main` publishes any version that isn't on npm yet
+  (first publish of the new package names included). `scripts/release-macos.sh` remains as a manual
+  fallback and prints the Trusted Publisher setup for both packages.
+- Dashboard moved to Tailwind CSS 4 (no visual change). This drops `braces`, which a new
+  high-severity advisory (GHSA-vfj7-8cjw-p6xm) flags in every version.
 
 ### Fixed
 - Dashboard: with a date range selected, **Total tokens** still showed the all-time figure, and
@@ -55,6 +47,16 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 - The API's OpenAPI summary still described the project as Claude Code only.
 - Backend: shutting down while the live feed was mid-poll could crash the process (a worker thread read
   from a SQLite connection that was being closed).
+- Website: the "Verify" step of the debugging walkthrough rendered a huge red block (its bars shared a
+  CSS class with the Dock section's taskbar). Tooltips are centred again, the feedback-loop chart's
+  labels are readable on phones, and the walkthrough's footnote no longer overlaps the charts.
+
+### Security
+- Ingest API: per-field bounds (ids, paths, prompt/response text, token counts up to 10^12, at most
+  1000 tool calls per record) and a 64 MB request-body cap, so one request can't exhaust memory or
+  overflow SQLite integers.
+- Release workflow passes the bump input through an environment variable instead of interpolating it
+  into the shell script.
 
 ## [2.2.0] - 2026-10-02
 
@@ -182,6 +184,6 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 [Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.0...HEAD
 [2.3.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.2.0...v2.3.0
-[2.2.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.1.0...v2.2.0
-[2.1.0]: https://github.com/sarveshtalele/tokentelemetry/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/sarveshtalele/tokentelemetry/releases/tag/v2.0.0
+[2.2.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/sarveshtalele/knowyourtokens/releases/tag/v2.0.0

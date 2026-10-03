@@ -15,8 +15,8 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 | Topics | Developer Tools · Artificial Intelligence · Open Source · Analytics |
 | Thumbnail | [`thumbnail-240.png`](thumbnail-240.png) (240×240) |
 | Social / LinkedIn | [`social-preview-1280x640.png`](social-preview-1280x640.png) · [`linkedin-1200x627.png`](linkedin-1200x627.png) · [`linkedin-portrait-1080x1350.png`](linkedin-portrait-1080x1350.png) |
-| Reel (9:16) | [`video/launch-reel-1080x1920.mp4`](video/launch-reel-1080x1920.mp4) — 32 s, light theme, no audio (add a track in Instagram) |
-| YouTube (16:9) | [`video/youtube-launch-and-guide-1920x1080.mp4`](video/youtube-launch-and-guide-1920x1080.mp4) — 2:22 launch + how-to guide recorded from the real app; thumbnail [`youtube-thumbnail-1280x720.png`](youtube-thumbnail-1280x720.png); sources in [`src/youtube/`](src/youtube) |
+| Reel (9:16) | [`video/launch-reel-1080x1920.mp4`](video/launch-reel-1080x1920.mp4) — 36.5 s with narration, original music and sound effects; captions in [`launch-reel.en.srt`](video/launch-reel.en.srt) |
+| YouTube (16:9) | [`video/youtube-launch-and-guide-1920x1080.mp4`](video/youtube-launch-and-guide-1920x1080.mp4) — 2:33 narrated launch + how-to guide recorded from the real app, with original music; upload [`youtube-launch-and-guide.en.srt`](video/youtube-launch-and-guide.en.srt) as English captions; thumbnail [`youtube-thumbnail-1280x720.png`](youtube-thumbnail-1280x720.png); sources in [`src/`](src) |
 | Gallery | [`gallery/`](gallery) (1270×760, in order 01 → 07) |
 
 **Description (≤ 260 characters)**

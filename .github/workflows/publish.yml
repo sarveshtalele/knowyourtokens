@@ -1,21 +1,22 @@
 name: Release
 
 # Publishes the CLI (`knowyourtokens`) and the JS SDK (`knowyourtokens-client`) to npm and creates
-# the GitHub release. Three ways to start it; all end the same way:
+# the GitHub release. Nothing to run locally:
 #
-#   1. Actions -> Release -> Run workflow, pick patch / minor / major. It bumps every version, moves
-#      the CHANGELOG's Unreleased notes under the new version, commits to main, then publishes.
-#      Nothing to run on your machine.
-#   2. Merge a PR that changes the version in cli/package.json: that version is published.
-#   3. Push a vX.Y.Z tag (publishing a release in the GitHub UI creates and pushes one).
+#   * Every push to main checks whether the version in cli/package.json is on npm yet. If it isn't,
+#     it is tested, published and released. If it is, the run stops after a few seconds.
+#   * To ship a new version: Actions -> Release -> Run workflow, pick patch / minor / major. It bumps
+#     every version, moves the CHANGELOG's Unreleased notes under it, commits to main and publishes.
+#     (Or bump the version in a PR; merging it publishes.)
+#   * Pushing a vX.Y.Z tag, or publishing a release in the GitHub UI, works too.
 #
-# Every step skips what's already done (versions already on npm, an existing release), so re-running
-# is always safe. npm auth: Trusted Publishing (OIDC, no secret) or an NPM_TOKEN repository secret.
+# Every step skips what's already done, so re-running is always safe. npm auth: the NPM_TOKEN
+# repository secret (a granular token with read+write on all packages and "Bypass two-factor
+# authentication" ticked), or Trusted Publishing (OIDC, no secret) once the packages exist.
 on:
   push:
     tags: ["v*"]
     branches: [main]
-    paths: [cli/package.json]
   workflow_dispatch:
     inputs:
       bump:
@@ -73,7 +74,7 @@ jobs:
             echo "sha=$(git rev-parse HEAD)"
           } >> "$GITHUB_OUTPUT"
           publish=true
-          # A push to main that touched cli/package.json without a new version: nothing to release.
+          # A push to main whose version is already published and tagged: nothing to release.
           if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_TYPE" = "branch" ] \
              && npm view "knowyourtokens@$version" version >/dev/null 2>&1 \
              && git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
@@ -218,29 +219,6 @@ jobs:
           else
             gh release create "$tag" --title "$tag" --notes-file notes.md --target "${{ needs.prepare.outputs.sha }}"
           fi
-
-  deprecate-old-names:
-    name: Point the old package names here
-    needs: [prepare, npm-cli, npm-sdk]
-    runs-on: ubuntu-latest
-    # Best effort: needs an NPM_TOKEN that can write to the old packages too.
-    continue-on-error: true
-    steps:
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
-      - name: Deprecate tokentelemetry and tokentelemetry-client (once)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          for pair in tokentelemetry:knowyourtokens tokentelemetry-client:knowyourtokens-client; do
-            old="${pair%%:*}" new="${pair##*:}"
-            if [ -n "$(npm view "$old" deprecated 2>/dev/null)" ]; then
-              echo "$old is already deprecated"; continue
-            fi
-            npm deprecate "$old" "Renamed to $new (same project, nothing to migrate): npx $new"
-          done
 
   redeploy-site:
     name: Redeploy the website with the new version

@@ -12,7 +12,7 @@ export function AppLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <TopBar />
           <ConnectionBanner />
-          <main id="main" tabIndex={-1} className="flex-1 overflow-y-auto p-7 focus:outline-none">
+          <main id="main" tabIndex={-1} className="flex-1 overflow-y-auto p-7 focus:outline-hidden">
             <div className="max-w-app mx-auto w-full">
               <Outlet />
             </div>

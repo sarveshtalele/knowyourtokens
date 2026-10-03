@@ -76,7 +76,7 @@ function NumberField({
           step={step}
           value={Number.isFinite(value) ? value : 0}
           onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
-          className="w-full bg-transparent text-sm text-ink outline-none tabular-nums"
+          className="w-full bg-transparent text-sm text-ink outline-hidden tabular-nums"
         />
       </span>
     </label>
@@ -180,7 +180,7 @@ export function Calculator() {
             onChange={(e) => setText(e.target.value)}
             rows={9}
             placeholder="Paste a prompt, a file or a tool output…"
-            className="w-full border border-line bg-surface-muted rounded-md p-3 font-mono text-xs text-ink outline-none focus:border-accent focus:ring-4 focus:ring-accent-soft resize-y"
+            className="w-full border border-line bg-surface-muted rounded-md p-3 font-mono text-xs text-ink outline-hidden focus:border-accent focus:ring-4 focus:ring-accent-soft resize-y"
           />
           <div className="flex flex-wrap items-end gap-6">
             <div>

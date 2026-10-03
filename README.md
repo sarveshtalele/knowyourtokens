@@ -183,7 +183,7 @@ and design decisions are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, agent sources, data flow, schema v8, migrations |
 | [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Threat model and findings |
 | [DESIGN](DESIGN.md) | Dashboard design tokens |
-| [Launch kit](docs/launch/PRODUCT_HUNT.md) | [YouTube launch + guide](docs/launch/video/youtube-launch-and-guide-1920x1080.mp4) (2:22), [Instagram reel](docs/launch/video/launch-reel-1080x1920.mp4), social images, [integration map](docs/launch/integration-map-1600x860.png) |
+| [Launch kit](docs/launch/PRODUCT_HUNT.md) | [YouTube launch + guide](docs/launch/video/youtube-launch-and-guide-1920x1080.mp4) (2:33, narrated), [Instagram reel](docs/launch/video/launch-reel-1080x1920.mp4), social images, [integration map](docs/launch/integration-map-1600x860.png) |
 | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) | Where it's going, what changed |
 
 ## Contributing

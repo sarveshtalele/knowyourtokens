@@ -70,99 +70,54 @@ The site redeploys automatically whenever something under `site/` changes on `ma
 
 ## 4. npm publishing credentials
 
-The release workflow (`.github/workflows/publish.yml`) publishes two npm packages:
-`knowyourtokens` (CLI, already exists) and `knowyourtokens-client` (JS SDK, **new**).
-
-### 4a. Create an npm token (needed for the new package's first publish)
+The release workflow (`.github/workflows/publish.yml`) publishes two npm packages, `knowyourtokens`
+(CLI) and `knowyourtokens-client` (JS SDK). It needs **one** `NPM_TOKEN` secret, created once:
 
 1. Sign in at https://www.npmjs.com → avatar → **Access Tokens → Generate New Token →
    Granular Access Token**.
-2. **Name:** `github-actions-knowyourtokens` · **Expiration:** 90 days (put a renewal reminder in your
-   calendar).
-3. **Packages and scopes → Permissions:** **Read and write**, **All packages** (needed because
-   `knowyourtokens-client` doesn't exist yet; after the first publish you can narrow it to the two
-   packages).
-4. **Generate token** and copy it. It is shown only once.
-5. On GitHub: **Settings → Secrets and variables → Actions → New repository secret**
-   - **Name:** `NPM_TOKEN`
-   - **Secret:** paste the token → **Add secret**.
+2. **Name:** `github-actions-knowyourtokens` · **Expiration:** 90 days (put a renewal reminder in
+   your calendar).
+3. Tick **Bypass two-factor authentication (2FA)**. Without it every CI publish fails with `EOTP`,
+   because CI can't type a one-time code.
+4. **Packages and scopes → Permissions:** **Read and write**, **All packages** (the packages don't
+   exist until the first publish; afterwards you can narrow it to the two packages).
+5. **Generate token** and copy it. It is shown only once.
+6. On GitHub: **Settings → Secrets and variables → Actions** → `NPM_TOKEN` → **Update** (or **New
+   repository secret**) → paste the token → **Save**.
 
 > Never paste the token into an issue, a PR, a chat or a file. Only put it in the secret.
 
-### 4a-alt. Or: publish the JS SDK once from your own machine
+**Later, optional (tokenless):** once both packages exist, add a Trusted Publisher on each
+(https://www.npmjs.com/package/knowyourtokens/access and
+https://www.npmjs.com/package/knowyourtokens-client/access → **Trusted Publisher → GitHub Actions** →
+user `sarveshtalele`, repository `knowyourtokens`, workflow `publish.yml`, environment empty), then
+delete the `NPM_TOKEN` secret.
 
-npm can't attach a trusted publisher to a package that doesn't exist yet, so the very first
-`knowyourtokens-client` release has to be published with your own login. Do this **after** the
-release PR is merged, so you publish exactly what's on `main`.
+## 5. Releases are automatic
 
-Run these **inside a local clone of the repository**. In any other folder (for example your home
-directory) `git checkout main` fails with `fatal: not a git repository`. If you don't have a clone
-yet:
+There is nothing to run on your machine.
 
-```bash
-git clone https://github.com/sarveshtalele/knowyourtokens.git && cd knowyourtokens
-```
-
-Then, from the repository root:
-
-```bash
-git checkout main && git pull
-cd sdk/js
-npm whoami                    # not logged in? run: npm login
-npm ci                        # installs TypeScript; the build runs automatically on publish
-npm publish --access public   # npm asks for your 2FA code (or add --otp=123456)
-npm view knowyourtokens-client version   # should print the version in sdk/js/package.json
-```
-
-Then do step 4b for `knowyourtokens-client`. Future releases publish it from CI with no token, and
-the Release workflow skips any version that is already on npm, so it goes green.
-
-### 4b. Trusted publishing (tokenless, recommended long term)
-
-Do this for **each** package on npmjs.com. For `knowyourtokens-client`, do it after its first
-publish:
-
-1. https://www.npmjs.com/package/knowyourtokens → **Settings → Trusted Publisher → GitHub Actions**.
-2. **Organization or user:** `sarveshtalele` · **Repository:** `knowyourtokens` ·
-   **Workflow filename:** `publish.yml` · **Environment:** leave empty → **Set up connection**.
-3. Optional hardening: under **Publishing access**, choose
-   **Require two-factor authentication and disallow tokens**. Only do this once both packages are
-   on trusted publishing; after that, delete the `NPM_TOKEN` secret.
-
-## 5. Publish the v2.2.0 release
-
-**Fastest:** GitHub → **Actions → Release → Run workflow** → `patch` / `minor` / `major`. The workflow
-bumps the versions, commits, publishes both npm packages and creates the release. It needs npm
-Trusted Publishing (step 4b) or an `NPM_TOKEN` secret (step 4a). `bash scripts/release-macos.sh` does the
-same from your Mac with your own npm login; the steps below are the manual alternative.
-
-1. **Releases → Draft a new release** (https://github.com/sarveshtalele/knowyourtokens/releases/new).
-2. **Choose a tag:** type `v2.2.0` → **Create new tag: v2.2.0 on publish** · **Target:** `main`.
-3. **Release title:** `v2.2.0`.
-4. **Description:** paste the `## [2.2.0]` section of [`CHANGELOG.md`](../CHANGELOG.md), or click
-   **Generate release notes** and put the changelog section above it.
-5. Tick **Set as the latest release** → **Publish release**.
-6. Open **Actions → Release** and watch the run:
-   `verify` → `Publish CLI to npm` + `Publish JS SDK to npm` should all go green (about 3 minutes).
-7. Check https://www.npmjs.com/package/knowyourtokens shows **2.2.0**, and that
-   https://www.npmjs.com/package/knowyourtokens-client exists.
+- **Every push to `main`** (every merged PR) checks whether the version in `cli/package.json` is on
+  npm yet. If not, the Release workflow runs the tests, publishes both packages, and creates the
+  `vX.Y.Z` tag and GitHub release. If it is already out, the run stops after a few seconds.
+- **New version:** **Actions → Release → Run workflow** → `patch` / `minor` / `major`. It bumps every
+  version, moves the CHANGELOG's Unreleased notes under it, commits to `main` and publishes.
+- Watch it at https://github.com/sarveshtalele/knowyourtokens/actions/workflows/publish.yml, then
+  check https://www.npmjs.com/package/knowyourtokens.
 
 **If a publish job fails:**
 
 | Error in the log | Fix |
 |---|---|
-| `403 ... OIDC permission denied for this action` | npm found a Trusted Publisher for the package but it doesn't match. On npmjs.com → package → **Settings → Trusted Publisher**, it must be exactly: user `sarveshtalele`, repository `knowyourtokens`, workflow filename `publish.yml` (just the file name, not a path or the workflow's display name), **environment empty**. Delete and re-add it if unsure, then **Re-run failed jobs** |
-| `EOTP` / `This operation requires a one-time password` | `NPM_TOKEN` is a 2FA-protected token, which CI can't use. Either publish that package once from your machine (`cd sdk/js && npm ci && npm publish --access public`, then enter your OTP) and set up its Trusted Publisher, or replace the secret with a granular token that has **Bypass two-factor authentication** ticked |
-| `ENEEDAUTH` / `401` / `404 Not Found - PUT` | `NPM_TOKEN` missing or wrong (step 4a), or trusted publisher not set up (4b) |
-| `403 ... cannot publish over the previously published version` | That version is already on npm. Bump the version (see CONTRIBUTING → Releasing) |
+| `EOTP` / `This operation requires a one-time password` | The `NPM_TOKEN` token doesn't bypass 2FA. Create a new one with **Bypass two-factor authentication** ticked (step 4), update the secret, then **Re-run failed jobs** |
+| `ENEEDAUTH` / `401` / `404 Not Found - PUT` | `NPM_TOKEN` missing, expired, or without write access to **All packages** (step 4) |
+| `403 ... OIDC permission denied` | A Trusted Publisher is set but doesn't match: user `sarveshtalele`, repository `knowyourtokens`, workflow `publish.yml`, environment empty |
+| `403 ... cannot publish over the previously published version` | That version was published (or unpublished) before; npm never reuses a version. Run the workflow with `patch` |
 | `version X does not match` | A package version differs from the tag. Fix it in a PR, then re-run |
-| `fatal: not a git repository` (on your machine) | You ran the commands outside the repo. `git clone https://github.com/sarveshtalele/knowyourtokens.git && cd knowyourtokens`, then repeat |
 
 Re-run a failed job with **Re-run failed jobs**. Jobs that already published skip themselves.
-
-For future releases, follow [CONTRIBUTING.md → Releasing](../CONTRIBUTING.md#releasing-maintainers):
-bump all versions in one PR, merge it, then publish a release (or push a `vX.Y.Z` tag) and the
-workflow does the rest.
+`bash scripts/release-macos.sh` (inside your clone, whatever its folder is called) is a manual
+fallback that publishes with your own npm login.
 
 ## 6. Security features
 

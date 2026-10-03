@@ -38,7 +38,7 @@ export function Sessions() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search session…"
-          className="h-10 border border-line bg-surface rounded-md px-3 text-sm min-w-[240px] flex-1 outline-none focus:border-accent focus:ring-4 focus:ring-accent-soft"
+          className="h-10 border border-line bg-surface rounded-md px-3 text-sm min-w-[240px] flex-1 outline-hidden focus:border-accent focus:ring-4 focus:ring-accent-soft"
         />
       </div>
       <DataTable<SessionRow>
