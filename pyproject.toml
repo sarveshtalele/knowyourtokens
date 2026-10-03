@@ -3,7 +3,8 @@ name = "knowyourtokens"
 dynamic = ["version"]
 description = "Local-first token observability for AI coding agents (Claude Code, Codex CLI, Gemini CLI, OpenCode, any agent via API)"
 readme = "README.md"
-license = { text = "MIT" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.10"
 authors = [{ name = "Sarvesh Talele" }]
 

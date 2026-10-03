@@ -44,7 +44,7 @@ export function Install() {
       </Reveal>
       <div className="wrap2 install-cta">
         <CopyInstall />
-        <span className="muted small">Windows · macOS · Linux · MIT licensed</span>
+        <span className="muted small">Windows · macOS · Linux · Apache 2.0 licensed</span>
       </div>
     </section>
   );
@@ -73,7 +73,7 @@ const SPECS: [string, string][] = [
     '127.0.0.1 only · DNS-rebinding and CSRF protection · strict CSP · secret redaction · no outbound calls by default',
   ],
   ['Platforms', 'Windows, macOS, Linux · Node 18+ · Python 3.10+ · start at login · app shortcuts'],
-  ['License', 'MIT: free for personal and commercial use'],
+  ['License', 'Apache 2.0: free for personal and commercial use, with credit'],
 ];
 
 export function Specs() {

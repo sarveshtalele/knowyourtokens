@@ -55,6 +55,7 @@ sdk/python/build/
 
 # Copied from the repo root at pack time
 cli/LICENSE
+cli/NOTICE
 *.tsbuildinfo
 
 # emitted by a stray `tsc -b` (the dashboard type-checks with plain `tsc`)

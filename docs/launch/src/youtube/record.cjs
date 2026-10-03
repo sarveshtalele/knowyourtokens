@@ -285,7 +285,7 @@ async function app(ctx, name, startPath, fn) {
     await h.caption('09 · REPORTS & API', 'Take your data anywhere.', 'CSV, JSON and NDJSON exports, a REST API, Python and TypeScript SDKs.');
     await sleep(2600);
     await h.click(h.nav('About'), 900);
-    await h.caption('09 · OPEN SOURCE', 'Exact or estimated, always labelled.', 'Every number says whether it is exact or estimated. Free and MIT licensed.');
+    await h.caption('09 · OPEN SOURCE', 'Exact or estimated, always labelled.', 'Every number says whether it is exact or estimated. Free and Apache 2.0 licensed.');
     await sleep(2600);
   });
 

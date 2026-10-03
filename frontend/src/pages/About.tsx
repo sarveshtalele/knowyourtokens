@@ -130,8 +130,8 @@ export function About() {
           for the exact database path and collector status on this machine.
         </p>
         <p className="mt-3">
-          The project is open source under the MIT license. The full source, the installation guide, and a complete
-          security review are on{' '}
+          Created by Sarvesh Talele and open source under the Apache 2.0 license (credit required when redistributing).
+          The full source, the installation guide, and a complete security review are on{' '}
           <a
             href="https://github.com/sarveshtalele/knowyourtokens"
             target="_blank"

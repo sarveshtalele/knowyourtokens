@@ -48,5 +48,5 @@ import { verifySignature } from 'knowyourtokens-client';
 const ok = await verifySignature(secret, rawBody, req.headers['x-knowyourtokens-signature']);
 ```
 
-API reference: [`docs/API.md`](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/API.md). License: MIT.
+API reference: [`docs/API.md`](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/API.md). License: Apache 2.0 (see LICENSE and NOTICE). Created by Sarvesh Talele.
 Independent project; not affiliated with Anthropic, OpenAI, Google or any agent vendor.

@@ -12,7 +12,7 @@ your own machine. Includes a REST API, Python and TypeScript SDKs, OpenTelemetry
 <p>
   <a href="https://www.npmjs.com/package/knowyourtokens"><img src="https://img.shields.io/npm/v/knowyourtokens.svg" alt="npm version"></a>
   <a href="https://github.com/sarveshtalele/knowyourtokens/actions/workflows/ci.yml"><img src="https://github.com/sarveshtalele/knowyourtokens/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="Apache 2.0 license"></a>
   <img src="https://img.shields.io/badge/data-100%25%20local-brightgreen" alt="100% local">
   <a href="https://sarveshtalele.github.io/knowyourtokens/"><img src="https://img.shields.io/badge/site-knowyourtokens-8b7bff" alt="Website"></a>
 </p>
@@ -194,5 +194,16 @@ vulnerabilities privately: [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE) © Sarvesh Talele and contributors. Know Your Tokens is an independent project and is not
-affiliated with or endorsed by Anthropic, OpenAI, Google, or any agent vendor.
+[Apache License 2.0](LICENSE) © 2025-2026 Sarvesh Talele. Know Your Tokens is an independent project and
+is not affiliated with or endorsed by Anthropic, OpenAI, Google, or any agent vendor.
+
+### Credit
+
+Free to use, modify and ship, including commercially. If you redistribute Know Your Tokens or build on
+it, the license requires you to keep the [NOTICE](NOTICE) file with the attribution to its creator, for
+example in your own NOTICE file, docs, or "open-source licenses" screen. A visible credit line is
+appreciated too:
+
+```text
+Built with Know Your Tokens by Sarvesh Talele — https://github.com/sarveshtalele/knowyourtokens
+```

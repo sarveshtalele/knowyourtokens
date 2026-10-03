@@ -73,7 +73,7 @@ export function Privacy() {
 export const FAQ: [string, string][] = [
   [
     'Is it really free and open source?',
-    'Yes. MIT licensed: use it, fork it, embed it, ship it commercially. Contributions are welcome.',
+    'Yes. Apache 2.0 licensed: use it, fork it, embed it, ship it commercially. If you redistribute it or build on it, keep the NOTICE file that credits its creator, Sarvesh Talele. Contributions are welcome.',
   ],
   [
     'Does it send my data anywhere?',
@@ -195,8 +195,8 @@ export function Footer() {
         <div>
           <strong style={{ color: 'var(--ink)' }}>Know Your Tokens</strong>
           <p style={{ margin: '8px 0 0', maxWidth: 360 }}>
-            Local-first token observability for every AI coding agent. MIT licensed. Not affiliated with Anthropic,
-            OpenAI, Google or any agent vendor.
+            Local-first token observability for every AI coding agent. Apache 2.0 licensed. Not affiliated with
+            Anthropic, OpenAI, Google or any agent vendor.
           </p>
         </div>
         <nav aria-label="Documentation">
@@ -243,7 +243,7 @@ export function Footer() {
               <a href={`${blob}/SECURITY.md`}>Security policy</a>
             </li>
             <li>
-              <a href={`${blob}/LICENSE`}>MIT license</a>
+              <a href={`${blob}/LICENSE`}>Apache 2.0 license</a>
             </li>
             <li>
               <a href="https://www.npmjs.com/package/knowyourtokens">npm</a>

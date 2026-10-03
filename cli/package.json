@@ -1,6 +1,6 @@
 {
   "name": "knowyourtokens",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Local-first token observability for every AI coding agent: Claude Code, Codex CLI, Gemini CLI, OpenCode and more. Debug prompts, context and cost.",
   "bin": {
     "knowyourtokens": "bin/knowyourtokens.js",
@@ -12,7 +12,8 @@
     "assets",
     "vendor",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE"
   ],
   "scripts": {
     "prepack": "node scripts/build-vendor.js",
@@ -46,6 +47,6 @@
   "bugs": {
     "url": "https://github.com/sarveshtalele/knowyourtokens/issues"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "Sarvesh Talele"
 }

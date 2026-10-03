@@ -7,6 +7,14 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-10-03
+
+### Changed
+- **License: MIT → Apache License 2.0, with a [NOTICE](NOTICE) file crediting the creator, Sarvesh
+  Talele.** It's still free for personal and commercial use. Anyone who redistributes Know Your Tokens
+  or builds on it must keep the NOTICE attribution (Apache 2.0, section 4(d)). The npm packages and
+  the Python SDK ship `LICENSE` and `NOTICE`. Releases up to and including 2.3.0 remain under MIT.
+
 ## [2.3.0] - 2026-10-02
 
 ### Added
@@ -182,7 +190,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 - First npm release.
 
-[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.0.0...v2.1.0
