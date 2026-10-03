@@ -8,8 +8,8 @@ timings used in the mix.
 
 Each scene NN-name.mp4 in SEGMENTS_DIR is paired with VOICE_DIR/NN-name.wav. A scene that is shorter
 than its line is held on its last frame before the fade-out, so nothing is cut off. The voice starts
-0.25 s into the scene; the music ducks under it (side-chain) and the whole mix is normalised to the
--14 LUFS YouTube target.
+0.25 s into the scene, warmed and lifted for clarity; the music sits low and ducks under it (side-chain),
+and the whole mix is normalised to the -14 LUFS YouTube target.
 """
 
 import json
@@ -19,6 +19,9 @@ import sys
 from pathlib import Path
 
 LEAD, TAIL, FADE = 0.25, 0.45, 0.3
+# Levels before loudness normalisation: the voice leads, the music sits well under it (and ducks a
+# further ~10 dB while someone is speaking).
+VOICE, MUSIC = 1.6, 0.11
 
 
 def dur(p):
@@ -146,7 +149,7 @@ def mix(picture, total, voices, starts, cues, music, out, sfx, work):
         for i, s in enumerate(starts[1:]):
             fx_inputs += ["-i", sfx]
             ms = max(0, int((s - 0.18) * 1000))
-            fx_chain.append(f"[{i}:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.22,adelay={ms}|{ms}[f{i}]")
+            fx_chain.append(f"[{i}:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.14,adelay={ms}|{ms}[f{i}]")
             fx_labels += f"[f{i}]"
     effects = work / "effects.wav"
     if fx_inputs:
@@ -163,9 +166,10 @@ def mix(picture, total, voices, starts, cues, music, out, sfx, work):
         "-i", str(picture), "-i", str(narration), "-i", str(music), "-i", str(effects),
         "-filter_complex",
         "[1:a]asplit=2[vo][key];"
-        f"[2:a]aresample=48000,atrim=0:{total:.3f},afade=t=out:st={max(0, total - 3):.3f}:d=3,volume=0.22[m];"
-        "[m][key]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=350[mduck];"
-        "[vo]highpass=f=70,acompressor=threshold=0.1:ratio=3:attack=5:release=120,volume=1.0[voc];"
+        f"[2:a]aresample=48000,atrim=0:{total:.3f},afade=t=out:st={max(0, total - 3):.3f}:d=3,volume={MUSIC}[m];"
+        "[m][key]sidechaincompress=threshold=0.015:ratio=10:attack=15:release=400[mduck];"
+        "[vo]highpass=f=60,lowshelf=f=140:g=2.5,equalizer=f=3000:t=q:w=1:g=2,"
+        f"acompressor=threshold=0.08:ratio=3.5:attack=5:release=120,volume={VOICE}[voc];"
         "[voc][mduck][3:a]amix=inputs=3:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]",
         "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
         "-movflags", "+faststart", "-shortest", str(out),

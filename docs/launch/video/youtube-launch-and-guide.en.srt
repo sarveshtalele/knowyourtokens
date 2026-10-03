@@ -1,151 +1,151 @@
 1
-00:00:00,250 --> 00:00:04,752
+00:00:00,250 --> 00:00:04,923
 Your AI agent just used 287,000 tokens.
 
 2
-00:00:04,752 --> 00:00:05,306
+00:00:04,923 --> 00:00:05,498
 On what?
 
 3
-00:00:06,017 --> 00:00:08,708
+00:00:06,183 --> 00:00:08,892
 Claude Code, Codex, Gemini, OpenCode.
 
 4
-00:00:08,708 --> 00:00:12,417
+00:00:08,892 --> 00:00:12,626
 Four agents, four log formats, and zero visibility.
 
 5
-00:00:13,117 --> 00:00:14,614
+00:00:13,317 --> 00:00:14,911
 Meet Know Your Tokens:
 
 6
-00:00:14,614 --> 00:00:17,746
+00:00:14,911 --> 00:00:18,245
 one local dashboard for every AI coding agent.
 
 7
-00:00:18,783 --> 00:00:20,752
+00:00:18,983 --> 00:00:20,952
 Exact tokens for every request.
 
 8
-00:00:20,752 --> 00:00:21,831
+00:00:20,952 --> 00:00:22,031
 Debug any prompt.
 
 9
-00:00:21,831 --> 00:00:24,181
+00:00:22,031 --> 00:00:24,381
 And everything stays on your machine.
 
 10
-00:00:24,883 --> 00:00:26,761
+00:00:25,083 --> 00:00:27,665
 Getting started takes one command.
 
 11
-00:00:27,517 --> 00:00:29,345
+00:00:28,350 --> 00:00:30,068
 Run npx knowyourtokens.
 
 12
-00:00:29,345 --> 00:00:35,709
+00:00:30,068 --> 00:00:36,051
 It sets up a private environment, wires the hooks, finds your agents, and opens the dashboard.
 
 13
-00:00:37,083 --> 00:00:38,953
+00:00:37,917 --> 00:00:39,580
 This is your command center.
 
 14
-00:00:38,953 --> 00:00:44,028
+00:00:39,580 --> 00:00:44,095
 Total tokens, input, output and cache, with a daily trend and the token mix.
 
 15
-00:00:44,028 --> 00:00:47,300
+00:00:44,095 --> 00:00:47,005
 Cache reads usually dominate, and that's healthy:
 
 16
-00:00:47,300 --> 00:00:50,438
+00:00:47,005 --> 00:00:49,797
 reused context costs a fraction of fresh input.
 
 17
-00:00:50,438 --> 00:00:53,510
+00:00:49,797 --> 00:00:52,530
 Change the date range, and every card follows.
 
 18
-00:00:55,050 --> 00:01:01,130
+00:00:55,883 --> 00:01:02,091
 The Agents page puts every agent side by side, including anything you push through the API.
 
 19
-00:01:02,250 --> 00:01:05,741
+00:01:03,083 --> 00:01:06,667
 Requests lists every model call with its exact tokens.
 
 20
-00:01:05,741 --> 00:01:08,650
+00:01:06,667 --> 00:01:09,654
 Click one to see its model, agent and prompt.
 
 21
-00:01:10,017 --> 00:01:11,437
+00:01:10,850 --> 00:01:12,080
 Here's the real power.
 
 22
-00:01:11,437 --> 00:01:15,700
+00:01:12,080 --> 00:01:15,769
 This request used almost 288,000 tokens.
 
 23
-00:01:15,700 --> 00:01:20,672
+00:01:15,769 --> 00:01:20,073
 The breakdown shows where they went, and the full prompt reveals the culprit:
 
 24
-00:01:20,672 --> 00:01:23,062
+00:01:20,073 --> 00:01:22,141
 a whole log file pasted into context.
 
 25
-00:01:23,062 --> 00:01:26,678
+00:01:22,141 --> 00:01:25,271
 Trim it, and the next request is a fraction of the size.
 
 26
-00:01:27,383 --> 00:01:33,335
+00:01:25,983 --> 00:01:32,127
 Projects show which sessions and requests use the most context, so you know exactly where to optimize.
 
 27
-00:01:36,650 --> 00:01:43,498
+00:01:35,250 --> 00:01:42,162
 See every tool call, skill and MCP server your agents use, and every session with its requests and tokens.
 
 28
-00:01:46,717 --> 00:01:55,911
+00:01:45,317 --> 00:01:54,213
 Before you paste something big, the token calculator estimates it offline, shows how much of the context window it takes, and prices it at your own rates.
 
 29
-00:01:59,250 --> 00:02:06,311
+00:01:57,850 --> 00:02:04,719
 Export everything as CSV, JSON or NDJSON, or build on the REST API and SDKs.
 
 30
-00:02:07,017 --> 00:02:10,241
+00:02:05,417 --> 00:02:08,678
 Using Antigravity, Cursor, or your own agent?
 
 31
-00:02:10,241 --> 00:02:12,606
+00:02:08,678 --> 00:02:11,070
 Push one JSON record per request.
 
 32
-00:02:13,317 --> 00:02:14,387
+00:02:11,783 --> 00:02:12,906
 Every agent in.
 
 33
-00:02:14,387 --> 00:02:15,458
+00:02:12,906 --> 00:02:14,029
 Every tool out.
 
 34
-00:02:15,458 --> 00:02:17,242
+00:02:14,029 --> 00:02:15,901
 All local, and all yours.
 
 35
-00:02:19,883 --> 00:02:22,766
+00:02:18,350 --> 00:02:21,135
 Know Your Tokens is free and open source.
 
 36
-00:02:22,766 --> 00:02:26,774
+00:02:21,135 --> 00:02:25,006
 Run npx knowyourtokens, and give it a star on GitHub.
 
 37
-00:02:28,417 --> 00:02:29,994
+00:02:26,883 --> 00:02:28,642
 Built by Sarvesh Talele.
 
 38
-00:02:29,994 --> 00:02:32,491
+00:02:28,642 --> 00:02:31,427
 Follow for more AI engineering builds.
