@@ -15,6 +15,8 @@ your own machine. Includes a REST API, Python and TypeScript SDKs, OpenTelemetry
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="Apache 2.0 license"></a>
   <img src="https://img.shields.io/badge/data-100%25%20local-brightgreen" alt="100% local">
   <a href="https://sarveshtalele.github.io/knowyourtokens/"><img src="https://img.shields.io/badge/site-knowyourtokens-8b7bff" alt="Website"></a>
+  <a href="https://www.producthunt.com/products/know-your-tokens"><img src="https://img.shields.io/badge/Product%20Hunt-Know%20Your%20Tokens-DA552F?logo=producthunt&logoColor=white" alt="Know Your Tokens on Product Hunt"></a>
+  <a href="https://youtu.be/c1reSpX-c4M"><img src="https://img.shields.io/badge/YouTube-Watch%20the%20demo-FF0000?logo=youtube&logoColor=white" alt="Watch the demo on YouTube"></a>
 </p>
 
 **[Website](https://sarveshtalele.github.io/knowyourtokens/)** ·
@@ -23,6 +25,12 @@ your own machine. Includes a REST API, Python and TypeScript SDKs, OpenTelemetry
 **[Integrations](docs/INTEGRATIONS.md)** ·
 **[Architecture](docs/ARCHITECTURE.md)** ·
 **[Contributing](CONTRIBUTING.md)**
+
+<a href="https://youtu.be/c1reSpX-c4M"><img src="https://img.youtube.com/vi/c1reSpX-c4M/maxresdefault.jpg" width="720" alt="Watch: My AI agent used 287,000 tokens on one prompt. Here's how I found out why (2:33)"></a>
+
+▶ **[Watch the 2½-minute launch + setup guide](https://youtu.be/c1reSpX-c4M)** ·
+**[36-second Short](https://youtube.com/shorts/tEfAGMGZOaI)** ·
+**[Support the launch on Product Hunt](https://www.producthunt.com/products/know-your-tokens)** 🚀
 
 </div>
 
@@ -183,7 +191,7 @@ and design decisions are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Components, agent sources, data flow, schema v8, migrations |
 | [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Threat model and findings |
 | [DESIGN](DESIGN.md) | Dashboard design tokens |
-| [Launch kit](docs/launch/PRODUCT_HUNT.md) | social images, video sources ([`docs/launch/src`](docs/launch/src)), [integration map](docs/launch/integration-map-1600x860.png) |
+| [Launch kit](docs/launch/PRODUCT_HUNT.md) | [Product Hunt](https://www.producthunt.com/products/know-your-tokens), [YouTube demo](https://youtu.be/c1reSpX-c4M), [YouTube Short](https://youtube.com/shorts/tEfAGMGZOaI), social images, video sources ([`docs/launch/src`](docs/launch/src)), [integration map](docs/launch/integration-map-1600x860.png) |
 | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) | Where it's going, what changed |
 
 ## Contributing
