@@ -66,6 +66,7 @@ export function Nav() {
         <div className="nav-links">
           <a href="#agents">Agents</a>
           <a href="#problem">Why</a>
+          <a href="#watch">Watch</a>
           <a href="#demo">Demo</a>
           <a href="#debug">Debug</a>
           <a href="#calculator">Calculator</a>
