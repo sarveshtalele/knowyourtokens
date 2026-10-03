@@ -260,15 +260,35 @@ The Python client (`sdk/python`) is ready to publish but has no workflow yet. If
 
 - [ ] Repo page shows the description, the **website link**, topics, and the social image
 - [ ] https://sarveshtalele.github.io/knowyourtokens/ loads (try it on your phone too)
-- [ ] `npx knowyourtokens@latest --version` prints `2.2.0`
+- [ ] `npx knowyourtokens@latest --version` prints the version in `cli/package.json`
 - [ ] https://www.npmjs.com/package/knowyourtokens-client exists
-- [ ] **Releases** shows `v2.2.0` marked *Latest*
+- [ ] **Releases** shows the newest `vX.Y.Z` marked *Latest*
 - [ ] **Security** tab: private reporting on, Dependabot alerts on, no open secret-scanning alerts
 - [ ] Opening a test PR shows the required status checks
 - [ ] README badges (npm version, CI) render with real values
 
-Search engines usually pick up the site within a few days to a few weeks. To speed this up, add the
-property in [Google Search Console](https://search.google.com/search-console) (URL-prefix property
-`https://sarveshtalele.github.io/knowyourtokens/`), verify it with the HTML-tag method (add the
-`<meta name="google-site-verification">` tag to `site/index.html` in a PR), and submit
-`sitemap.xml`.
+## Search engines
+
+The site is ready to be indexed: every page is pre-rendered (full text without JavaScript), has a
+canonical URL, `index, follow`, structured data (app, FAQ, video), and a sitemap with the page, its
+image and the demo video. Each deploy pings **IndexNow** (Bing, DuckDuckGo, Yandex) automatically.
+
+**Google** (one time, about 5 minutes):
+
+1. [Search Console](https://search.google.com/search-console) → property
+   `https://sarveshtalele.github.io/knowyourtokens/` (URL prefix; verified by the HTML file
+   `site/public/googlefef1b57b1438b8f1.html`, which every deploy keeps in place).
+2. **Sitemaps** → type exactly `sitemap.xml` (no leading slash) → **Submit**. It should be listed as
+   `/knowyourtokens/sitemap.xml`. An entry shown as `/sitemap.xml` points at
+   `https://sarveshtalele.github.io/sitemap.xml`, which doesn't exist: remove it (⋮ → Remove sitemap).
+   A fresh property can show "Couldn't fetch" for a day even when the sitemap is fine; it retries.
+3. **URL inspection** → paste `https://sarveshtalele.github.io/knowyourtokens/` → **Request indexing**.
+   This is the fastest way in, usually days.
+
+**Bing** (also feeds DuckDuckGo, Yahoo and ChatGPT search): [Bing Webmaster Tools](https://www.bing.com/webmasters)
+→ **Import from Google Search Console** (no extra verification), then submit the same sitemap.
+
+**The GitHub repository** can't be submitted to Search Console (github.com isn't your site). Google
+finds it through links, so it gets indexed faster the more places link to it: the website, npm,
+Product Hunt, the YouTube description, LinkedIn/X posts. The repo's description, website and topics
+(up to 20; they become github.com/topics pages) are what search shows.

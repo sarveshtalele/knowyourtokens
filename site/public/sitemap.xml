@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://sarveshtalele.github.io/knowyourtokens/</loc>
-    <lastmod>2026-10-02</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://sarveshtalele.github.io/knowyourtokens/og.png</image:loc>
+    </image:image>
+    <video:video>
+      <video:thumbnail_loc>https://sarveshtalele.github.io/knowyourtokens/watch-youtube.jpg</video:thumbnail_loc>
+      <video:title>My AI Agent Used 287,000 Tokens on One Prompt. Here's How I Found Out Why</video:title>
+      <video:description>Know Your Tokens launch and setup guide: a free, open-source, local dashboard that shows where every token goes across Claude Code, Codex CLI, Gemini CLI and OpenCode.</video:description>
+      <video:player_loc>https://www.youtube.com/embed/c1reSpX-c4M</video:player_loc>
+      <video:duration>153</video:duration>
+      <video:publication_date>2026-10-03T01:10:21-07:00</video:publication_date>
+    </video:video>
   </url>
 </urlset>
