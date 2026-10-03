@@ -36,8 +36,32 @@ def _env_bool(name, default=False):
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def home_dir() -> Path:
+    """The app folder: KNOWYOURTOKENS_HOME, else ~/.knowyourtokens."""
+    return Path(_env("KNOWYOURTOKENS_HOME", "~/.knowyourtokens")).expanduser()
+
+
+def default_db_path() -> Path:
+    return home_dir() / "data" / "knowyourtokens.db"
+
+
+def legacy_db_path() -> Path:
+    """Where the database lived before 2.4. `knowyourtokens install` moves it to default_db_path()."""
+    return claude_dir() / "telemetry" / "telemetry.db"
+
+
 def db_path() -> Path:
-    return Path(_env("CLAUDE_TELEMETRY_DB", "~/.claude/telemetry/telemetry.db")).expanduser()
+    """KNOWYOURTOKENS_DB > CLAUDE_TELEMETRY_DB (old name) > ~/.knowyourtokens/data/knowyourtokens.db,
+    except that a database still at the pre-2.4 location keeps being used until it's moved.
+    Must match cli/src/paths.js dbPath()."""
+    explicit = _env("KNOWYOURTOKENS_DB") or _env("CLAUDE_TELEMETRY_DB")
+    if explicit:
+        return Path(explicit).expanduser()
+    current = default_db_path()
+    legacy = legacy_db_path()
+    if not current.exists() and legacy.exists():
+        return legacy
+    return current
 
 
 def claude_dir() -> Path:

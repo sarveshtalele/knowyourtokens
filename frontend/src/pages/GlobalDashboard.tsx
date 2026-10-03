@@ -131,7 +131,7 @@ export function GlobalDashboard() {
           {
             label: 'Projects',
             value: fmt(projects.length),
-            hint: 'Number of distinct projects with recorded telemetry.',
+            hint: 'Number of distinct projects with recorded usage.',
           },
           {
             label: 'Top agent',
@@ -199,12 +199,23 @@ export function PageHead({
 export function ErrorPanel({ message }: { message: string }) {
   return (
     <div className="p-10 text-center text-ink-soft bg-surface border border-line rounded-lg">
-      Could not reach the telemetry backend at <span className="font-mono">/api/v1</span>.
+      <b className="text-ink">Can&apos;t reach the Know Your Tokens backend</b> (
+      <span className="font-mono">/api/v1</span>).
       <br />
       <span className="font-mono text-xs">{message}</span>
       <br />
       <br />
-      Start it with: <span className="font-mono">cd backend &amp;&amp; python run.py</span>
+      Start it with <span className="font-mono">npx knowyourtokens start</span>, then run{' '}
+      <span className="font-mono">npx knowyourtokens doctor</span> if it still won&apos;t connect.
+      <br />
+      <a
+        className="text-accent-text underline"
+        href="https://sarveshtalele.github.io/knowyourtokens/#troubleshooting"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Troubleshooting guide
+      </a>
     </div>
   );
 }

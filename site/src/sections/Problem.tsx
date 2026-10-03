@@ -122,7 +122,7 @@ function PainCard({ pain, index }: { pain: Pain; index: number }) {
           }}
         >
           <span className={fixed ? '' : 'on'}>Without</span>
-          <span className={fixed ? 'on' : ''}>With TT</span>
+          <span className={fixed ? 'on' : ''}>With KYT</span>
         </button>
       </div>
       <div className="pain-visual" aria-hidden="true">

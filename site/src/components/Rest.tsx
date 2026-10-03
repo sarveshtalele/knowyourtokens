@@ -94,7 +94,7 @@ export const FAQ: [string, string][] = [
   ],
   [
     'What do I need installed?',
-    'Node.js 18+ and Python 3.10+ (or uv). Windows, macOS and Linux are all supported, with optional start-at-login.',
+    'Just Node.js 18+. The backend needs Python, so if uv isn’t installed the installer asks to install it, and uv brings its own Python. Already have Python 3.10+? Use --no-uv. Windows, macOS and Linux are all supported. See the installation guide and troubleshooting below.',
   ],
 ];
 

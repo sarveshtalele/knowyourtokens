@@ -32,9 +32,9 @@ export function ConnectionBanner() {
       className="bg-warning-soft text-warning-text px-7 py-2 text-sm flex items-center justify-between gap-3"
     >
       <span>
-        <b>Not connected to the telemetry backend.</b> New data won't load automatically until the connection is back —
-        the numbers on screen may be out of date. Check <code className="font-mono">knowyourtokens status</code> if this
-        doesn't clear on its own.
+        <b>Not connected to the Know Your Tokens backend.</b> New data won't load until the connection is back, so the
+        numbers on screen may be out of date. If this doesn't clear on its own, run{' '}
+        <code className="font-mono">npx knowyourtokens doctor</code>.
       </span>
       <button
         onClick={() => window.location.reload()}

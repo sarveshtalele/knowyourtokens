@@ -20,7 +20,7 @@ export function McpPlugins() {
   return (
     <div className="space-y-6">
       <PageHead
-        eyebrow="Extension telemetry"
+        eyebrow="Extensions"
         title="MCP & Plugins"
         subtitle="MCP server activity, skill plugins, and live hook events (Claude Code)."
       />

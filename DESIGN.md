@@ -139,4 +139,4 @@ The left navigation rail supports two states: expanded and minimized. Expanded m
 
 ## Telemetry accounting
 
-Do not display cost or pricing columns in the primary telemetry UI. Cost is intentionally excluded because pricing depends on the applicable billing model and is not a reliable token-telemetry primitive. Primary metrics are token counts, cache categories, context utilization, requests, sessions, tools, skills, clients, and project activity.
+Do not display cost or pricing columns in the primary telemetry UI. Cost is intentionally excluded because pricing depends on the applicable billing model and is not a reliable token-count metric. Primary metrics are token counts, cache categories, context utilization, requests, sessions, tools, skills, clients, and project activity.

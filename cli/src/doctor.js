@@ -4,7 +4,9 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const paths = require('./paths');
 const hooks = require('./hooks');
-const { httpOk } = require('./run');
+const { httpOk, portProblem } = require('./run');
+const { findUv, installCommand } = require('./uv');
+const { TROUBLESHOOTING_URL } = require('./errors');
 
 function check(ok, label, fix) {
   console.log(`${ok ? 'OK  ' : 'FAIL'}  ${label}${!ok && fix ? `\n      -> ${fix}` : ''}`);
@@ -15,6 +17,9 @@ async function doctor() {
   let healthy = true;
   const nodeMajor = Number(process.versions.node.split('.')[0]);
   healthy &= check(nodeMajor >= 18, `Node.js ${process.versions.node} (need >= 18)`, 'Install Node.js 18 or newer.');
+
+  const uv = findUv();
+  console.log(`INFO  uv: ${uv ? (uv === 'uv' ? 'on PATH' : uv) : `not installed (only needed to (re)install; get it with: ${installCommand()})`}`);
 
   const installed = fs.existsSync(paths.venvPython());
   healthy &= check(installed, `Python environment at ${paths.venvDir()}`, 'Run "knowyourtokens install".');
@@ -41,7 +46,13 @@ async function doctor() {
     healthy &= check(false, `Read ${paths.claudeSettingsPath()}`, err.message);
   }
 
-  const hookLog = path.join(path.dirname(require('./install').dbPath()), 'hook-errors.log');
+  const db = paths.dbPath();
+  console.log(`INFO  Your data: ${db}${fs.existsSync(db) ? '' : ' (created on first use)'}`);
+  if (db === paths.legacyDbPath()) {
+    console.log('      (still at the pre-2.4 location; "knowyourtokens install" moves it to the app folder)');
+  }
+
+  const hookLog = path.join(path.dirname(db), 'hook-errors.log');
   const hookErrors = fs.existsSync(hookLog) && fs.statSync(hookLog).size > 0;
   check(!hookErrors, 'No hook errors logged', `See ${hookLog} (hooks never block Claude Code, but data may be missing).`);
 
@@ -51,13 +62,21 @@ async function doctor() {
       ' (any other agent can push usage to POST /api/v1/ingest)',
   );
 
+  const portFix = async (port, envName) => {
+    const problem = await portProblem(port);
+    if (problem === 'EACCES') {
+      return `Port ${port} is reserved by Windows (Hyper-V/WSL/Docker). "knowyourtokens start" picks a free port automatically, or set KNOWYOURTOKENS_${envName}.`;
+    }
+    if (problem) return `Port ${port} is used by another program. Run "knowyourtokens stop", or set KNOWYOURTOKENS_${envName}.`;
+    return `Run "knowyourtokens start". If it still fails, read the logs in ${paths.logDir()}.`;
+  };
   const backend = await httpOk(`http://127.0.0.1:${paths.backendPort()}/health`);
-  healthy &= check(backend, `Backend /health on port ${paths.backendPort()}`, 'Run "knowyourtokens start", then check logs.');
+  healthy &= check(backend, `Backend /health on port ${paths.backendPort()}`, backend ? '' : await portFix(paths.backendPort(), 'BACKEND_PORT'));
   const dash = await httpOk(`http://127.0.0.1:${paths.dashboardPort()}/`);
-  healthy &= check(dash, `Dashboard on port ${paths.dashboardPort()}`, 'Run "knowyourtokens start", then check logs.');
+  healthy &= check(dash, `Dashboard on port ${paths.dashboardPort()}`, dash ? '' : await portFix(paths.dashboardPort(), 'DASHBOARD_PORT'));
 
   console.log('');
-  console.log(healthy ? 'Everything looks good.' : `Some checks failed. Logs: ${paths.logDir()}`);
+  console.log(healthy ? 'Everything looks good.' : `Some checks failed. Logs: ${paths.logDir()}\nTroubleshooting: ${TROUBLESHOOTING_URL}`);
   if (!healthy) process.exitCode = 1;
 }
 

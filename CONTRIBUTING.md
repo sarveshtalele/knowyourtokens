@@ -60,6 +60,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#repository-layout). The rules th
 | Dashboard | `frontend/src/**/*.test.ts(x)` | `cd frontend && npm test` |
 | CLI | `cli/test/` | `cd cli && node --test test/*.test.js` |
 | JS SDK | `sdk/js/test/` | `cd sdk/js && npm test` |
+| VS Code extension | `vscode/test/` | `cd vscode && npm ci && npm run typecheck && npm test && npm run package` |
 
 Every bug fix needs a regression test. CI also runs Python 3.10–3.13, macOS and Windows, and a full
 `npm pack → install → start → doctor` end-to-end on all three OSes.

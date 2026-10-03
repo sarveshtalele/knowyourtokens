@@ -29,7 +29,7 @@ flowchart LR
         IN["ingest.py\npushed records"]
     end
 
-    DB[("SQLite (WAL)\n~/.claude/telemetry/telemetry.db")]
+    DB[("SQLite (WAL)\n~/.knowyourtokens/data/knowyourtokens.db")]
 
     subgraph Server["backend/ (FastAPI, 127.0.0.1)"]
         API["/api/v1/*  +  /openapi.json"]
@@ -251,7 +251,7 @@ Conventions:
 `PRAGMA user_version` holds the schema version. `telemetry/db.py:MIGRATIONS` maps each version to a
 function. Each migration runs inside one `BEGIN IMMEDIATE` transaction, so a crash leaves the old
 version intact and concurrent processes can't both migrate. Before migrating an existing file,
-`connect()` writes a consistent backup (`telemetry.db.bak-v<old>`) with SQLite's online backup API. A
+`connect()` writes a consistent backup (`knowyourtokens.db.bak-v<old>`) with SQLite's online backup API. A
 database newer than the running code is refused with an upgrade hint, not opened.
 
 The v8 migration adds `transcripts.source` (existing rows become `claude-code`) and
@@ -315,22 +315,40 @@ Off by default. The daemon applies it hourly:
 
 [`cli/`](../cli) is a Node 18+ package with zero runtime dependencies.
 
-- `install`: validates Claude Code's `~/.claude/settings.json` first, copies the bundled app (`vendor/`) into
-  `~/.knowyourtokens` (replacing managed directories wholesale), creates a venv (uv if available), and
+- `install`: migrates a pre-2.4 install first (`~/.tokentelemetry` → `~/.knowyourtokens` with a link left
+  behind; `~/.claude/telemetry/telemetry.db` → `~/.knowyourtokens/data/knowyourtokens.db`, rolled back on
+  failure), validates Claude Code's `~/.claude/settings.json`, copies the bundled app (`vendor/`) into
+  `~/.knowyourtokens` (replacing managed directories wholesale), creates a venv with uv (offering to
+  install uv when it's missing; `--no-uv` uses the system Python), and
   writes the hooks **atomically** with a one-time backup. Our hooks are recognized by script name, so
   moved installs are cleaned up.
 - `start`: launches backend, daemon and static server detached. It waits for `/health` instead of
-  sleeping, checks ports first, and rotates logs.
+  sleeping (up to 2 minutes for the backend on Windows), and rotates logs. Before launching it probes each
+  port; a busy or OS-reserved one (Windows `WinError 10013`) moves to the next free port, saved in
+  `ports.json` for the dashboard proxy, the collector and the VS Code extension. A service that doesn't
+  come up gets its log tail plus a diagnosis (`diagnose()` in `run.js`).
 - `stop`/`status`: only act on a PID whose command line is still ours, because PIDs get reused.
 - `static-server.js`: SPA fallback, `/api` + `/ws` reverse proxy, the same Host allowlist as the API
   (the proxy rewrites Host, so it must check first), CSP and immutable asset caching.
 - `autostart`: Task Scheduler / launchd (`AbandonProcessGroup`) / systemd
   (`Type=oneshot` + `RemainAfterExit` + `KillMode=process`), so the detached services survive the
   launcher exiting.
-- `doctor`: checks Node, Python, deps, app version, hooks, hook errors, and both ports.
+- `doctor`: checks Node, uv/Python, deps, app version, data location, hooks, hook errors, and both ports.
+- `errors.js`: every failure surfaces as a `KytError` (message + fix hints); common Node errors (`ENOENT`,
+  `EACCES`/`EPERM`, `EBUSY`, `ENOSPC`, `EADDRINUSE`) are translated, and stack traces only appear with
+  `KNOWYOURTOKENS_DEBUG=1`.
 
 The installer only configures Claude Code (hooks). The other agents need no configuration: the daemon
 finds their files.
+
+## VS Code extension
+
+[`vscode/`](../vscode) is a TypeScript extension bundled with esbuild, with no runtime dependencies. It
+only talks to the local REST API (`/health`, `/api/v1/usage/summary`, `/api/v1/projects`,
+`/api/v1/sessions`, `/api/v1/usage`), resolving ports as setting → env → `ports.json` → default. Views
+are native tree views; the dashboard tab is a webview that frames the local dashboard (the static
+server allows `frame-ancestors 'self' vscode-webview:` only). Start/Install/Doctor run the CLI in an
+integrated terminal so prompts and errors are visible.
 
 ## Integrations
 
@@ -350,6 +368,7 @@ cli/         npm package: installer + process manager + static server
 sdk/python   knowyourtokens-client (PyPI-ready)
 sdk/js       knowyourtokens-client (npm-ready)
 site/        landing page (GitHub Pages)
+vscode/      VS Code extension (status bar, sidebar views, dashboard tab)
 docs/        guides, API reference, OpenAPI document
 scripts/     maintenance scripts (OpenAPI export)
 tests/       Python test suite (collector, reconcile, sources, migration, API, integrations)

@@ -7,7 +7,7 @@ ingest pipeline over them, so every page of the dashboard has data without
 exposing anyone's real prompts.
 
     python scripts/seed_demo.py --out /tmp/tt-demo
-    CLAUDE_TELEMETRY_DB=/tmp/tt-demo/telemetry.db uvicorn app.main:app --app-dir backend
+    KNOWYOURTOKENS_DB=/tmp/tt-demo/telemetry.db uvicorn app.main:app --app-dir backend
 
 Deterministic: the same --seed and --days give the same data (anchored to today).
 """
@@ -382,14 +382,14 @@ def main(argv=None):
     os.environ["GEMINI_CLI_HOME"] = str(args.out / "gemini-home")
     os.environ["XDG_DATA_HOME"] = str(args.out / "xdg")
     os.environ.pop("OPENCODE_DB", None)
-    os.environ["CLAUDE_TELEMETRY_DB"] = str(db)
+    os.environ["KNOWYOURTOKENS_DB"] = str(db)
 
     from telemetry.reconcile import reconcile
 
     changed, scanned = reconcile(db_path=db)
     print(f"Seeded {changed}/{scanned} demo session files (Claude Code, Codex, Gemini CLI, OpenCode) into {db}")
     print(
-        f"Run: CLAUDE_TELEMETRY_DB={db} KNOWYOURTOKENS_SOURCES=none python -m uvicorn app.main:app --app-dir backend --port 8000"
+        f"Run: KNOWYOURTOKENS_DB={db} KNOWYOURTOKENS_SOURCES=none python -m uvicorn app.main:app --app-dir backend --port 8000"
     )
 
 

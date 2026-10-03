@@ -82,9 +82,13 @@ node cli/setup.js install   # re-run the full build+install, e.g. after `git pul
 
 1. Copies the bundled backend/telemetry/hooks/dashboard into
    `~/.knowyourtokens` (override with `KNOWYOURTOKENS_HOME`).
-2. Creates a Python virtual environment there, preferring
-   [`uv`](https://docs.astral.sh/uv/) when it's on `PATH` (falls back to the
-   standard `venv`/`pip`), and installs the FastAPI backend's dependencies.
+2. Creates a Python virtual environment there with
+   [`uv`](https://docs.astral.sh/uv/). If uv is missing, it explains why it's
+   needed and asks before installing it with the official installer (`--yes`
+   skips the question, `--no-uv` uses the system Python 3.10+ with
+   `venv`/`pip` instead), then installs the FastAPI backend's dependencies.
+   Upgrades from an older install move `~/.tokentelemetry` and the database to
+   `~/.knowyourtokens` first.
 3. Merges the telemetry hook into your Claude Code settings
    (`~/.claude/settings.json`, or `$CLAUDE_CONFIG_DIR/settings.json`) for the
    `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `SubagentStop`, `PreCompact`, and
@@ -111,7 +115,16 @@ disable` removes it, and `knowyourtokens status` shows whether it's on.
 ## Requirements
 
 - Node.js 18+ (to run `npx`)
-- Python 3.10+ on `PATH` (or [`uv`](https://docs.astral.sh/uv/), which is
-  preferred automatically when present)
+- [`uv`](https://docs.astral.sh/uv/) (offered and installed for you if
+  missing; it brings its own Python) or Python 3.10+ on `PATH` with `--no-uv`
 - At least one AI coding agent. Compressed Codex rollouts (`.jsonl.zst`)
   additionally need Python 3.14+ or the `zstandard` package
+
+## When something goes wrong
+
+Errors are printed as a one-line explanation plus a "How to fix it" list, never
+a bare stack trace (set `KNOWYOURTOKENS_DEBUG=1` to see one). `start` picks a
+free port automatically when 8000 or 5173 is busy or reserved by Windows, and
+reads the service log to tell you why a service didn't come up. Run
+`knowyourtokens doctor` for a full check, and see
+[TROUBLESHOOTING.md](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/TROUBLESHOOTING.md).

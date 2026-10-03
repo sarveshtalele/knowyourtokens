@@ -19,7 +19,7 @@ export function Settings() {
     <div className="space-y-6">
       <PageHead
         eyebrow="Operations"
-        title="Telemetry settings"
+        title="Settings"
         subtitle="Collector, database, and integration status. Everything here stays on this machine."
         actions={
           <Button variant="primary" onClick={handleReconcile}>

@@ -25,8 +25,8 @@ What should have happened instead.
 - `knowyourtokens doctor` output:
 
 **Logs**
-Relevant lines from `~/.knowyourtokens/logs/backend.log` (or `~/.tokentelemetry/logs/` on older installs) / `daemon.log` / `frontend.log`,
-`~/.claude/telemetry/hook-errors.log`, or
+Relevant lines from `~/.knowyourtokens/logs/` (`backend.log`, `daemon.log`, `frontend.log`),
+`~/.knowyourtokens/data/hook-errors.log`, or
 the browser console, if applicable. Please don't paste actual prompt/response content —
 just the error.
 

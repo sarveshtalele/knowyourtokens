@@ -108,7 +108,7 @@ jobs:
           for f in ("telemetry/__init__.py", "sdk/python/src/knowyourtokens_client/__init__.py"):
               check(f, re.search(r'^__version__ = "(.+)"', open(f).read(), re.M).group(1))
           check("sdk/python/pyproject.toml", re.search(r'^version = "(.+)"', open("sdk/python/pyproject.toml").read(), re.M).group(1))
-          for d in ("cli", "sdk/js", "frontend", "site"):
+          for d in ("cli", "sdk/js", "frontend", "site", "vscode"):
               check(f"{d}/package.json", json.load(open(f"{d}/package.json"))["version"])
               try:
                   lock = json.load(open(f"{d}/package-lock.json"))
@@ -219,6 +219,20 @@ jobs:
           else
             gh release create "$tag" --title "$tag" --notes-file notes.md --target "${{ needs.prepare.outputs.sha }}"
           fi
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: vscode/package-lock.json
+      - name: Build the VS Code extension and attach it to the release
+        # The site links to releases/latest/download/knowyourtokens.vsix, so the file name must not change.
+        working-directory: vscode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npm ci
+          npm run package
+          gh release upload "v${{ needs.prepare.outputs.version }}" knowyourtokens.vsix --clobber
 
   redeploy-site:
     name: Redeploy the website with the new version

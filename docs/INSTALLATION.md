@@ -24,19 +24,23 @@ dashboard actually shows once it's running, see the
 10. [Uninstalling](#uninstalling)
 11. [Troubleshooting](#troubleshooting)
 12. [Manual / development install](#manual--development-install)
+13. [Ports and other settings](#ports-and-other-settings)
+14. [Upgrading to 2.4](#upgrading-to-24)
 
 ## Requirements
 
 | Requirement | Minimum | Notes |
 |---|---|---|
 | Node.js | 18+ | Needed to build and run the `knowyourtokens` CLI itself |
-| Python | 3.10+ | Runs the collector and the FastAPI backend |
-| [`uv`](https://docs.astral.sh/uv/) | any | Optional but recommended — the installer uses it automatically when present for a much faster virtual environment setup; falls back to the standard `venv`/`pip` otherwise |
+| [`uv`](https://docs.astral.sh/uv/) **or** Python 3.10+ | any / 3.10+ | The collector and backend are Python. If `uv` is missing, the installer explains why and asks before installing it (official installer from astral.sh); `uv` then downloads its own Python, so none needs to be installed. `--yes` installs it without asking; `--no-uv` uses the Python 3.10+ on `PATH` instead |
+| Disk | ~300 MB | The private Python environment in `~/.knowyourtokens/.venv` |
 | At least one AI coding agent | any recent version | Claude Code, Codex CLI, Gemini CLI or OpenCode are read automatically; anything else can push usage over the [ingest API](INTEGRATIONS.md#track-any-agent) |
 | `zstandard` (Python) | optional | Only for compressed Codex rollouts (`.jsonl.zst`) on Python < 3.14. Python 3.14+ reads them natively |
 
-`cli/setup.js` checks for Node and Python up front and tells you exactly
-what's missing rather than failing partway through the install.
+The installer checks all of this up front. When something is missing or a step fails, it stops with
+a plain-language message and a "How to fix it" list instead of a stack trace (set
+`KNOWYOURTOKENS_DEBUG=1` for the full trace). `npx knowyourtokens doctor` re-checks everything at any
+time. For specific errors, see **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**.
 
 ## Quick install (all platforms)
 
@@ -48,7 +52,8 @@ npx knowyourtokens
 ```
 
 That one command sets up a Python virtual environment (`uv venv` if [`uv`](https://docs.astral.sh/uv/)
-is available, otherwise `python3 -m venv`), installs the backend's Python dependencies,
+is available; if it isn't, you're asked whether to install it, and answering no falls back to
+`python3 -m venv`), installs the backend's Python dependencies,
 merges hook entries into Claude Code's `~/.claude/settings.json`
 (`SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop`, `SubagentStop`,
 `PreCompact`; your other hooks are preserved and `settings.json` is backed up once to
@@ -68,6 +73,13 @@ every run:
 npm install -g knowyourtokens
 knowyourtokens
 ```
+
+Installer flags:
+
+| Flag | Effect |
+|---|---|
+| `--yes`, `-y` | Don't ask: install `uv` automatically if it's missing (also `KNOWYOURTOKENS_INSTALL_UV=1`). Non-interactive shells and CI never prompt |
+| `--no-uv` | Never install `uv`; use the system Python 3.10+ |
 
 <details>
 <summary>Installing from source instead (for contributing, or a commit not yet published)</summary>
@@ -116,8 +128,20 @@ ingest API ([INTEGRATIONS.md](INTEGRATIONS.md#track-any-agent)).
 
 ## Windows-specific notes
 
-- Run the three commands above from PowerShell or Command Prompt — no
-  admin/elevated shell is required.
+- Run the commands above from PowerShell or Command Prompt. No admin/elevated shell is
+  required, and running as Administrator is not recommended.
+- Node: `winget install OpenJS.NodeJS.LTS`. uv (if you'd rather install it yourself):
+  `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"` or
+  `winget install astral-sh.uv`, then open a new terminal.
+- **Reserved ports.** Hyper-V, WSL2 and Docker Desktop reserve TCP port ranges that often include
+  8000 (`netsh interface ipv4 show excludedportrange protocol=tcp` lists them). Binding fails with
+  `WinError 10013` ("access forbidden"). `start` detects this, picks the next free port, and saves
+  it in `~/.knowyourtokens/ports.json` so the dashboard, collector and VS Code extension all use it.
+- **First start is slow.** Python compiles its packages the first time and antivirus scans each
+  file, so the backend gets up to 2 minutes on Windows before `start` gives up. Excluding
+  `%USERPROFILE%\.knowyourtokens` from real-time scanning speeds this up.
+- **Firewall.** If Windows asks whether Python may communicate on networks, allowing *private*
+  networks is enough (everything binds to 127.0.0.1).
 - If `node` or `python` aren't recognized, they're not on your `PATH` yet;
   reopen your terminal after installing them, or use the installer from
   [python.org](https://www.python.org/downloads/windows/) /
@@ -233,11 +257,11 @@ needs the full `node cli/setup.js` run once.
 ```bash
 knowyourtokens uninstall            # remove the Claude Code hooks only
 knowyourtokens uninstall --purge                 # also stop services, disable autostart, delete ~/.knowyourtokens
-knowyourtokens uninstall --purge --delete-data   # ...and delete the telemetry database too
+knowyourtokens uninstall --purge --delete-data   # ...and delete your usage data too
 ```
 
 `uninstall` alone leaves your collected data and the installed app files
-in place (in case you want to reinstall later without losing history);
+in place, and `--purge` keeps the `data/` folder unless you add `--delete-data` (in case you want to reinstall later without losing history);
 `--purge` is the full, end-to-end teardown, including disabling autostart
 if it was enabled. Neither command touches the global `knowyourtokens` npm
 package itself — remove that separately with
@@ -245,50 +269,19 @@ package itself — remove that separately with
 
 ## Troubleshooting
 
-**"npm not found" / "No Python 3 interpreter found"** — install Node.js
-18+ and Python 3.10+ and make sure they're on `PATH`, then re-run
-`node cli/setup.js`.
+Start with:
 
-**`knowyourtokens` command not found after install** — the global npm bin
-directory isn't on your shell's `PATH`. Run `npm config get prefix`. and
-make sure `<prefix>/bin` (macOS/Linux) or `<prefix>` (Windows) is on
-`PATH`, or just run `node cli/setup.js start` from the repo checkout
-instead — same behavior, no global command needed.
+```bash
+npx knowyourtokens doctor
+```
 
-**A service fails to start ("port already in use")** — `knowyourtokens
-start` reports exactly which service failed and tails its log; if the log
-mentions `EADDRINUSE` or "address already in use", another process (very
-possibly an earlier `knowyourtokens start` that's still running) already
-has port 8000 or 5173. Run `knowyourtokens status` to check, then
-`knowyourtokens stop` before starting again.
+It checks Node, uv/Python, the app files, ports (including Windows reserved ranges), the database,
+hooks and running services, and prints the exact fix for anything wrong. Logs are in
+`~/.knowyourtokens/logs/`.
 
-**Dashboard loads but shows "Could not reach the telemetry backend"** —
-the backend process isn't up. Check `knowyourtokens status` and
-`~/.knowyourtokens/logs/backend.log`.
-
-**Linux: `autostart enable` says it can't connect to the session bus** —
-some minimal/headless Linux setups don't run a per-user systemd instance.
-The unit file is still written to
-`~/.config/systemd/user/knowyourtokens.service`; once a user systemd
-session is available (e.g. after logging in via a desktop session, or with
-`loginctl enable-linger $USER` on a server), run `systemctl --user
-enable --now knowyourtokens.service` manually to pick it up.
-
-**No data shows up even though agent sessions are happening** —
-Claude Code's hooks write live events regardless of whether `knowyourtokens
-start` is on, but *exact token usage* and full prompt/response text (for
-every agent) only appear once the daemon has read the session files —
-either wait for the next poll (`CLAUDE_TELEMETRY_INTERVAL`, default 5
-seconds, only while `start` has been run) or click **Reconcile now** on the
-Settings page for an immediate pass. Also check that the agent's files are
-where the table in [Which agents are picked up](#which-agents-are-picked-up)
-expects them, and that `KNOWYOURTOKENS_SOURCES` (if set) includes it.
-
-**Codex sessions are missing** — older rollouts may be compressed
-(`.jsonl.zst`). They're read with Python 3.14+, or once `zstandard` is
-installed into the app's Python environment (`~/.knowyourtokens/.venv`, for
-example `uv pip install -p ~/.knowyourtokens/.venv/bin/python zstandard`);
-otherwise they are skipped.
+The full guide, organised by symptom (uv install fails, Windows backend never connects, port in
+use, firewall/VPN/proxy, permission errors, no data), is in
+**[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**.
 
 ## Manual / development install
 
@@ -301,10 +294,12 @@ for the exact commands.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `KNOWYOURTOKENS_BACKEND_PORT` | `8000` | API port |
-| `KNOWYOURTOKENS_DASHBOARD_PORT` | `5173` | Dashboard port |
-| `KNOWYOURTOKENS_HOME` | `~/.knowyourtokens` | App files, venv, logs |
-| `CLAUDE_TELEMETRY_DB` | `~/.claude/telemetry/telemetry.db` | Database path |
+| `KNOWYOURTOKENS_BACKEND_PORT` | `8000` (or the free port saved in `ports.json`) | API port. Setting it pins the port and turns off automatic fallback |
+| `KNOWYOURTOKENS_DASHBOARD_PORT` | `5173` (or the saved port) | Dashboard port |
+| `KNOWYOURTOKENS_HOME` | `~/.knowyourtokens` | App files, venv, logs, data |
+| `KNOWYOURTOKENS_DB` | `~/.knowyourtokens/data/knowyourtokens.db` | Database path (`CLAUDE_TELEMETRY_DB` is still honoured) |
+| `KNOWYOURTOKENS_INSTALL_UV` | unset | `1` = install uv without asking |
+| `KNOWYOURTOKENS_DEBUG` | unset | `1` = print full stack traces on errors |
 | `CLAUDE_CONFIG_DIR` | `~/.claude` | Claude Code config directory |
 | `CODEX_HOME` | `~/.codex` | Codex CLI home |
 | `GEMINI_CLI_HOME` | home directory | Directory containing `.gemini` |
@@ -318,15 +313,29 @@ for the exact commands.
 
 Exporter settings are in [INTEGRATIONS.md](INTEGRATIONS.md).
 
+## Upgrading to 2.4
+
+The first `install` (or `npx knowyourtokens@latest`) after upgrading moves things to their new
+names, stopping and restarting services around the move:
+
+- `~/.tokentelemetry` → `~/.knowyourtokens`. A link (a junction on Windows) is left at the old path
+  so existing shortcuts and autostart entries keep working.
+- `~/.claude/telemetry/telemetry.db` (with its `-wal`/`-shm` files) →
+  `~/.knowyourtokens/data/knowyourtokens.db`. If any step fails, everything is moved back and the
+  old location keeps working.
+
+If `KNOWYOURTOKENS_HOME` is set, the app folder stays where it is; if `KNOWYOURTOKENS_DB` or
+`CLAUDE_TELEMETRY_DB` is set, the database stays where it is.
+
 ## Upgrading from 2.0
 
 The first start after upgrading migrates the database to schema v8 automatically (it records which
-agent wrote each session file). A backup is written next to it first (`telemetry.db.bak-v7`).
+agent wrote each session file). A backup is written next to it first (`knowyourtokens.db.bak-v7`).
 Existing data is kept as Claude Code data.
 
 ## Upgrading from 1.x
 
 The first start after upgrading migrates the database to the current schema automatically. A backup is written
-next to it first (`telemetry.db.bak-v0`). Request totals may *drop*: 1.x counted multi-block
+next to it first (`knowyourtokens.db.bak-v0`). Request totals may *drop*: 1.x counted multi-block
 assistant messages several times, and v2 counts each API request once. History from transcripts that
 Claude Code has since deleted is kept as it was.

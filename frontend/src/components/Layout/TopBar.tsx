@@ -14,7 +14,7 @@ const LABELS: Record<string, string> = {
   'mcp-plugins': 'MCP & Plugins',
   reports: 'Reports',
   calculator: 'Calculator',
-  settings: 'Telemetry settings',
+  settings: 'Settings',
   about: 'About',
 };
 

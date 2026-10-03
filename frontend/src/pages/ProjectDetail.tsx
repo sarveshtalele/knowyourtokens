@@ -36,7 +36,7 @@ export function ProjectDetail() {
   if (!project)
     return (
       <div className="p-10 text-center text-ink-soft bg-surface border border-line rounded-lg">
-        No project named "{id}" found in telemetry data.
+        No project named "{id}" found in your data.
       </div>
     );
 

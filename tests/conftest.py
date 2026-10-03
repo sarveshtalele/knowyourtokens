@@ -16,7 +16,7 @@ def env(tmp_path, monkeypatch):
     """Isolated DB + Claude config dir for one test."""
     claude = tmp_path / "claude"
     (claude / "projects").mkdir(parents=True)
-    monkeypatch.setenv("CLAUDE_TELEMETRY_DB", str(tmp_path / "telemetry.db"))
+    monkeypatch.setenv("KNOWYOURTOKENS_DB", str(tmp_path / "telemetry.db"))
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(claude))
     # Other agents' data dirs, so a test never reads the developer's real ones.
     monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex"))

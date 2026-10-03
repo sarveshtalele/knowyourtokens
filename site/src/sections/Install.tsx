@@ -7,7 +7,7 @@ const STEPS = [
     n: '1',
     t: 'Install',
     c: 'npx knowyourtokens',
-    d: 'Sets up a private Python env, finds your agents, starts everything. Needs Node 18+ and Python 3.10+.',
+    d: 'Finds your agents, sets up a private Python env (offering to install uv if it’s missing) and starts everything. Needs Node 18+.',
   },
   {
     n: '2',
@@ -44,7 +44,10 @@ export function Install() {
       </Reveal>
       <div className="wrap2 install-cta">
         <CopyInstall />
-        <span className="muted small">Windows · macOS · Linux · Apache 2.0 licensed</span>
+        <span className="muted small">
+          Windows · macOS · Linux · <a href="#prerequisites">Prerequisites</a> ·{' '}
+          <a href="#troubleshooting">Troubleshooting</a>
+        </span>
       </div>
     </section>
   );
@@ -72,7 +75,10 @@ const SPECS: [string, string][] = [
     'Security',
     '127.0.0.1 only · DNS-rebinding and CSRF protection · strict CSP · secret redaction · no outbound calls by default',
   ],
-  ['Platforms', 'Windows, macOS, Linux · Node 18+ · Python 3.10+ · start at login · app shortcuts'],
+  [
+    'Platforms',
+    'Windows, macOS, Linux · Node 18+ · Python via uv (installed for you) or Python 3.10+ · start at login · app shortcuts · VS Code extension',
+  ],
   ['License', 'Apache 2.0: free for personal and commercial use, with credit'],
 ];
 

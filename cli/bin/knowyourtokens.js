@@ -5,6 +5,7 @@ const { doctor } = require('../src/doctor');
 const autostart = require('../src/autostart');
 const paths = require('../src/paths');
 const shortcut = require('../src/shortcut');
+const { report } = require('../src/errors');
 
 const HELP = `knowyourtokens ${paths.version()} -- local-first token observability for AI coding agents
 (Claude Code, Codex CLI, Gemini CLI, OpenCode, and any agent via the ingest API)
@@ -12,7 +13,9 @@ const HELP = `knowyourtokens ${paths.version()} -- local-first token observabili
 Usage:
   knowyourtokens                    Install (if needed) and start everything
   knowyourtokens install            Copy app files, set up the Python env, wire Claude Code hooks
-  knowyourtokens start              Start the backend, telemetry daemon, and dashboard
+      --yes                         ...install uv without asking if it's missing
+      --no-uv                       ...use the system Python 3.10+ instead of uv
+  knowyourtokens start              Start the backend, collector and dashboard
   knowyourtokens stop               Stop everything started by "start"
   knowyourtokens status             Show what's running and health checks
   knowyourtokens doctor             Diagnose the install and suggest fixes
@@ -24,30 +27,35 @@ Usage:
       --remove                      ...remove the app icon again
   knowyourtokens uninstall          Remove the Claude Code hooks (keeps app files and data)
       --purge                       ...also stop services, disable autostart, delete app files
-      --delete-data                 ...also delete the telemetry database
+      --delete-data                 ...also delete your usage database
   knowyourtokens --version          Print the version
 
   kyt is a short alias: kyt start, kyt doctor, ...
 
-Environment:
-  KNOWYOURTOKENS_HOME            Install directory (default: ~/.knowyourtokens)
-  KNOWYOURTOKENS_BACKEND_PORT    API port (default: 8000)
-  KNOWYOURTOKENS_DASHBOARD_PORT  Dashboard port (default: 5173)
-  CLAUDE_CONFIG_DIR              Claude Code config directory (default: ~/.claude)
-  CLAUDE_TELEMETRY_DB            Database path (default: ~/.claude/telemetry/telemetry.db)
-  KNOWYOURTOKENS_NO_OPEN         Set to skip opening the browser on start
-  (TOKENTELEMETRY_* names from before the rename still work.)
+Prerequisites: Node.js 18+. Python is optional: if uv isn't installed, the installer offers
+to install it, and uv brings its own Python.
 
-Docs: https://sarveshtalele.github.io/knowyourtokens/
+Environment:
+  KNOWYOURTOKENS_HOME            App folder (default: ~/.knowyourtokens)
+  KNOWYOURTOKENS_DB              Database file (default: ~/.knowyourtokens/data/knowyourtokens.db)
+  KNOWYOURTOKENS_BACKEND_PORT    API port (default: 8000; start picks a free one if it's taken)
+  KNOWYOURTOKENS_DASHBOARD_PORT  Dashboard port (default: 5173; same)
+  KNOWYOURTOKENS_INSTALL_UV      Set to 1 to install uv without asking
+  KNOWYOURTOKENS_NO_OPEN         Set to skip opening the browser on start
+  CLAUDE_CONFIG_DIR              Claude Code config directory (default: ~/.claude)
+
+Docs:            https://sarveshtalele.github.io/knowyourtokens/
+Troubleshooting: https://sarveshtalele.github.io/knowyourtokens/#troubleshooting
 `;
 
 async function main() {
   const [, , cmdArg, subArg, ...rest] = process.argv;
   const flags = new Set([subArg, ...rest].filter(Boolean));
+  const installOpts = { yes: flags.has('--yes') || flags.has('-y'), noUv: flags.has('--no-uv') };
 
   switch (cmdArg || 'default') {
     case 'install':
-      install();
+      await install(installOpts);
       break;
     case 'start':
       await start();
@@ -95,7 +103,8 @@ async function main() {
       uninstall({ purge: flags.has('--purge') || flags.has('--delete-data'), deleteDb: flags.has('--delete-data') });
       break;
     case 'default':
-      install();
+      await install(installOpts);
+      console.log('');
       await start();
       break;
     case '-v':
@@ -116,6 +125,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`Error: ${err.message}`);
+  report(err);
   process.exitCode = 1;
 });

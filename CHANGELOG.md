@@ -7,6 +7,40 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-10-03
+
+### Added
+- **VS Code extension** (`vscode/`, `knowyourtokens.vsix` attached to each GitHub release): tokens
+  today in the status bar, Overview / Projects / Sessions / Recent requests sidebar views, the full
+  dashboard in an editor tab (click any row to open its detail), and Install / Start / Stop /
+  Diagnostics commands. Works in VS Code 1.90+, Cursor and VSCodium.
+- **uv is offered when it's missing.** The installer explains why it needs uv, asks, and installs it
+  with the official installer (`--yes` / `KNOWYOURTOKENS_INSTALL_UV=1` to skip the question,
+  `--no-uv` to use the system Python instead). uv brings its own Python, so Python no longer has to
+  be installed first.
+- **Friendly errors everywhere:** failures print what went wrong and a "How to fix it" list instead
+  of a stack trace (`KNOWYOURTOKENS_DEBUG=1` shows it). `start` reads a failed service's log and
+  names the cause (reserved port, port in use, missing module, locked database, firewall/proxy).
+- Landing page: prerequisites, a step-by-step install guide per OS, a troubleshooting guide and the
+  VS Code extension. New [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+- `KNOWYOURTOKENS_DB` environment variable (`CLAUDE_TELEMETRY_DB` still works).
+
+### Fixed
+- **Windows: the backend could fail to start or never connect.** Ports reserved by Hyper-V/WSL/Docker
+  (`WinError 10013`) or held by another program now fall back to the next free port, saved in
+  `~/.knowyourtokens/ports.json` and picked up by the dashboard, collector and VS Code extension. The
+  backend gets up to 2 minutes for its first start on Windows (was 20 seconds), with progress shown.
+- Leftover "Token Telemetry" names in the dashboard, CLI output and landing page ("With KYT").
+- `uninstall --purge` now keeps your data unless you add `--delete-data`.
+
+### Changed
+- **Everything lives in `~/.knowyourtokens`.** The first install of 2.4 moves `~/.tokentelemetry` there
+  (leaving a link at the old path) and the database from `~/.claude/telemetry/telemetry.db` to
+  `~/.knowyourtokens/data/knowyourtokens.db`, rolling back if anything fails. A custom
+  `KNOWYOURTOKENS_HOME` or database path (`KNOWYOURTOKENS_DB` / `CLAUDE_TELEMETRY_DB`) is left alone.
+- The dashboard may now be framed by VS Code webviews (`frame-ancestors 'self' vscode-webview:`) and
+  nothing else.
+
 ### Removed
 - Rendered launch videos and their caption files are no longer kept in the repository (they are
   distributed separately); `.gitignore` now blocks video files. Their sources stay in `docs/launch/src/`.
@@ -199,7 +233,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 - First npm release.
 
-[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.2...HEAD
+[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.2.0...v2.3.0

@@ -48,7 +48,7 @@ for (const p of ['telemetry/__init__.py', 'sdk/python/src/knowyourtokens_client/
 }
 sub('sdk/python/pyproject.toml', /^version = "[^"]+"/m, `version = "${next}"`);
 
-for (const dir of ['cli', 'sdk/js', 'frontend', 'site']) {
+for (const dir of ['cli', 'sdk/js', 'frontend', 'site', 'vscode']) {
   const pkg = `${dir}/package.json`;
   sub(pkg, /"version": "[^"]+"/, `"version": "${next}"`);
   const lock = `${dir}/package-lock.json`;

@@ -604,7 +604,7 @@ function Integrations({ focus }: { focus?: Step['focus'] }) {
           <div className="d-exp">
             <b>Database</b>
             <span>0600</span>
-            <code>~/.claude/telemetry/telemetry.db</code>
+            <code>~/.knowyourtokens/data/knowyourtokens.db</code>
           </div>
           <div className="d-exp">
             <b>Retention</b>
