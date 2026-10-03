@@ -26,10 +26,10 @@ your own machine. Includes a REST API, Python and TypeScript SDKs, OpenTelemetry
 **[Architecture](docs/ARCHITECTURE.md)** ·
 **[Contributing](CONTRIBUTING.md)**
 
-<a href="https://youtu.be/c1reSpX-c4M"><img src="https://img.youtube.com/vi/c1reSpX-c4M/maxresdefault.jpg" width="720" alt="Watch: My AI agent used 287,000 tokens on one prompt. Here's how I found out why (2:33)"></a>
+<a href="https://youtu.be/c1reSpX-c4M"><img src="https://img.youtube.com/vi/c1reSpX-c4M/maxresdefault.jpg" width="720" alt="Watch the demo: My AI agent used 287,000 tokens on one prompt. Here's how I found out why"></a>
 
-▶ **[Watch the 2½-minute launch + setup guide](https://youtu.be/c1reSpX-c4M)** ·
-**[36-second Short](https://youtube.com/shorts/tEfAGMGZOaI)** ·
+▶ **[Watch the demo](https://youtu.be/c1reSpX-c4M)** ·
+**[YouTube Short](https://youtube.com/shorts/tEfAGMGZOaI)** ·
 **[Support the launch on Product Hunt](https://www.producthunt.com/products/know-your-tokens)** 🚀
 
 </div>
@@ -50,8 +50,8 @@ Windows, macOS and Linux.
 
 <p align="center">
   🚀 <a href="https://www.producthunt.com/products/know-your-tokens"><b>Product Hunt</b></a> ·
-  🎬 <a href="https://youtu.be/c1reSpX-c4M"><b>2½-min demo</b></a> ·
-  ⚡ <a href="https://youtube.com/shorts/tEfAGMGZOaI"><b>36-second Short</b></a> ·
+  🎬 <a href="https://youtu.be/c1reSpX-c4M"><b>Demo video</b></a> ·
+  ⚡ <a href="https://youtube.com/shorts/tEfAGMGZOaI"><b>YouTube Short</b></a> ·
   🌐 <a href="https://sarveshtalele.github.io/knowyourtokens/#watch"><b>Website</b></a>
 </p>
 

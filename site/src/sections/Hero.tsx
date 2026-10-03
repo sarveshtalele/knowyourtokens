@@ -76,7 +76,7 @@ export function Hero() {
           transition={{ delay: 1, duration: 0.6 }}
         >
           <a href="#watch">
-            <i style={{ background: '#f00' }}>▶</i> Watch the 2½-min demo
+            <i style={{ background: '#f00' }}>▶</i> Watch the demo
           </a>
           <a href={PRODUCT_HUNT_URL} target="_blank" rel="noopener noreferrer">
             <i style={{ background: '#da552f' }}>P</i> Launching on Product Hunt
