@@ -1,4 +1,4 @@
-// Records the YouTube launch + guide video (docs/launch/video/youtube-launch-and-guide-1920x1080.mp4)
+// Records the YouTube launch + guide video (rendered locally; videos are never committed)
 // with Playwright + Chromium against the real dashboard.
 //
 //   1. make demo (or seed + serve the demo data on :8000) and serve the built dashboard on :5173:
