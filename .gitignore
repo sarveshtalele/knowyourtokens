@@ -61,3 +61,10 @@ cli/NOTICE
 # emitted by a stray `tsc -b` (the dashboard type-checks with plain `tsc`)
 frontend/vite.config.js
 frontend/vite.config.d.ts
+
+# Rendered videos are kept locally, never committed
+docs/launch/video/
+*.mp4
+*.mov
+*.webm
+*.m4v

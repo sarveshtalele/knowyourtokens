@@ -7,6 +7,10 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+### Removed
+- Rendered launch videos and their caption files are no longer kept in the repository (they are
+  distributed separately); `.gitignore` now blocks video files. Their sources stay in `docs/launch/src/`.
+
 ## [2.3.2] - 2026-10-03
 
 ### Changed
