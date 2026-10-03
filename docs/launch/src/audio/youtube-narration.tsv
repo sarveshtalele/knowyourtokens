@@ -1,0 +1,18 @@
+01-hook	Your AI agent just used two hundred eighty-seven thousand tokens. On what?
+02-problem	Claude Code, Codex, Gemini, OpenCode. Four agents, four log formats, and zero visibility.
+03-reveal	Meet Know Your Tokens: one local dashboard for every AI coding agent.
+04-pillars	Exact tokens for every request. Debug any prompt. And everything stays on your machine.
+05-ch-install	Getting started takes one command.
+06-install	Run N P X know your tokens. It sets up a private environment, wires the hooks, finds your agents, and opens the dashboard.
+07-dashboard	This is your command center. Total tokens, input, output and cache, with a daily trend and the token mix. Cache reads usually dominate, and that's healthy: reused context costs a fraction of fresh input. Change the date range, and every card follows.
+08-agents	The Agents page puts every agent side by side, including anything you push through the API.
+09-requests	Requests lists every model call with its exact tokens. Click one to see its model, agent and prompt.
+10-debug	Here's the real power. This request used almost two hundred eighty-eight thousand tokens. The breakdown shows where they went, and the full prompt reveals the culprit: a whole log file pasted into context. Trim it, and the next request is a fraction of the size.
+11-project	Projects show which sessions and requests use the most context, so you know exactly where to optimize.
+12-tools	See every tool call, skill and MCP server your agents use, and every session with its requests and tokens.
+13-calculator	Before you paste something big, the token calculator estimates it offline, shows how much of the context window it takes, and prices it at your own rates.
+14-reports	Export everything as CSV, JSON or N D JSON, or build on the REST API and SDKs.
+15-ingest	Using Antigravity, Cursor, or your own agent? Push one JSON record per request.
+16-map	Every agent in. Every tool out. All local, and all yours.
+17-outro	Know Your Tokens is free and open source. Run N P X know your tokens, and give it a star on GitHub.
+18-creator	Built by Sarvesh Talele. Follow for more AI engineering builds.

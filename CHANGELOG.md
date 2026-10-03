@@ -20,6 +20,9 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   labels are readable on phones, and the walkthrough's footnote no longer overlaps the charts.
 
 ### Changed
+- Launch videos now have a voiceover explaining every scene (local Kokoro TTS), an original
+  synthesized music bed that ducks under the voice, transition sound effects, and caption files
+  (`docs/launch/video/*.srt`). Generators: `docs/launch/src/audio/`.
 - New app icon: a lens over token bars, across the favicon, installable-app icons, CLI launchers
   (`.png`/`.ico`/`.icns`), website, cards, screenshots and videos. Source: `docs/assets/logo.svg`.
 - Launch videos end with a creator card, and the YouTube video gains a closing end card

@@ -1,0 +1,151 @@
+1
+00:00:00,250 --> 00:00:04,752
+Your AI agent just used 287,000 tokens.
+
+2
+00:00:04,752 --> 00:00:05,306
+On what?
+
+3
+00:00:06,017 --> 00:00:08,708
+Claude Code, Codex, Gemini, OpenCode.
+
+4
+00:00:08,708 --> 00:00:12,417
+Four agents, four log formats, and zero visibility.
+
+5
+00:00:13,117 --> 00:00:14,614
+Meet Know Your Tokens:
+
+6
+00:00:14,614 --> 00:00:17,746
+one local dashboard for every AI coding agent.
+
+7
+00:00:18,783 --> 00:00:20,752
+Exact tokens for every request.
+
+8
+00:00:20,752 --> 00:00:21,831
+Debug any prompt.
+
+9
+00:00:21,831 --> 00:00:24,181
+And everything stays on your machine.
+
+10
+00:00:24,883 --> 00:00:26,761
+Getting started takes one command.
+
+11
+00:00:27,517 --> 00:00:29,345
+Run npx knowyourtokens.
+
+12
+00:00:29,345 --> 00:00:35,709
+It sets up a private environment, wires the hooks, finds your agents, and opens the dashboard.
+
+13
+00:00:37,083 --> 00:00:38,953
+This is your command center.
+
+14
+00:00:38,953 --> 00:00:44,028
+Total tokens, input, output and cache, with a daily trend and the token mix.
+
+15
+00:00:44,028 --> 00:00:47,300
+Cache reads usually dominate, and that's healthy:
+
+16
+00:00:47,300 --> 00:00:50,438
+reused context costs a fraction of fresh input.
+
+17
+00:00:50,438 --> 00:00:53,510
+Change the date range, and every card follows.
+
+18
+00:00:55,050 --> 00:01:01,130
+The Agents page puts every agent side by side, including anything you push through the API.
+
+19
+00:01:02,250 --> 00:01:05,741
+Requests lists every model call with its exact tokens.
+
+20
+00:01:05,741 --> 00:01:08,650
+Click one to see its model, agent and prompt.
+
+21
+00:01:10,017 --> 00:01:11,437
+Here's the real power.
+
+22
+00:01:11,437 --> 00:01:15,700
+This request used almost 288,000 tokens.
+
+23
+00:01:15,700 --> 00:01:20,672
+The breakdown shows where they went, and the full prompt reveals the culprit:
+
+24
+00:01:20,672 --> 00:01:23,062
+a whole log file pasted into context.
+
+25
+00:01:23,062 --> 00:01:26,678
+Trim it, and the next request is a fraction of the size.
+
+26
+00:01:27,383 --> 00:01:33,335
+Projects show which sessions and requests use the most context, so you know exactly where to optimize.
+
+27
+00:01:36,650 --> 00:01:43,498
+See every tool call, skill and MCP server your agents use, and every session with its requests and tokens.
+
+28
+00:01:46,717 --> 00:01:55,911
+Before you paste something big, the token calculator estimates it offline, shows how much of the context window it takes, and prices it at your own rates.
+
+29
+00:01:59,250 --> 00:02:06,311
+Export everything as CSV, JSON or NDJSON, or build on the REST API and SDKs.
+
+30
+00:02:07,017 --> 00:02:10,241
+Using Antigravity, Cursor, or your own agent?
+
+31
+00:02:10,241 --> 00:02:12,606
+Push one JSON record per request.
+
+32
+00:02:13,317 --> 00:02:14,387
+Every agent in.
+
+33
+00:02:14,387 --> 00:02:15,458
+Every tool out.
+
+34
+00:02:15,458 --> 00:02:17,242
+All local, and all yours.
+
+35
+00:02:19,883 --> 00:02:22,766
+Know Your Tokens is free and open source.
+
+36
+00:02:22,766 --> 00:02:26,774
+Run npx knowyourtokens, and give it a star on GitHub.
+
+37
+00:02:28,417 --> 00:02:29,994
+Built by Sarvesh Talele.
+
+38
+00:02:29,994 --> 00:02:32,491
+Follow for more AI engineering builds.
