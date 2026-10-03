@@ -70,6 +70,9 @@ OUTPUTS = [
     ),
 ]
 
+# The app icon (docs/assets/logo.svg), ids prefixed so they can't clash with the map's own.
+LOGO = '<defs> <linearGradient id="map-g" gradientUnits="userSpaceOnUse" x1="12" y1="12" x2="52" y2="52"> <stop offset="0" stop-color="#8b7bff"/> <stop offset=".55" stop-color="#ec4899"/> <stop offset="1" stop-color="#2dd4bf"/> </linearGradient> <linearGradient id="map-b" gradientUnits="userSpaceOnUse" x1="0" y1="36" x2="0" y2="20"> <stop offset="0" stop-color="#8b7bff"/> <stop offset="1" stop-color="#2dd4bf"/> </linearGradient> <radialGradient id="map-bg" cx=".35" cy=".3" r=".85"> <stop offset="0" stop-color="#2a2550"/> <stop offset="1" stop-color="#0d0d16"/> </radialGradient> </defs> <rect width="64" height="64" rx="14" fill="url(#map-bg)"/> <g> <rect x="20" y="29" width="4.5" height="7" rx="1.6" fill="url(#map-b)"/> <rect x="26.5" y="24.5" width="4.5" height="11.5" rx="1.6" fill="url(#map-b)"/> <rect x="33" y="20" width="4.5" height="16" rx="1.6" fill="url(#map-b)"/> <circle cx="28.5" cy="28" r="15" fill="none" stroke="url(#map-g)" stroke-width="5"/> <path d="M39.5 39 L50 49.5" fill="none" stroke="url(#map-g)" stroke-width="7" stroke-linecap="round"/> </g>'
+
 CORE_X, CORE_W = 640, 320
 CORE_Y, CORE_H = 210, 560
 CORE_MID = CORE_Y + CORE_H / 2
@@ -167,9 +170,9 @@ def build() -> str:
         'fill="url(#glow)" opacity=".55"/>',
         f'<rect x="{CORE_X}" y="{CORE_Y}" width="{CORE_W}" height="{CORE_H}" rx="28" fill="#fff" '
         'stroke="url(#brand)" stroke-width="2.5"/>',
-        f'<rect x="{CORE_X + CORE_W / 2 - 34}" y="{CORE_Y + 34}" width="68" height="68" rx="18" fill="#111118"/>',
-        f'<path d="M{CORE_X + CORE_W / 2 - 18} {CORE_Y + 76} l11 -15 l10 7 l15 -20" fill="none" '
-        'stroke="url(#brand)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>',
+        f'<svg x="{CORE_X + CORE_W / 2 - 34}" y="{CORE_Y + 34}" width="68" height="68" viewBox="0 0 64 64">'
+        + LOGO
+        + "</svg>",
         text(CORE_X + CORE_W / 2, CORE_Y + 140, "Know Your Tokens", 26, INK, 800, "middle", 'letter-spacing="-.5"'),
         text(
             CORE_X + CORE_W / 2,

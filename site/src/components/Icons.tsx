@@ -13,24 +13,30 @@ const base = (p: SVGProps<SVGSVGElement>) => ({
   ...p,
 });
 
+/** The app icon (docs/assets/logo.svg): a lens over token bars. */
 export const Logo = (p: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 64 64" aria-hidden="true" {...p}>
     <defs>
-      <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="logo-g" gradientUnits="userSpaceOnUse" x1="12" y1="12" x2="52" y2="52">
+        <stop offset="0" stopColor="#8b7bff" />
+        <stop offset=".55" stopColor="#ec4899" />
+        <stop offset="1" stopColor="#2dd4bf" />
+      </linearGradient>
+      <linearGradient id="logo-b" gradientUnits="userSpaceOnUse" x1="0" y1="36" x2="0" y2="20">
         <stop offset="0" stopColor="#8b7bff" />
         <stop offset="1" stopColor="#2dd4bf" />
       </linearGradient>
+      <radialGradient id="logo-bg" cx=".35" cy=".3" r=".85">
+        <stop offset="0" stopColor="#2a2550" />
+        <stop offset="1" stopColor="#0d0d16" />
+      </radialGradient>
     </defs>
-    <rect width="64" height="64" rx="14" fill="#14142a" />
-    <path
-      d="M14 44 L24 30 L33 37 L50 18"
-      fill="none"
-      stroke="url(#lg)"
-      strokeWidth="6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <circle cx="50" cy="18" r="5" fill="#2dd4bf" />
+    <rect width="64" height="64" rx="14" fill="url(#logo-bg)" />
+    <rect x="20" y="29" width="4.5" height="7" rx="1.6" fill="url(#logo-b)" />
+    <rect x="26.5" y="24.5" width="4.5" height="11.5" rx="1.6" fill="url(#logo-b)" />
+    <rect x="33" y="20" width="4.5" height="16" rx="1.6" fill="url(#logo-b)" />
+    <circle cx="28.5" cy="28" r="15" fill="none" stroke="url(#logo-g)" strokeWidth="5" />
+    <path d="M39.5 39 L50 49.5" fill="none" stroke="url(#logo-g)" strokeWidth="7" strokeLinecap="round" />
   </svg>
 );
 
