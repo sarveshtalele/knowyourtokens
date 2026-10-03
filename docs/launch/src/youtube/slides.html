@@ -80,6 +80,20 @@
   #outro .cmd b { color: #2dd4bf; margin-right: 22px; }
   #outro .links { margin-top: 44px; display: flex; gap: 40px; font-size: 32px; color: var(--soft); font-weight: 600; }
   #outro .links span b { color: var(--ink); }
+  /* creator */
+  .creator { display: flex; align-items: center; gap: 22px; margin-top: 34px; background: #fff; border: 1px solid var(--line);
+    border-radius: 28px; padding: 16px 30px 16px 16px; box-shadow: 0 24px 60px -36px rgba(20,20,40,.45); max-width: 1500px; }
+  .avatar { border-radius: 50%; padding: 5px; background: var(--grad); flex: none; }
+  .avatar img { display: block; border-radius: 50%; border: 4px solid #fff; object-fit: cover; }
+  .creator .avatar img { width: 96px; height: 96px; }
+  .creator b { display: block; font-size: 30px; letter-spacing: -.02em; }
+  .creator span { display: block; font-size: 21px; color: var(--soft); margin-top: 6px; line-height: 1.35; }
+  #creatorEnd .avatar img { width: 260px; height: 260px; }
+  #creatorEnd .creds { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; max-width: 1500px; margin-top: 36px; }
+  #creatorEnd .creds span { font-size: 28px; font-weight: 650; padding: 14px 26px; border-radius: 999px; background: #fff;
+    border: 1px solid var(--line); box-shadow: 0 10px 30px -18px rgba(20,20,40,.35); }
+  #creatorEnd .follow { margin-top: 40px; font-size: 32px; color: var(--soft); }
+  #creatorEnd .follow b { color: var(--ink); }
 </style>
 </head>
 <body class="bg grid">
@@ -160,14 +174,27 @@ curl -X POST http://127.0.0.1:8000/api/v1/ingest \
 </section>
 
 <section class="scene" id="outro">
-  <img class="pop" src="../../../../site/public/icon-512.png" alt="" style="width:150px;height:150px;border-radius:36px;animation-delay:.1s" />
-  <h1 class="up" style="animation-delay:.4s;font-size:110px">Know Your <span class="g">Tokens</span></h1>
-  <div class="cmd up" style="animation-delay:.9s"><b>$</b>npx knowyourtokens</div>
-  <div class="links up" style="animation-delay:1.4s">
+  <img class="pop" src="../../../../site/public/icon-512.png" alt="" style="width:130px;height:130px;border-radius:32px;animation-delay:.1s" />
+  <h1 class="up" style="animation-delay:.4s;font-size:96px;margin:14px 0 4px">Know Your <span class="g">Tokens</span></h1>
+  <div class="cmd up" style="animation-delay:.9s;margin-top:30px"><b>$</b>npx knowyourtokens</div>
+  <div class="links up" style="animation-delay:1.4s;margin-top:30px">
     <span><b>Site</b> sarveshtalele.github.io/knowyourtokens</span>
     <span><b>GitHub</b> sarveshtalele/knowyourtokens</span>
   </div>
-  <p class="lede up" style="animation-delay:1.9s;font-size:32px">Free · MIT · 100% local · Star it if it saves you tokens ★</p>
+  <div class="creator up" style="animation-delay:2s">
+    <div class="avatar"><img src="../creator.jpg" alt="" /></div>
+    <div><b>Built by Sarvesh Talele</b><span>AI Engineer | 2x Claude Certified Architect | NASA ADS Research Paper | HarvardX AI Certified | Guinness World Record Holder</span></div>
+  </div>
+</section>
+
+<section class="scene" id="creatorEnd">
+  <div class="avatar pop" style="animation-delay:.1s"><img src="../creator.jpg" alt="" /></div>
+  <h1 class="up" style="animation-delay:.5s;font-size:96px;margin:30px 0 0">Sarvesh <span class="g">Talele</span></h1>
+  <div class="creds up" style="animation-delay:.9s">
+    <span>AI Engineer</span><span>2x Claude Certified Architect</span><span>NASA ADS Research Paper</span>
+    <span>HarvardX AI Certified</span><span>Guinness World Record Holder</span>
+  </div>
+  <p class="follow up" style="animation-delay:1.5s">Star <b>sarveshtalele/knowyourtokens</b> on GitHub and follow for more builds</p>
 </section>
 
 <script>

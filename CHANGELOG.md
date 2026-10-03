@@ -20,6 +20,10 @@ Python and JS SDKs, and the `telemetry` package share one version number.
   labels are readable on phones, and the walkthrough's footnote no longer overlaps the charts.
 
 ### Changed
+- New app icon: a lens over token bars, across the favicon, installable-app icons, CLI launchers
+  (`.png`/`.ico`/`.icns`), website, cards, screenshots and videos. Source: `docs/assets/logo.svg`.
+- Launch videos end with a creator card, and the YouTube video gains a closing end card
+  (sources in `docs/launch/src/`).
 - `scripts/release-macos.sh` also deprecates the old `tokentelemetry` npm packages and prints the
   Trusted Publisher setup for both new ones.
 
