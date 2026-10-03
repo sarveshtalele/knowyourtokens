@@ -62,10 +62,9 @@ function detectSystem() {
   log(`Platform: ${info.platform} (${info.arch})`);
   log(`Node:     ${info.node}`);
   log(`npm:      ${info.npm ? 'found' : 'MISSING'}`);
-  log(`Python:   ${info.python ? 'found' : 'MISSING (Python 3.10+ required)'}`);
-  log(`uv:       ${info.uv ? 'found (will be used for the Python env)' : 'not found (will fall back to venv/pip)'}`);
-  if (!info.npm) throw new Error('npm not found on PATH — install Node.js first.');
-  if (!info.python) throw new Error('No Python 3 interpreter found on PATH — install Python 3.10+ (or uv) first.');
+  log(`Python:   ${info.python ? 'found' : 'not found (fine: uv brings its own)'}`);
+  log(`uv:       ${info.uv ? 'found (used for the Python env)' : 'not found (the installer offers to install it)'}`);
+  if (!info.npm) throw new Error('npm not found on PATH — install Node.js 18+ from https://nodejs.org first.');
   return info;
 }
 
@@ -80,13 +79,13 @@ function buildAndInstallGlobalCommand() {
   log('Installed the global "knowyourtokens" command.');
 }
 
-function runLocalInstall() {
+async function runLocalInstall() {
   section('Configuring the app (Python env + Claude Code hooks)');
   // Called in-process against this checkout's own src/, so it works
   // immediately regardless of whether the freshly-updated PATH is visible
   // yet in this shell.
   const { install } = require(path.join(CLI_DIR, 'src', 'install.js'));
-  install();
+  await install({ yes: process.argv.includes('--yes') });
 }
 
 function printMenu() {
@@ -156,7 +155,7 @@ async function interactiveLoop() {
 async function fullSetup() {
   detectSystem();
   buildAndInstallGlobalCommand();
-  runLocalInstall();
+  await runLocalInstall();
   await interactiveLoop();
 }
 
@@ -209,6 +208,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`\nError: ${err.message}`);
+  require('./src/errors').report(err);
   process.exitCode = 1;
 });

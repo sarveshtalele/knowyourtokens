@@ -17,7 +17,7 @@ export function Tools() {
   return (
     <div className="space-y-6">
       <PageHead
-        eyebrow="Tool telemetry"
+        eyebrow="Tool usage"
         title="Tools"
         subtitle="Understand which agent tools drive context growth and execution volume."
       />

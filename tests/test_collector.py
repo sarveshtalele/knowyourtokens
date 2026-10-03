@@ -27,7 +27,7 @@ def test_hook_records_event_with_timestamp(env, monkeypatch):
 def test_hook_never_fails(env, monkeypatch):
     assert _run(monkeypatch, "not json") == 0
     (env / "not-a-dir").write_text("x")
-    monkeypatch.setenv("CLAUDE_TELEMETRY_DB", str(env / "not-a-dir" / "telemetry.db"))
+    monkeypatch.setenv("KNOWYOURTOKENS_DB", str(env / "not-a-dir" / "telemetry.db"))
     assert _run(monkeypatch, {"hook_event_name": "Stop"}) == 0
 
 

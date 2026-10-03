@@ -114,8 +114,8 @@ export function About() {
       <Section title="What's excluded on purpose">
         <p>
           Cost/pricing columns are intentionally left out of the primary UI — billing depends on the plan in effect and
-          isn't a reliable token-telemetry primitive, so it would be misleading to display it alongside exact/estimated
-          token data.
+          isn't a reliable token-usage signal, so it would be misleading to display it alongside exact/estimated token
+          data.
         </p>
       </Section>
 

@@ -77,8 +77,8 @@ export function Clients() {
       <div className="bg-surface border border-line rounded-lg p-4">
         <div className="font-bold text-sm mb-1">Classification note</div>
         <p className="text-ink-soft text-sm">
-          The telemetry layer uses available process/environment signals and transcript metadata. Treat the client field
-          as analytical classification, not a cryptographic source of truth.
+          Client detection uses available process/environment signals and transcript metadata. Treat the client field as
+          analytical classification, not a cryptographic source of truth.
         </p>
       </div>
     </div>

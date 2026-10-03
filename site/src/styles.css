@@ -3414,3 +3414,216 @@ html.lenis body {
   height: 22px;
   font-size: 12px;
 }
+
+/* ---------- installation guide, troubleshooting, VS Code ---------- */
+.guide-section,
+.vscode-section {
+  padding: clamp(56px, 7.5vw, 112px) 0;
+}
+.vscode-section {
+  background: var(--bg-2);
+}
+.guide-section > .wrap2 + .wrap2 {
+  margin-top: clamp(32px, 4vw, 56px);
+}
+#prerequisites,
+#troubleshooting,
+#guide,
+#vscode {
+  scroll-margin-top: 80px;
+}
+.guide-h {
+  margin: 0 0 16px;
+  font-size: clamp(22px, 2.4vw, 28px);
+}
+.prereq-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+@media (min-width: 760px) {
+  .prereq-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1080px) {
+  .prereq-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.vscode-section .prereq-grid {
+  margin: 24px 0;
+}
+.prereq {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.prereq p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+.prereq-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 10px;
+}
+.pill {
+  flex: none;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: var(--accent-text);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.os-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.os-tabs button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.os-tabs button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.os-steps {
+  list-style: none;
+  counter-reset: s;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.os-steps li {
+  counter-increment: s;
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px 16px 58px;
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  min-width: 0;
+}
+.os-steps li::before {
+  content: counter(s);
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--c1), var(--accent-3));
+}
+.os-steps code,
+.flag-list code,
+.trouble pre {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--code-bg);
+  color: #e9e9ff;
+  font-size: 13.5px;
+  overflow-x: auto;
+  white-space: pre;
+  max-width: 100%;
+}
+.os-steps .btn {
+  justify-self: start;
+}
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  color: #fff;
+  border-color: transparent;
+}
+.btn-accent:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  filter: brightness(1.08);
+}
+.guide-note {
+  margin: 14px 0 0;
+}
+.guide-note a {
+  color: var(--accent-text);
+}
+.flag-list {
+  margin: 20px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.flag-list > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+@media (min-width: 860px) {
+  .flag-list > div {
+    grid-template-columns: 340px 1fr;
+    align-items: center;
+    gap: 18px;
+  }
+}
+.flag-list dd {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.trouble {
+  display: grid;
+  gap: 10px;
+}
+.trouble summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 18px 20px;
+  font-weight: 650;
+  color: var(--ink);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.trouble summary::-webkit-details-marker {
+  display: none;
+}
+.trouble summary::after {
+  content: '+';
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-faint);
+  transition: transform 0.2s;
+}
+.trouble details[open] summary::after {
+  transform: rotate(45deg);
+}
+.trouble .answer {
+  display: grid;
+  gap: 10px;
+}
+.trouble pre {
+  margin: 0;
+}

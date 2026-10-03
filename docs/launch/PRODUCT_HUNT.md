@@ -114,7 +114,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 
 ```bash
 python scripts/seed_demo.py --out /tmp/tt-demo
-CLAUDE_TELEMETRY_DB=/tmp/tt-demo/telemetry.db python -m uvicorn app.main:app --app-dir backend --port 8000
+KNOWYOURTOKENS_DB=/tmp/tt-demo/telemetry.db python -m uvicorn app.main:app --app-dir backend --port 8000
 cd frontend && npm run build && npx vite preview --port 5173       # dashboard
 cd site && npm run build && npx vite preview --port 4173            # website
 ```

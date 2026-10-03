@@ -113,21 +113,40 @@ by side for every agent you use, without sending your prompts anywhere.
 
 ## Install
 
-Requires **Node.js 18+** and **Python 3.10+** (or [`uv`](https://docs.astral.sh/uv/), which is used
-automatically when present).
+### Prerequisites
+
+| | |
+|---|---|
+| **Node.js 18+** | Required. Check with `node --version`; get it from [nodejs.org](https://nodejs.org) or `winget install OpenJS.NodeJS.LTS`. |
+| **[uv](https://docs.astral.sh/uv/)** *or* **Python 3.10+** | The backend is Python. If uv is missing, the installer explains why and asks before installing it; uv then downloads its own Python. |
+| An AI coding agent | Claude Code, Codex CLI, Gemini CLI, OpenCode, or anything that can POST to the ingest API. |
 
 ```bash
 npx knowyourtokens                 # install + start (re-resolves the latest version each time)
+npx knowyourtokens --yes           # same, no questions (installs uv if needed)
+npx knowyourtokens --no-uv         # never install uv; use the Python 3.10+ on PATH
 # or, for daily use:
 npm install -g knowyourtokens
 knowyourtokens                     # install (first run) + start
 kyt doctor                         # kyt is a short alias for every command
 ```
 
-Upgrading from Token Telemetry (the old name)? Run `npx knowyourtokens@latest install`. Your data,
-hooks, launchers and `TOKENTELEMETRY_*` settings carry over as they are.
+Upgrading from Token Telemetry (the old name)? Run `npx knowyourtokens@latest install`. The app folder
+moves from `~/.tokentelemetry` to `~/.knowyourtokens` (a link is left behind), the database moves to
+`~/.knowyourtokens/data/knowyourtokens.db`, and hooks, launchers and `TOKENTELEMETRY_*` settings carry
+over.
 
-Per-OS notes, ports and troubleshooting: **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
+Something not working? Run `npx knowyourtokens doctor`: it checks every prerequisite, port, hook and
+service and prints the fix for each. Per-OS steps: **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
+Common problems (Windows ports, firewalls, proxies, uv): **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)**.
+
+### VS Code extension
+
+Token totals in the status bar, Overview / Projects / Sessions / Recent requests in the sidebar, and
+the full dashboard in an editor tab. Download
+[`knowyourtokens.vsix`](https://github.com/sarveshtalele/knowyourtokens/releases/latest/download/knowyourtokens.vsix)
+and run `code --install-extension knowyourtokens.vsix` (or Extensions → ··· → Install from VSIX…).
+Works in VS Code 1.90+, Cursor and VSCodium. See [vscode/README.md](vscode/README.md).
 
 ## Everyday commands
 
@@ -154,7 +173,7 @@ Upgrading from 1.x migrates the database automatically and backs it up first. Se
 ```bash
 knowyourtokens uninstall                          # remove the hooks, keep everything else
 knowyourtokens uninstall --purge                  # + stop services, disable autostart, delete app files
-knowyourtokens uninstall --purge --delete-data    # + delete the telemetry database
+knowyourtokens uninstall --purge --delete-data    # + delete your usage data
 npm uninstall -g knowyourtokens
 ```
 

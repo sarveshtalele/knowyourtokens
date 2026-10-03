@@ -70,7 +70,8 @@ export function Nav() {
           <a href="#demo">Demo</a>
           <a href="#debug">Debug</a>
           <a href="#calculator">Calculator</a>
-          <a href="#integrations">Integrations</a>
+          <a href="#guide">Guide</a>
+          <a href="#vscode">VS Code</a>
           <a href="#app">App</a>
         </div>
         <div className="nav-spacer" />

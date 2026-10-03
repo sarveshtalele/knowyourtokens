@@ -1,5 +1,7 @@
 # Getting help
 
+- **Install or startup problems** — run `npx knowyourtokens doctor` first, then see
+  [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) (uv, Windows ports, firewalls, proxies, permissions).
 - **Usage questions / ideas** — open a [GitHub Discussion](https://github.com/sarveshtalele/knowyourtokens/discussions)
   (or an issue labelled `question` if Discussions is disabled).
 - **Bugs** — open an issue using the *Bug report* template. Include `knowyourtokens doctor` output, and

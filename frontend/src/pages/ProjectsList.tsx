@@ -25,7 +25,7 @@ export function ProjectsList() {
       <PageHead
         eyebrow="Inventory"
         title="Projects"
-        subtitle="Every project is an independent telemetry scope with its own sessions, requests, tools and skills."
+        subtitle="Every project is an independent scope with its own sessions, requests, tools and skills."
         actions={
           <Button onClick={reload} className="flex items-center gap-1.5">
             <IconRefresh width={14} height={14} /> Discover projects

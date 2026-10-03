@@ -11,7 +11,7 @@ least. All of them are opt-in.
 | Get a spreadsheet / BI extract | Dashboard → Reports, or `GET /api/v1/reports/export` (CSV, JSON, NDJSON) |
 | Chart tokens in Grafana, Datadog, Honeycomb, New Relic… | [OpenTelemetry export](#opentelemetry-otlp) |
 | Push new usage to your own service, Slack bot, or team rollup | [Webhooks](#webhooks) |
-| Query SQL directly | Open `~/.claude/telemetry/telemetry.db` read-only (see the `v_*` views in [ARCHITECTURE.md](ARCHITECTURE.md#database-schema-v8)) |
+| Query SQL directly | Open `~/.knowyourtokens/data/knowyourtokens.db` read-only (see the `v_*` views in [ARCHITECTURE.md](ARCHITECTURE.md#database-schema-v8)) |
 
 ## Track any agent
 

@@ -1,0 +1,149 @@
+{
+  "name": "knowyourtokens",
+  "displayName": "Know Your Tokens",
+  "description": "See every token your AI coding agents use (Claude Code, Codex CLI, Gemini CLI, OpenCode and more) without leaving VS Code: today's tokens in the status bar, projects, sessions and requests in the sidebar, and the full local dashboard in a tab.",
+  "version": "2.4.0",
+  "publisher": "sarveshtalele",
+  "license": "Apache-2.0",
+  "icon": "media/icon.png",
+  "homepage": "https://sarveshtalele.github.io/knowyourtokens/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sarveshtalele/knowyourtokens.git",
+    "directory": "vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/sarveshtalele/knowyourtokens/issues"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization",
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "tokens",
+    "claude code",
+    "codex",
+    "gemini cli",
+    "opencode",
+    "llm",
+    "observability",
+    "context window",
+    "mcp",
+    "cost"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "knowyourtokens",
+          "title": "Know Your Tokens",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "knowyourtokens": [
+        { "id": "knowyourtokens.overview", "name": "Overview" },
+        { "id": "knowyourtokens.projects", "name": "Projects" },
+        { "id": "knowyourtokens.sessions", "name": "Sessions", "visibility": "collapsed" },
+        { "id": "knowyourtokens.requests", "name": "Recent requests" }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "knowyourtokens.overview",
+        "contents": "Know Your Tokens isn't running yet.\n[$(play) Start](command:knowyourtokens.start)\nFirst time? Install it once (sets up its own Python, asks before installing uv):\n[$(cloud-download) Install](command:knowyourtokens.install)\n[Run diagnostics](command:knowyourtokens.doctor) · [Troubleshooting guide](https://sarveshtalele.github.io/knowyourtokens/#troubleshooting)",
+        "when": "!knowyourtokens.connected"
+      }
+    ],
+    "commands": [
+      { "command": "knowyourtokens.openDashboard", "title": "Open Dashboard", "category": "Know Your Tokens", "icon": "$(graph)" },
+      { "command": "knowyourtokens.openInBrowser", "title": "Open Dashboard in Browser", "category": "Know Your Tokens", "icon": "$(link-external)" },
+      { "command": "knowyourtokens.refresh", "title": "Refresh", "category": "Know Your Tokens", "icon": "$(refresh)" },
+      { "command": "knowyourtokens.start", "title": "Start", "category": "Know Your Tokens", "icon": "$(play)" },
+      { "command": "knowyourtokens.stop", "title": "Stop", "category": "Know Your Tokens", "icon": "$(debug-stop)" },
+      { "command": "knowyourtokens.install", "title": "Install or Update", "category": "Know Your Tokens" },
+      { "command": "knowyourtokens.doctor", "title": "Run Diagnostics (doctor)", "category": "Know Your Tokens" },
+      { "command": "knowyourtokens.openItem", "title": "Open in Dashboard", "category": "Know Your Tokens" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "knowyourtokens.refresh", "when": "view =~ /^knowyourtokens\\./", "group": "navigation@1" },
+        { "command": "knowyourtokens.openDashboard", "when": "view =~ /^knowyourtokens\\./", "group": "navigation@2" },
+        { "command": "knowyourtokens.start", "when": "view == knowyourtokens.overview && !knowyourtokens.connected", "group": "navigation@0" },
+        { "command": "knowyourtokens.stop", "when": "view == knowyourtokens.overview && knowyourtokens.connected", "group": "overflow" },
+        { "command": "knowyourtokens.doctor", "when": "view == knowyourtokens.overview", "group": "overflow" },
+        { "command": "knowyourtokens.install", "when": "view == knowyourtokens.overview", "group": "overflow" }
+      ],
+      "view/item/context": [
+        { "command": "knowyourtokens.openItem", "when": "viewItem =~ /^kyt-(project|request|session)$/", "group": "inline" }
+      ],
+      "commandPalette": [
+        { "command": "knowyourtokens.openItem", "when": "false" }
+      ]
+    },
+    "configuration": {
+      "title": "Know Your Tokens",
+      "properties": {
+        "knowyourtokens.backendPort": {
+          "type": "number",
+          "default": 0,
+          "description": "API port. 0 = find it automatically (KNOWYOURTOKENS_BACKEND_PORT, the port the app picked, or 8000)."
+        },
+        "knowyourtokens.dashboardPort": {
+          "type": "number",
+          "default": 0,
+          "description": "Dashboard port. 0 = find it automatically (KNOWYOURTOKENS_DASHBOARD_PORT, the port the app picked, or 5173)."
+        },
+        "knowyourtokens.refreshInterval": {
+          "type": "number",
+          "default": 30,
+          "minimum": 5,
+          "description": "Seconds between refreshes of the status bar and the sidebar."
+        },
+        "knowyourtokens.statusBar": {
+          "type": "string",
+          "enum": ["today", "7d", "all", "off"],
+          "enumDescriptions": ["Tokens used today", "Tokens used in the last 7 days", "All-time tokens", "Hide the status bar item"],
+          "default": "today",
+          "description": "What the status bar item shows."
+        },
+        "knowyourtokens.cliCommand": {
+          "type": "string",
+          "default": "npx knowyourtokens@latest",
+          "description": "Command used to run the Know Your Tokens CLI (e.g. \"knowyourtokens\" if it's installed globally)."
+        },
+        "knowyourtokens.requestCount": {
+          "type": "number",
+          "default": 50,
+          "minimum": 5,
+          "maximum": 500,
+          "description": "How many recent requests and sessions the sidebar lists."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node esbuild.mjs --tests && node --test \"dist-test/*.test.js\"",
+    "package": "vsce package --no-dependencies --out knowyourtokens.vsix",
+    "vscode:prepublish": "node esbuild.mjs --production"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/vscode": "1.90.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}
