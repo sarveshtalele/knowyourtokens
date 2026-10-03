@@ -87,11 +87,32 @@ The release workflow (`.github/workflows/publish.yml`) publishes two npm package
 
 > Never paste the token into an issue, a PR, a chat or a file. Only put it in the secret.
 
-**Later, optional (tokenless):** once both packages exist, add a Trusted Publisher on each
-(https://www.npmjs.com/package/knowyourtokens/access and
-https://www.npmjs.com/package/knowyourtokens-client/access → **Trusted Publisher → GitHub Actions** →
-user `sarveshtalele`, repository `knowyourtokens`, workflow `publish.yml`, environment empty), then
-delete the `NPM_TOKEN` secret.
+### Trusted Publisher (tokenless, recommended)
+
+Once both packages exist on npm (they do since 2.3.0), CI can publish with a short-lived identity
+from GitHub instead of a stored token. Nothing to renew, nothing to leak. Do this once per package:
+
+1. Open https://www.npmjs.com/package/knowyourtokens/access (signed in as the package owner).
+2. Scroll to **Trusted Publisher** → **GitHub Actions**, and fill in exactly:
+
+   | Field | Value |
+   |---|---|
+   | Organization or user | `sarveshtalele` |
+   | Repository | `knowyourtokens` |
+   | Workflow filename | `publish.yml` (file name only, no path) |
+   | Environment name | leave empty |
+
+3. **Set up connection**. npm may ask for your 2FA code.
+4. Repeat steps 1–3 on https://www.npmjs.com/package/knowyourtokens-client/access.
+5. Optional hardening, on each package's **access** page: **Publishing access → Require two-factor
+   authentication and disallow tokens** → **Update package settings**. Tokens then can't publish at
+   all; only this workflow can.
+6. Delete the token: GitHub → **Settings → Secrets and variables → Actions** → `NPM_TOKEN` →
+   **Remove**. Also revoke it on npm (avatar → **Access Tokens** → delete).
+
+The workflow already has what it needs (`id-token: write` and npm ≥ 11.5.1), so there's nothing to
+change in the code. The next release publishes through the Trusted Publisher automatically. If it
+fails with `403 ... OIDC`, re-check the four fields above.
 
 ## 5. Releases are automatic
 

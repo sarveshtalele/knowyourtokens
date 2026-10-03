@@ -2,7 +2,7 @@
 
 Thanks for helping! Issues, docs fixes, and PRs are all welcome. Please read the
 [Code of Conduct](CODE_OF_CONDUCT.md) first. By contributing you agree your contribution is licensed
-under the project's [MIT license](LICENSE).
+under the project's [Apache 2.0 license](LICENSE).
 
 ## Quick start
 

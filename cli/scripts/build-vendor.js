@@ -60,7 +60,7 @@ function main() {
   copyFiltered(path.join(REPO_ROOT, 'hooks'), path.join(VENDOR, 'hooks'));
   // backend/requirements.txt (the only Python deps "knowyourtokens start" needs)
   // is already inside vendor/backend/ from the copy above.
-  fs.copyFileSync(path.join(REPO_ROOT, 'LICENSE'), path.join(CLI_ROOT, 'LICENSE'));
+  for (const f of ['LICENSE', 'NOTICE']) fs.copyFileSync(path.join(REPO_ROOT, f), path.join(CLI_ROOT, f));
 
   log('Building frontend…');
   const dist = buildFrontend();

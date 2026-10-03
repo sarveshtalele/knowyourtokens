@@ -34,7 +34,7 @@ app = FastAPI(
         "Read-only REST API over the local Know Your Tokens database. Binds to 127.0.0.1; "
         "see docs/API.md for conventions (envelopes, filters, pagination, time zones)."
     ),
-    license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+    license_info={"name": "Apache-2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0"},
     lifespan=lifespan,
 )
 

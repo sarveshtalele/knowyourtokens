@@ -54,4 +54,4 @@ ok = verify_signature(secret, raw_body_bytes, request.headers["X-KnowYourTokens-
 ```
 
 Full API reference: [`docs/API.md`](https://github.com/sarveshtalele/knowyourtokens/blob/main/docs/API.md).
-License: MIT. Independent project; not affiliated with Anthropic, OpenAI, Google or any agent vendor.
+License: Apache 2.0 (see LICENSE and NOTICE). Created by Sarvesh Talele. Independent project; not affiliated with Anthropic, OpenAI, Google or any agent vendor.

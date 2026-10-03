@@ -11,7 +11,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 | Tagline (≤ 60) | Every AI coding agent, every token, one local dashboard |
 | Website | https://sarveshtalele.github.io/knowyourtokens/ |
 | Source | https://github.com/sarveshtalele/knowyourtokens |
-| Pricing | Free (MIT, open source) |
+| Pricing | Free (Apache 2.0, open source) |
 | Topics | Developer Tools · Artificial Intelligence · Open Source · Analytics |
 | Thumbnail | [`thumbnail-240.png`](thumbnail-240.png) (240×240) |
 | Social / LinkedIn | [`social-preview-1280x640.png`](social-preview-1280x640.png) · [`linkedin-1200x627.png`](linkedin-1200x627.png) · [`linkedin-portrait-1080x1350.png`](linkedin-portrait-1080x1350.png) |
@@ -58,7 +58,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 > It's also **built to integrate**: a typed REST API with OpenAPI, Python and TypeScript SDKs,
 > OpenTelemetry export (Grafana, Datadog, Honeycomb) and HMAC-signed webhooks.
 >
-> MIT licensed. I'd love feedback, issues and PRs, especially on which views you'd want next.
+> Apache 2.0 licensed. I'd love feedback, issues and PRs, especially on which views you'd want next.
 >
 > *(Independent project, not affiliated with Anthropic, OpenAI, Google or any agent vendor.)*
 
@@ -68,7 +68,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 
 > Shipped Know Your Tokens on Product Hunt today 🚀
 > One local dashboard for every AI coding agent: Claude Code, Codex, Gemini CLI, OpenCode and anything
-> else via API. Debug the prompt behind any spike. 100% local, MIT.
+> else via API. Debug the prompt behind any spike. 100% local, Apache 2.0.
 > `npx knowyourtokens`
 > [PH link]
 
