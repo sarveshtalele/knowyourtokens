@@ -222,7 +222,7 @@ def build() -> str:
     foot = text(
         W / 2,
         H - 28,
-        "github.com/sarveshtalele/knowyourtokens · MIT · not affiliated with any agent vendor",
+        "github.com/sarveshtalele/knowyourtokens · Apache 2.0 · not affiliated with any agent vendor",
         13,
         MUTED,
         450,

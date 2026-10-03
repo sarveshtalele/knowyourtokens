@@ -13,6 +13,7 @@ import { Demo } from './sections/Demo';
 import { Dock } from './sections/Dock';
 import { Hero } from './sections/Hero';
 import { Highlights } from './sections/Highlights';
+import { Watch } from './sections/Watch';
 import { Install, Specs } from './sections/Install';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
       <main id="main">
         <Highlights />
         <Agents />
+        <Watch />
         <Problem />
         <Demo />
         <DebugFlow />

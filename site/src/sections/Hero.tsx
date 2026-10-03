@@ -2,6 +2,7 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'fr
 import { useRef, useState } from 'react';
 import { CopyInstall } from '../components/CopyInstall';
 import { DemoApp } from '../demo/DemoApp';
+import { PRODUCT_HUNT_URL } from './Watch';
 
 /**
  * Hero: the headline and install command sit in their own block (always
@@ -66,6 +67,19 @@ export function Hero() {
           <CopyInstall />
           <a className="link-arrow" href="#demo">
             Take the tour
+          </a>
+        </motion.div>
+        <motion.div
+          className="hero2-launch"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.6 }}
+        >
+          <a href="#watch">
+            <i style={{ background: '#f00' }}>▶</i> Watch the 2½-min demo
+          </a>
+          <a href={PRODUCT_HUNT_URL} target="_blank" rel="noopener noreferrer">
+            <i style={{ background: '#da552f' }}>P</i> Launching on Product Hunt
           </a>
         </motion.div>
       </div>

@@ -42,6 +42,19 @@ One command sets up a Python environment, starts the backend, the collector daem
 at **http://127.0.0.1:5173**, and picks up every supported agent it finds on your machine. It runs on
 Windows, macOS and Linux.
 
+## Launch
+
+<p align="center">
+  <a href="https://www.producthunt.com/products/know-your-tokens"><img src="docs/launch/launch-post-1080x1350.jpg" width="540" alt="Know Your Tokens launch: my AI agent used 312,418 tokens on one prompt, and the prompt debugger found the log file that caused it. Features, supported agents, npx knowyourtokens, and links to Product Hunt, the YouTube demo and GitHub."></a>
+</p>
+
+<p align="center">
+  🚀 <a href="https://www.producthunt.com/products/know-your-tokens"><b>Product Hunt</b></a> ·
+  🎬 <a href="https://youtu.be/c1reSpX-c4M"><b>2½-min demo</b></a> ·
+  ⚡ <a href="https://youtube.com/shorts/tEfAGMGZOaI"><b>36-second Short</b></a> ·
+  🌐 <a href="https://sarveshtalele.github.io/knowyourtokens/#watch"><b>Website</b></a>
+</p>
+
 ## Supported agents
 
 | Agent | How it's read | Live? |

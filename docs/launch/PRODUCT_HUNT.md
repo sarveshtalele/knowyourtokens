@@ -15,6 +15,7 @@ fictional demo data (`python scripts/seed_demo.py`), so they contain no real pro
 | Topics | Developer Tools · Artificial Intelligence · Open Source · Analytics |
 | Thumbnail | [`thumbnail-240.png`](thumbnail-240.png) (240×240) |
 | Social / LinkedIn | [`social-preview-1280x640.png`](social-preview-1280x640.png) · [`linkedin-1200x627.png`](linkedin-1200x627.png) · [`linkedin-portrait-1080x1350.png`](linkedin-portrait-1080x1350.png) |
+| One-image launch post | [`launch-post-1080x1350.jpg`](launch-post-1080x1350.jpg) (4:5, for LinkedIn, Instagram and X) |
 | Live links | Product Hunt: https://www.producthunt.com/products/know-your-tokens (launches Oct 4, 2026, 12:01 AM PDT) · YouTube: https://youtu.be/c1reSpX-c4M · Short: https://youtube.com/shorts/tEfAGMGZOaI |
 | Videos | Kept out of the repository: the 36.5 s reel (9:16) and the 2:33 YouTube launch + guide (16:9), with their caption files, live with the maintainer. Rebuild them from the sources in [`src/`](src) (`youtube/record.cjs`, `audio/`); YouTube thumbnail [`youtube-thumbnail-1280x720.png`](youtube-thumbnail-1280x720.png) |
 | Gallery | [`gallery/`](gallery) (1270×760, in order 01 → 07) |

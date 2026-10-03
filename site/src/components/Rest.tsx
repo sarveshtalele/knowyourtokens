@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { CopyInstall } from './CopyInstall';
 import { IconCheck, IconGithub, IconPlus } from './Icons';
 import { Reveal, fadeUp } from './motion';
+import { PRODUCT_HUNT_URL, SHORT_URL, YOUTUBE_URL } from '../sections/Watch';
 
 const REPO = 'https://github.com/sarveshtalele/knowyourtokens';
 
@@ -180,6 +181,12 @@ export function FinalCta() {
             <a className="btn" href={REPO}>
               <IconGithub /> Source on GitHub
             </a>
+            <a className="btn" href={PRODUCT_HUNT_URL} target="_blank" rel="noopener noreferrer">
+              <span className="ph-logo ph-logo-sm" aria-hidden="true">
+                P
+              </span>
+              Upvote on Product Hunt
+            </a>
           </div>
         </motion.div>
       </div>
@@ -247,6 +254,15 @@ export function Footer() {
             </li>
             <li>
               <a href="https://www.npmjs.com/package/knowyourtokens">npm</a>
+            </li>
+            <li>
+              <a href={PRODUCT_HUNT_URL}>Product Hunt</a>
+            </li>
+            <li>
+              <a href={YOUTUBE_URL}>YouTube demo</a>
+            </li>
+            <li>
+              <a href={SHORT_URL}>YouTube Short</a>
             </li>
           </ul>
         </nav>

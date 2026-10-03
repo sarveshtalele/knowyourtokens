@@ -62,6 +62,7 @@ for (const dir of ['cli', 'sdk/js', 'frontend', 'site']) {
 
 // The OpenAPI document carries the app version in info.version (CI checks it is in sync).
 sub('docs/openapi.json', /("title": "Know Your Tokens API",\s*"version": )"[^"]+"/, `$1"${next}"`);
+sub('site/index.html', /("softwareVersion": )"[^"]+"/, `$1"${next}"`);
 
 // CHANGELOG: Unreleased notes become the new version's section.
 const date = new Date().toISOString().slice(0, 10);
