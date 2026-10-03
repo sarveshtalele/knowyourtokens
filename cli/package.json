@@ -1,6 +1,6 @@
 {
   "name": "knowyourtokens",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Local-first token observability for every AI coding agent: Claude Code, Codex CLI, Gemini CLI, OpenCode and more. Debug prompts, context and cost.",
   "bin": {
     "knowyourtokens": "bin/knowyourtokens.js",
