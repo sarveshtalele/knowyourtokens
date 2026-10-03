@@ -23,7 +23,7 @@ export function SessionCard({ s, onClick }: { s: SessionRow; onClick?: () => voi
     <button
       type="button"
       onClick={onClick}
-      className="text-left w-full bg-surface-muted rounded-lg p-4 cursor-pointer hover:ring-2 hover:ring-accent-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-soft"
+      className="text-left w-full bg-surface-muted rounded-lg p-4 cursor-pointer hover:ring-2 hover:ring-accent-soft focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-accent-soft"
     >
       {body}
     </button>

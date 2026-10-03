@@ -36,7 +36,7 @@ export function ProjectsList() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search projects…"
-        className="h-10 border border-line bg-surface rounded-md px-3 text-sm w-full max-w-sm outline-none focus:border-accent focus:ring-4 focus:ring-accent-soft"
+        className="h-10 border border-line bg-surface rounded-md px-3 text-sm w-full max-w-sm outline-hidden focus:border-accent focus:ring-4 focus:ring-accent-soft"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.length === 0 ? (

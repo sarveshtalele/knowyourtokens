@@ -85,7 +85,7 @@ export function Requests() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search project, model, client…"
-          className="h-10 border border-line bg-surface rounded-md px-3 text-sm min-w-[260px] flex-1 outline-none focus:border-accent focus:ring-4 focus:ring-accent-soft"
+          className="h-10 border border-line bg-surface rounded-md px-3 text-sm min-w-[260px] flex-1 outline-hidden focus:border-accent focus:ring-4 focus:ring-accent-soft"
         />
         <ProjectFilter
           projects={projects.map((p) => p.project)}
