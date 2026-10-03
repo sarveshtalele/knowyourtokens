@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { CopyInstall } from './CopyInstall';
 import { IconCheck, IconGithub, IconPlus } from './Icons';
 import { Reveal, fadeUp } from './motion';
-import { PRODUCT_HUNT_URL, SHORT_URL, YOUTUBE_URL } from '../sections/Watch';
+import { PRODUCT_HUNT_URL, YOUTUBE_URL } from '../sections/Watch';
 
 const REPO = 'https://github.com/sarveshtalele/knowyourtokens';
 
@@ -259,10 +259,7 @@ export function Footer() {
               <a href={PRODUCT_HUNT_URL}>Product Hunt</a>
             </li>
             <li>
-              <a href={YOUTUBE_URL}>YouTube demo</a>
-            </li>
-            <li>
-              <a href={SHORT_URL}>YouTube Short</a>
+              <a href={YOUTUBE_URL}>Demo video</a>
             </li>
           </ul>
         </nav>
