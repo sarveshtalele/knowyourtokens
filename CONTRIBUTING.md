@@ -100,7 +100,8 @@ Releases are automated by `.github/workflows/publish.yml`. Pick one:
   provenance, and creates the GitHub release.
 - **Through a PR:** run `node scripts/bump-version.mjs patch` locally, open a PR, merge it. The version
   change on `main` triggers the same publish.
-- **From a Mac by hand:** `bash scripts/release-macos.sh` (publishes from your own npm login).
+- **Any merge to `main`** publishes the version in `cli/package.json` if it isn't on npm yet.
+- **From a Mac by hand (fallback):** `bash scripts/release-macos.sh` (publishes from your own npm login).
 
 Keep the CHANGELOG's Unreleased section up to date in each PR; that becomes the release notes.
 

@@ -6,7 +6,7 @@ Security fixes ship in the next release of the npm packages (`knowyourtokens`,
 `knowyourtokens-client`) and are listed under **Security** in
 [CHANGELOG.md](CHANGELOG.md). Only the latest release is supported, so upgrade with
 `npx knowyourtokens@latest install`. There are no maintained release branches or
-backports. The old `tokentelemetry` packages are deprecated and get no fixes.
+backports. The old `tokentelemetry` packages have been removed from npm.
 
 ## Reporting a vulnerability
 
