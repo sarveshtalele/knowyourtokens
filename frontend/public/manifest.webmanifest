@@ -1,7 +1,7 @@
 {
   "name": "Know Your Tokens",
   "short_name": "Your Tokens",
-  "description": "Local-first token, tool, skill and MCP observability for Claude Code",
+  "description": "Local-first token, tool, skill and MCP observability for every AI coding agent",
   "id": "/",
   "start_url": "/",
   "scope": "/",

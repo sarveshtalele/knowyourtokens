@@ -291,7 +291,8 @@ async function app(ctx, name, startPath, fn) {
 
   await slide(browser, '15-ingest', 's=ingest', 6.2);
   await slide(browser, '16-map', 's=map', 6.5);
-  await slide(browser, '17-outro', 's=outro', 7.5);
+  await slide(browser, '17-outro', 's=outro', 8.5);
+  await slide(browser, '18-creator', 's=creatorEnd', 6.5);
 
   await browser.close();
 })().catch((e) => {

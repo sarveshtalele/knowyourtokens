@@ -585,12 +585,14 @@
         "properties": {
           "cache_read_tokens": {
             "default": 0,
+            "maximum": 1000000000000.0,
             "minimum": 0.0,
             "title": "Cache Read Tokens",
             "type": "integer"
           },
           "cache_write_tokens": {
             "default": 0,
+            "maximum": 1000000000000.0,
             "minimum": 0.0,
             "title": "Cache Write Tokens",
             "type": "integer"
@@ -598,6 +600,7 @@
           "cwd": {
             "anyOf": [
               {
+                "maxLength": 4096,
                 "type": "string"
               },
               {
@@ -609,6 +612,7 @@
           },
           "input_tokens": {
             "default": 0,
+            "maximum": 1000000000000.0,
             "minimum": 0.0,
             "title": "Input Tokens",
             "type": "integer"
@@ -616,6 +620,7 @@
           "model": {
             "anyOf": [
               {
+                "maxLength": 512,
                 "type": "string"
               },
               {
@@ -626,6 +631,7 @@
           },
           "output_tokens": {
             "default": 0,
+            "maximum": 1000000000000.0,
             "minimum": 0.0,
             "title": "Output Tokens",
             "type": "integer"
@@ -633,6 +639,7 @@
           "project": {
             "anyOf": [
               {
+                "maxLength": 4096,
                 "type": "string"
               },
               {
@@ -645,6 +652,7 @@
           "prompt": {
             "anyOf": [
               {
+                "maxLength": 2000000,
                 "type": "string"
               },
               {
@@ -656,6 +664,7 @@
           "request_id": {
             "anyOf": [
               {
+                "maxLength": 512,
                 "type": "string"
               },
               {
@@ -668,6 +677,7 @@
           "response": {
             "anyOf": [
               {
+                "maxLength": 2000000,
                 "type": "string"
               },
               {
@@ -679,6 +689,7 @@
           "session_id": {
             "anyOf": [
               {
+                "maxLength": 512,
                 "type": "string"
               },
               {
@@ -690,6 +701,7 @@
           "timestamp": {
             "anyOf": [
               {
+                "maxLength": 64,
                 "type": "string"
               },
               {
@@ -711,6 +723,7 @@
                 }
               ]
             },
+            "maxItems": 1000,
             "title": "Tool Calls",
             "type": "array"
           }
@@ -766,6 +779,7 @@
           "id": {
             "anyOf": [
               {
+                "maxLength": 512,
                 "type": "string"
               },
               {
@@ -787,6 +801,7 @@
             "title": "Input"
           },
           "name": {
+            "maxLength": 512,
             "title": "Name",
             "type": "string"
           }

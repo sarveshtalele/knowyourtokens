@@ -16,6 +16,7 @@ from telemetry import config
 
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1", "[::1]", "testserver"}
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
+MAX_BODY_BYTES = 64 * 1024 * 1024  # an ingest batch of 1000 records fits comfortably
 
 
 def allowed_hosts():
@@ -44,10 +45,21 @@ class LocalOnlyMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         if _hostname(request.headers.get("host")) not in allowed_hosts():
             return JSONResponse({"error": {"code": "forbidden_host", "message": "Host not allowed"}}, status_code=403)
-        if request.method not in SAFE_METHODS and not origin_allowed(request.headers.get("origin")):
-            return JSONResponse(
-                {"error": {"code": "forbidden_origin", "message": "Cross-origin request blocked"}}, status_code=403
-            )
+        if request.method not in SAFE_METHODS:
+            if not origin_allowed(request.headers.get("origin")):
+                return JSONResponse(
+                    {"error": {"code": "forbidden_origin", "message": "Cross-origin request blocked"}}, status_code=403
+                )
+            # Bound memory per request: the body is parsed in full before validation runs.
+            length = request.headers.get("content-length")
+            if length is not None and (not length.isdigit() or int(length) > MAX_BODY_BYTES):
+                return JSONResponse(
+                    {"error": {"code": "payload_too_large", "message": "Request body too large"}}, status_code=413
+                )
+            if length is None and "chunked" in request.headers.get("transfer-encoding", "").lower():
+                return JSONResponse(
+                    {"error": {"code": "length_required", "message": "Send a Content-Length header"}}, status_code=411
+                )
         response = await call_next(request)
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("Referrer-Policy", "no-referrer")

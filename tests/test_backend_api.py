@@ -220,3 +220,16 @@ def test_ingest_any_agent_is_idempotent_and_listed_as_a_client(client):
 def test_ingest_rejects_cross_site_posts(client):
     r = client.post("/api/v1/ingest", json={"agent": "x", "records": []}, headers={"Origin": "https://evil.example"})
     assert r.status_code == 403
+
+
+def test_ingest_rejects_oversized_input(client):
+    huge = {"agent": "x", "records": [{"request_id": "r", "input_tokens": 10**13}]}
+    assert client.post("/api/v1/ingest", json=huge).status_code == 422
+    long_id = {"agent": "x", "records": [{"request_id": "r" * 600}]}
+    assert client.post("/api/v1/ingest", json=long_id).status_code == 422
+    r = client.post(
+        "/api/v1/ingest",
+        content=b"{}",
+        headers={"content-type": "application/json", "content-length": str(65 * 1024 * 1024)},
+    )
+    assert r.status_code == 413

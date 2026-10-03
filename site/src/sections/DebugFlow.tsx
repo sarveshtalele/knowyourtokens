@@ -138,7 +138,11 @@ function SpotScene() {
             }}
           >
             {i === 7 && (
-              <motion.em initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+              <motion.em
+                initial={{ opacity: 0, y: 8, x: '-50%' }}
+                animate={{ opacity: 1, y: 0, x: '-50%' }}
+                transition={{ delay: 0.7 }}
+              >
                 312.4K tokens · 41% cached
               </motion.em>
             )}
@@ -278,27 +282,31 @@ function VerifyScene() {
       </div>
       <div className="sc-compare">
         <div>
-          <motion.span
-            className="bar before"
-            initial={{ height: 0 }}
-            animate={{ height: '100%' }}
-            transition={{ type: 'spring', stiffness: 80, damping: 16 }}
-          />
+          <span className="sc-track">
+            <motion.span
+              className="sc-bar before"
+              initial={{ height: 0 }}
+              animate={{ height: '100%' }}
+              transition={{ type: 'spring', stiffness: 80, damping: 16 }}
+            />
+          </span>
           <b>312K</b>
           <small>Before</small>
         </div>
         <div>
-          <motion.span
-            className="bar after"
-            initial={{ height: 0 }}
-            animate={{ height: '8%' }}
-            transition={{
-              delay: 0.4,
-              type: 'spring',
-              stiffness: 80,
-              damping: 16,
-            }}
-          />
+          <span className="sc-track">
+            <motion.span
+              className="sc-bar after"
+              initial={{ height: 0 }}
+              animate={{ height: '8%' }}
+              transition={{
+                delay: 0.4,
+                type: 'spring',
+                stiffness: 80,
+                damping: 16,
+              }}
+            />
+          </span>
           <b>24K</b>
           <small>After</small>
         </div>

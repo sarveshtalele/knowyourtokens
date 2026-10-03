@@ -116,6 +116,13 @@ if [ "$DRY" = 1 ]; then warn "skipped (dry run)"; else
     published "$p" "$V" && ok "npm serves $p@$V" \
       || warn "$p@$V isn't visible yet. npm can take a few minutes; check later with: npm view $p version --prefer-online"
   done
+  # Point the pre-rename packages here (once). Needs your login, so it lives here rather than in CI.
+  for pair in tokentelemetry:knowyourtokens tokentelemetry-client:knowyourtokens-client; do
+    old="${pair%%:*}" new="${pair##*:}"
+    if [ -n "$(npm view "$old" deprecated 2>/dev/null)" ]; then ok "$old already points to $new"
+    elif npm deprecate "$old" "Renamed to $new (same project, nothing to migrate): npx $new"; then ok "deprecated $old -> $new"
+    else warn "couldn't deprecate $old (fine to skip)"; fi
+  done
 fi
 
 # 7 ─────────────────────────────────────────────────────────────────────────
@@ -159,7 +166,10 @@ cat <<EOF
   [ ] Repo About: description, website, topics ........ https://github.com/sarveshtalele/knowyourtokens
   [ ] Social preview: docs/launch/social-preview-1280x640.png
                                     ........ https://github.com/sarveshtalele/knowyourtokens/settings
-  [ ] Trusted publishing for both npm packages ........ https://www.npmjs.com/package/knowyourtokens-client/access
+  [ ] Trusted Publisher on BOTH packages, so CI publishes with no token:
+        https://www.npmjs.com/package/knowyourtokens/access
+        https://www.npmjs.com/package/knowyourtokens-client/access
+      GitHub Actions -> user sarveshtalele, repo knowyourtokens, workflow publish.yml, environment empty
   [ ] Enable Discussions + private vulnerability reporting
   [ ] Protect main (require CI) ....................... https://github.com/sarveshtalele/knowyourtokens/settings/rules
   [ ] Google Search Console + submit sitemap.xml ...... https://search.google.com/search-console
