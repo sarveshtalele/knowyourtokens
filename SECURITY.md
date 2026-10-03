@@ -2,10 +2,11 @@
 
 ## Supported versions
 
-This project ships on a rolling basis from the `main` branch — there are no
-maintained release branches. Security fixes land on `main` and are
-documented in the commit history; there is no separate LTS or backport
-policy at this stage.
+Security fixes ship in the next release of the npm packages (`knowyourtokens`,
+`knowyourtokens-client`) and are listed under **Security** in
+[CHANGELOG.md](CHANGELOG.md). Only the latest release is supported, so upgrade with
+`npx knowyourtokens@latest install`. There are no maintained release branches or
+backports. The old `tokentelemetry` packages are deprecated and get no fixes.
 
 ## Reporting a vulnerability
 

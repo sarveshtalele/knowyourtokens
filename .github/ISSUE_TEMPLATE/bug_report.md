@@ -19,12 +19,13 @@ What should have happened instead.
 
 **Environment**
 - OS: [Windows / macOS / Linux]
-- Install method: [`node cli/setup.js` / `knowyourtokens` global command / manual dev setup]
+- Agent(s): [Claude Code / Codex CLI / Gemini CLI / OpenCode / pushed through the ingest API]
+- Install method: [`npx knowyourtokens` / global `npm install -g knowyourtokens` / dev setup from a clone]
 - `knowyourtokens --version`:
 - `knowyourtokens doctor` output:
 
 **Logs**
-Relevant lines from `~/.knowyourtokens/logs/backend.log` / `daemon.log` / `frontend.log`,
+Relevant lines from `~/.knowyourtokens/logs/backend.log` (or `~/.tokentelemetry/logs/` on older installs) / `daemon.log` / `frontend.log`,
 `~/.claude/telemetry/hook-errors.log`, or
 the browser console, if applicable. Please don't paste actual prompt/response content —
 just the error.
