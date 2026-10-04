@@ -71,7 +71,6 @@ export function Nav() {
           <a href="#debug">Debug</a>
           <a href="#calculator">Calculator</a>
           <a href="#guide">Guide</a>
-          <a href="#vscode">VS Code</a>
           <a href="#app">App</a>
         </div>
         <div className="nav-spacer" />

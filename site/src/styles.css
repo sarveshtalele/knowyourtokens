@@ -3415,21 +3415,16 @@ html.lenis body {
   font-size: 12px;
 }
 
-/* ---------- installation guide, troubleshooting, VS Code ---------- */
-.guide-section,
-.vscode-section {
+/* ---------- installation guide and troubleshooting ---------- */
+.guide-section {
   padding: clamp(56px, 7.5vw, 112px) 0;
-}
-.vscode-section {
-  background: var(--bg-2);
 }
 .guide-section > .wrap2 + .wrap2 {
   margin-top: clamp(32px, 4vw, 56px);
 }
 #prerequisites,
 #troubleshooting,
-#guide,
-#vscode {
+#guide {
   scroll-margin-top: 80px;
 }
 .guide-h {
@@ -3450,9 +3445,6 @@ html.lenis body {
   .prereq-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-}
-.vscode-section .prereq-grid {
-  margin: 24px 0;
 }
 .prereq {
   border: 1px solid var(--line);
@@ -3553,18 +3545,6 @@ html.lenis body {
   overflow-x: auto;
   white-space: pre;
   max-width: 100%;
-}
-.os-steps .btn {
-  justify-self: start;
-}
-.btn-accent {
-  background: linear-gradient(135deg, var(--accent), var(--accent-3));
-  color: #fff;
-  border-color: transparent;
-}
-.btn-accent:hover {
-  background: linear-gradient(135deg, var(--accent), var(--accent-3));
-  filter: brightness(1.08);
 }
 .guide-note {
   margin: 14px 0 0;

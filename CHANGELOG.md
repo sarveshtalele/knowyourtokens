@@ -7,6 +7,12 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+### Removed
+- The VS Code extension, for now: the `vscode/` package, its CI job and release step, and its
+  landing-page section and docs. Releases no longer attach `knowyourtokens.vsix` (files already on the
+  v2.4.0 and v2.4.1 releases stay where they are). The dashboard goes back to refusing every frame
+  (`X-Frame-Options: DENY`, `frame-ancestors 'none'`).
+
 ## [2.4.1] - 2026-10-04
 
 ### Fixed

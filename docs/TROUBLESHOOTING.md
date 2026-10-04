@@ -15,8 +15,7 @@ Fixes for the problems people actually hit, organised by symptom. Installation s
 8. [`knowyourtokens` command not found](#knowyourtokens-command-not-found)
 9. [No data shows up](#no-data-shows-up)
 10. [Linux: autostart can't reach the session bus](#linux-autostart-cant-reach-the-session-bus)
-11. [VS Code extension shows "offline"](#vs-code-extension-shows-offline)
-12. [Still stuck](#still-stuck)
+11. [Still stuck](#still-stuck)
 
 ## Start here: doctor and logs
 
@@ -175,15 +174,6 @@ Minimal or headless systems may not run a per-user systemd instance. The unit is
 `~/.config/systemd/user/knowyourtokens.service`. Once a user session exists (log in to a desktop, or
 `loginctl enable-linger $USER` on a server), run
 `systemctl --user enable --now knowyourtokens.service`.
-
-## VS Code extension shows "offline"
-
-The extension reads the local app, so the app has to be running. Click **Start** in the Know Your
-Tokens sidebar (or run **Know Your Tokens: Start** from the Command Palette); it runs the CLI in a
-terminal where any error is shown. If the app runs on non-default ports, the extension picks them up
-from `ports.json` automatically, or set `knowyourtokens.backendPort` / `knowyourtokens.dashboardPort`
-in settings. If the CLI isn't found, set `knowyourtokens.cliCommand` (default
-`npx knowyourtokens@latest`).
 
 ## Still stuck
 

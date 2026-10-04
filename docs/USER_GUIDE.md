@@ -22,7 +22,6 @@ OpenCode, and anything you push through the [ingest API](INTEGRATIONS.md#track-a
 9. [Settings](#settings)
 10. [About](#about)
 11. [Dark / light mode](#dark--light-mode)
-12. [VS Code extension](#vs-code-extension)
 
 ## Exact vs. estimated data
 
@@ -203,23 +202,3 @@ counts on the 1st even if that is already the 2nd in UTC. Stored timestamps are 
 
 Settings shows whether the OpenTelemetry and webhook exporters are on and how many rows are pending.
 See [INTEGRATIONS.md](INTEGRATIONS.md) to enable them, and [API.md](API.md) to query your data directly.
-
-## VS Code extension
-
-Install `knowyourtokens.vsix` from the
-[latest release](https://github.com/sarveshtalele/knowyourtokens/releases/latest) (Extensions → ··· →
-Install from VSIX…, or `code --install-extension knowyourtokens.vsix`). It works in VS Code 1.90+,
-Cursor and VSCodium, and reads only the local app.
-
-- **Status bar:** tokens today (or 7 days / all time, setting `knowyourtokens.statusBar`). Hover for
-  all three; click to open the dashboard. When the app isn't running it shows *Tokens: offline*;
-  click to start it.
-- **Sidebar** (the Know Your Tokens icon in the Activity Bar): *Overview* (today, 7 days, all time,
-  cache share, top model and agent), *Projects*, *Sessions* and *Recent requests*. Hover a row for the
-  breakdown; click it to open that project or request in the dashboard.
-- **Dashboard tab:** *Know Your Tokens: Open Dashboard* shows the full dashboard in an editor tab
-  (*Open in Browser* if you prefer a window).
-- **Commands:** Install, Start, Stop, Run Diagnostics and Refresh. They run the CLI in a *Know Your
-  Tokens* terminal, so any question (like installing uv) or error is visible there.
-- **Settings:** `knowyourtokens.refreshInterval` (seconds), `requestCount`, `backendPort` /
-  `dashboardPort` (0 = automatic, including ports the CLI moved to), and `cliCommand`.

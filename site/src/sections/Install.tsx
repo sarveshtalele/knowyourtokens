@@ -77,7 +77,7 @@ const SPECS: [string, string][] = [
   ],
   [
     'Platforms',
-    'Windows, macOS, Linux · Node 18+ · Python via uv (installed for you) or Python 3.10+ · start at login · app shortcuts · VS Code extension',
+    'Windows, macOS, Linux · Node 18+ · Python via uv (installed for you) or Python 3.10+ · start at login · app shortcuts',
   ],
   ['License', 'Apache 2.0: free for personal and commercial use, with credit'],
 ];
