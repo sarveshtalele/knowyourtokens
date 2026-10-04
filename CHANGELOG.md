@@ -7,6 +7,16 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-10-04
+
+### Fixed
+- VS Code extension: the manifest now uses the Marketplace publisher ID `SarveshKishorTalele`, so the
+  `.vsix` can be uploaded to the Visual Studio Marketplace (it was rejected with a publisher mismatch).
+  Its extension ID is now `SarveshKishorTalele.knowyourtokens`.
+
+### Added
+- `docs/assets/logo-128.png`: the logo as a 128×128 PNG.
+
 ## [2.4.0] - 2026-10-03
 
 ### Added
@@ -233,7 +243,8 @@ Python and JS SDKs, and the `telemetry` package share one version number.
 
 - First npm release.
 
-[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.2...v2.4.0
 [2.3.2]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/sarveshtalele/knowyourtokens/compare/v2.3.0...v2.3.1
