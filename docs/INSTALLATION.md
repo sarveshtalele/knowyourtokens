@@ -136,7 +136,7 @@ ingest API ([INTEGRATIONS.md](INTEGRATIONS.md#track-any-agent)).
 - **Reserved ports.** Hyper-V, WSL2 and Docker Desktop reserve TCP port ranges that often include
   8000 (`netsh interface ipv4 show excludedportrange protocol=tcp` lists them). Binding fails with
   `WinError 10013` ("access forbidden"). `start` detects this, picks the next free port, and saves
-  it in `~/.knowyourtokens/ports.json` so the dashboard, collector and VS Code extension all use it.
+  it in `~/.knowyourtokens/ports.json` so the dashboard and collector both use it.
 - **First start is slow.** Python compiles its packages the first time and antivirus scans each
   file, so the backend gets up to 2 minutes on Windows before `start` gives up. Excluding
   `%USERPROFILE%\.knowyourtokens` from real-time scanning speeds this up.

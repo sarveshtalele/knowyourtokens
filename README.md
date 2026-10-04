@@ -140,14 +140,6 @@ Something not working? Run `npx knowyourtokens doctor`: it checks every prerequi
 service and prints the fix for each. Per-OS steps: **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
 Common problems (Windows ports, firewalls, proxies, uv): **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)**.
 
-### VS Code extension
-
-Token totals in the status bar, Overview / Projects / Sessions / Recent requests in the sidebar, and
-the full dashboard in an editor tab. Download
-[`knowyourtokens.vsix`](https://github.com/sarveshtalele/knowyourtokens/releases/latest/download/knowyourtokens.vsix)
-and run `code --install-extension knowyourtokens.vsix` (or Extensions → ··· → Install from VSIX…).
-Works in VS Code 1.90+, Cursor and VSCodium. See [vscode/README.md](vscode/README.md).
-
 ## Everyday commands
 
 ```bash

@@ -325,7 +325,7 @@ Off by default. The daemon applies it hourly:
 - `start`: launches backend, daemon and static server detached. It waits for `/health` instead of
   sleeping (up to 2 minutes for the backend on Windows), and rotates logs. Before launching it probes each
   port; a busy or OS-reserved one (Windows `WinError 10013`) moves to the next free port, saved in
-  `ports.json` for the dashboard proxy, the collector and the VS Code extension. A service that doesn't
+  `ports.json` for the dashboard proxy and the collector. A service that doesn't
   come up gets its log tail plus a diagnosis (`diagnose()` in `run.js`).
 - `stop`/`status`: only act on a PID whose command line is still ours, because PIDs get reused.
 - `static-server.js`: SPA fallback, `/api` + `/ws` reverse proxy, the same Host allowlist as the API
@@ -340,15 +340,6 @@ Off by default. The daemon applies it hourly:
 
 The installer only configures Claude Code (hooks). The other agents need no configuration: the daemon
 finds their files.
-
-## VS Code extension
-
-[`vscode/`](../vscode) is a TypeScript extension bundled with esbuild, with no runtime dependencies. It
-only talks to the local REST API (`/health`, `/api/v1/usage/summary`, `/api/v1/projects`,
-`/api/v1/sessions`, `/api/v1/usage`), resolving ports as setting → env → `ports.json` → default. Views
-are native tree views; the dashboard tab is a webview that frames the local dashboard (the static
-server allows `frame-ancestors 'self' vscode-webview:` only). Start/Install/Doctor run the CLI in an
-integrated terminal so prompts and errors are visible.
 
 ## Integrations
 
@@ -368,7 +359,6 @@ cli/         npm package: installer + process manager + static server
 sdk/python   knowyourtokens-client (PyPI-ready)
 sdk/js       knowyourtokens-client (npm-ready)
 site/        landing page (GitHub Pages)
-vscode/      VS Code extension (status bar, sidebar views, dashboard tab)
 docs/        guides, API reference, OpenAPI document
 scripts/     maintenance scripts (OpenAPI export)
 tests/       Python test suite (collector, reconcile, sources, migration, API, integrations)

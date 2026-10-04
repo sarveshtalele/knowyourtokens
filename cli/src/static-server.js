@@ -32,11 +32,9 @@ for (const h of (env('ALLOWED_HOSTS') || '').split(',')) {
   if (h.trim()) LOCAL_HOSTS.add(h.trim().toLowerCase());
 }
 
-// Framing: only the dashboard tab of the VS Code extension (a vscode-webview: page) may embed the
-// dashboard; every website is still refused (frame-ancestors replaces X-Frame-Options, which can't
-// express an allowlist).
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
   'Content-Security-Policy': [
     "default-src 'self'",
@@ -48,7 +46,7 @@ const SECURITY_HEADERS = {
     "connect-src 'self'",
     "manifest-src 'self'",
     "worker-src 'self'",
-    "frame-ancestors 'self' vscode-webview:",
+    "frame-ancestors 'none'",
     "base-uri 'none'",
     "form-action 'self'",
   ].join('; '),

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Reveal, fadeUp } from '../components/motion';
 
 const REPO = 'https://github.com/sarveshtalele/knowyourtokens';
-const VSIX = `${REPO}/releases/latest/download/knowyourtokens.vsix`;
 
 const PREREQS: [string, string, string][] = [
   [
@@ -226,54 +225,6 @@ export function Guide() {
         <p className="muted small guide-note">
           Still stuck? <a href={`${REPO}/blob/main/docs/TROUBLESHOOTING.md`}>Read the full troubleshooting guide</a> or{' '}
           <a href={`${REPO}/issues/new/choose`}>open an issue</a> with the output of doctor.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-const VS_FEATURES: [string, string][] = [
-  ['Status bar', 'Today’s tokens at a glance, with 7-day and all-time totals on hover.'],
-  ['Sidebar views', 'Overview, Projects, Sessions and Recent requests, refreshed live.'],
-  ['Dashboard in a tab', 'The full dashboard inside VS Code. Click any row to jump to its detail.'],
-  ['One-click setup', 'Install, Start, Stop and Diagnostics from the Command Palette.'],
-];
-
-export function VsCode() {
-  return (
-    <section className="vscode-section" id="vscode" aria-labelledby="vscode-title">
-      <div className="wrap2">
-        <p className="kicker2">VS Code extension</p>
-        <h2 id="vscode-title" className="headline">
-          Your tokens, <span className="muted">right in your editor.</span>
-        </h2>
-        <Reveal className="prereq-grid">
-          {VS_FEATURES.map(([t, d]) => (
-            <motion.div key={t} className="prereq" variants={fadeUp}>
-              <b>{t}</b>
-              <p>{d}</p>
-            </motion.div>
-          ))}
-        </Reveal>
-        <ol className="os-steps">
-          <li>
-            <span>Download the extension</span>
-            <a className="btn btn-accent" href={VSIX}>
-              Download knowyourtokens.vsix
-            </a>
-          </li>
-          <li>
-            <span>In VS Code: Extensions → ··· → Install from VSIX…, or run</span>
-            <code className="mono">code --install-extension knowyourtokens.vsix</code>
-          </li>
-          <li>
-            <span>Open the Know Your Tokens icon in the Activity Bar. Not installed yet? Click Install there.</span>
-            <code className="mono">Know Your Tokens: Open Dashboard</code>
-          </li>
-        </ol>
-        <p className="muted small guide-note">
-          Works with VS Code 1.90+, Cursor and VSCodium. Reads only the local app on 127.0.0.1; nothing leaves your
-          machine.
         </p>
       </div>
     </section>

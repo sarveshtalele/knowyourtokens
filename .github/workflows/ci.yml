@@ -132,24 +132,6 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  vscode:
-    name: VS Code extension
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: vscode
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: vscode/package-lock.json
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run package
-
   cli:
     name: CLI on ${{ matrix.os }} (Node ${{ matrix.node }})
     runs-on: ${{ matrix.os }}

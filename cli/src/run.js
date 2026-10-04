@@ -132,7 +132,7 @@ function describePortProblem(port, code) {
 /**
  * The port to use for a service: the preferred one if it's free, otherwise (unless the user pinned it
  * with an environment variable) the next free one, remembered in ports.json for status, doctor and the
- * VS Code extension. Returns null when nothing usable was found.
+ * dashboard proxy. Returns null when nothing usable was found.
  */
 async function choosePort(kind, preferred, envName) {
   const problem = await portProblem(preferred);

@@ -14,7 +14,7 @@ import { Dock } from './sections/Dock';
 import { Hero } from './sections/Hero';
 import { Highlights } from './sections/Highlights';
 import { Watch } from './sections/Watch';
-import { Guide, VsCode } from './sections/Guide';
+import { Guide } from './sections/Guide';
 import { Install, Specs } from './sections/Install';
 
 export default function App() {
@@ -38,7 +38,6 @@ export default function App() {
         <Dock />
         <Install />
         <Guide />
-        <VsCode />
         <div className="dark-band">
           <Pipeline />
           <Integrations />
